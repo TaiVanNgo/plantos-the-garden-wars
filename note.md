@@ -1,5 +1,18 @@
 # EEET2490-assignment-3
 
+## Files Structures
+
+```
+/headers
+/objects
+/kernel
+/uarts
+.img
+makefile
+```
+
+## Code conventions
+
 src: [https://github.com/MaJerle/c-code-style](https://github.com/MaJerle/c-code-style)
 
 🧠 Convention Case
