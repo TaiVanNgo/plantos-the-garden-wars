@@ -1,7 +1,0 @@
-{
-    "files.associations": {
-        "cli.h": "c",
-        "uart1.h": "c",
-        "uart0.h": "c"
-    }
-}
