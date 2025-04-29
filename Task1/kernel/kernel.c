@@ -2,9 +2,8 @@
 #include "../uart/uart1.h"
 #include "mbox.h"
 #include "framebf.h"
-#include "image.h"
-#include "cli.h"
 
+#include "cli.h"
 
 
 

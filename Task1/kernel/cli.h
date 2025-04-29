@@ -1,4 +1,3 @@
-#define MAX_CMD_SIZE 100
 #ifndef CLI_H
 #define CLI_H
 
@@ -7,7 +6,12 @@
 #include "../uart/uart1.h"
 #include "mbox.h"
 #include "framebf.h"
-#include "image.h"
+
+
+// Define NULL for our use
+#ifndef NULL
+#define NULL ((void *)0)
+#endif
 
 // Define constants
 #define MAX_CMD_SIZE 100
@@ -39,4 +43,3 @@ void cmd_baudrate(char* args);
 void cmd_handshake(char* args);
 
 #endif // CLI_H
-void os_welcome();

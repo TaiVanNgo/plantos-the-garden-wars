@@ -2,18 +2,23 @@
 #include "../uart/uart1.h"
 #include "mbox.h"
 #include "framebf.h"
-#include "image.h"
 
-#define MAX_CMD_SIZE 100
-#define PROMPT "GROS> "
+#include "cli.h"
 
-// Command structure to hold command details
-typedef struct {
-    const char* name;         // Command name
-    const char* brief;        // Brief description for help command
-    const char* details;      // Detailed description for help <command_name>
-    void (*execute)(char* args); // Function to execute the command
-} Command;
+// Define NULL for our use
+#ifndef NULL
+#define NULL ((void *)0)
+#endif
+
+// Custom implementation of strcmp
+int strcmp(const char *s1, const char *s2) {
+    while (*s1 && (*s1 == *s2)) {
+        s1++;
+        s2++;
+    }
+    return *(const unsigned char *)s1 - *(const unsigned char *)s2;
+}
+
 
 // Forward declarations of command functions
 void cmd_help(char* args);
@@ -142,7 +147,6 @@ void cmd_handshake(char* args) {
     uart_puts("\nhandshake: Not yet implemented.\n");
 }
 
-// Main CLI function
 void cli() {
     static char cli_buffer[MAX_CMD_SIZE];
     static int index = 0;
@@ -202,8 +206,6 @@ void cli() {
     // Display the prompt and current buffer contents
     display_prompt(cli_buffer);
 }
-
-
 
 void os_welcome() {
     uart_puts("\n\n                     ___           ___           ___           ___           ___           ___                         ___                         ___           ___     \n"
