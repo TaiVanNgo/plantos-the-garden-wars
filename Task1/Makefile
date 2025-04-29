@@ -4,6 +4,17 @@ CFILES = $(wildcard ./kernel/*.c)
 OFILES = $(CFILES:./kernel/%.c=./build/%.o)
 GCCFLAGS = -Wall -O2 -ffreestanding -nostdinc -nostdlib
 
+# Detect operating system
+ifeq ($(OS),Windows_NT)
+    # Windows
+    RM = del /Q
+    RM_PATH = .\build\kernel8.elf .\build\*.o *.img
+else
+    # macOS/Linux
+    RM = rm -f
+    RM_PATH = ./build/kernel8.elf ./build/*.o *.img
+endif
+
 all: clean uart1_build kernel8.img run1
 uart1: clean uart1_build kernel8.img run1
 uart0: clean uart0_build kernel8.img run0
@@ -28,7 +39,7 @@ kernel8.img: ./build/boot.o ./build/uart.o $(OFILES)
 	aarch64-none-elf-objcopy -O binary ./build/kernel8.elf kernel8.img
 
 clean:
-	del .\build\kernel8.elf .\build\*.o *.img
+	$(RM) $(RM_PATH)
 
 # Run emulation with QEMU
 run1: 
