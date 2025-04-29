@@ -15,8 +15,12 @@
 
 // Define constants
 #define MAX_CMD_SIZE 100
-#define PROMPT "GROS> "
-
+#define PROMPT "NexOS> "
+// Command history setup
+#define MAX_HISTORY 10
+static char history[MAX_HISTORY][MAX_CMD_SIZE];
+static int history_count = 0;
+static int history_pos = 0; // Current position in history for navigation
 // Command structure to hold command details
 typedef struct {
     const char* name;         // Command name
@@ -41,5 +45,5 @@ void cmd_clear(char* args);
 void cmd_showinfo(char* args);
 void cmd_baudrate(char* args);
 void cmd_handshake(char* args);
-
+void add_to_history(char* command);
 #endif // CLI_H

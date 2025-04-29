@@ -2,13 +2,7 @@
 #include "../uart/uart1.h"
 #include "mbox.h"
 #include "framebf.h"
-
 #include "cli.h"
-
-// Define NULL for our use
-#ifndef NULL
-#define NULL ((void *)0)
-#endif
 
 // Custom implementation of strcmp
 int strcmp(const char *s1, const char *s2) {
@@ -20,12 +14,7 @@ int strcmp(const char *s1, const char *s2) {
 }
 
 
-// Forward declarations of command functions
-void cmd_help(char* args);
-void cmd_clear(char* args);
-void cmd_showinfo(char* args);
-void cmd_baudrate(char* args);
-void cmd_handshake(char* args);
+
 
 // Command table
 Command commands[] = {
@@ -33,37 +22,39 @@ Command commands[] = {
      "Show brief information of all commands", 
      "help - Show brief information of all commands\n"
      "help <command_name> - Show full information of a specific command\n"
-     "Example: GROS> help showinfo",
+     "Example: NexOS> help showinfo", // Updated to NexOS
      cmd_help},
     {"clear", 
      "Clear screen (scrolls down to current cursor position)", 
      "clear - Clear screen (scrolls down to current cursor position)\n"
-     "Example: GROS> clear",
+     "Example: NexOS> clear", // Updated to NexOS
      cmd_clear},
     {"showinfo", 
      "Show board revision and MAC address", 
      "showinfo - Show board revision (value and information) and board MAC address in correct format\n"
-     "Example: GROS> showinfo",
+     "Example: NexOS> showinfo", // Updated to NexOS
      cmd_showinfo},
     {"baudrate", 
      "Change the baudrate of current UART", 
      "baudrate - Allow the user to change the baudrate of current UART being used\n"
      "Supports baud rates: 9600, 19200, 38400, 57600, 115200 bits per second\n"
-     "Example: GROS> baudrate (not yet implemented)",
+     "Example: NexOS> baudrate (not yet implemented)", // Updated to NexOS
      cmd_baudrate},
     {"handshake", 
      "Turn on/off CTS/RTS handshaking on current UART", 
      "handshake - Allow the user to turn on/off CTS/RTS handshaking on current UART if possible\n"
-     "Example: GROS> handshake (not yet implemented)",
+     "Example: NexOS> handshake (not yet implemented)", // Updated to NexOS
      cmd_handshake}
 };
 
 const int num_commands = sizeof(commands) / sizeof(commands[0]);
 
+
+
 // Clear the current line on the terminal
 void clear_line() {
     uart_puts("\r");
-    for (int i = 0; i < MAX_CMD_SIZE + 6; i++) { // +6 for "GROS> "
+    for (int i = 0; i < MAX_CMD_SIZE + 7; i++) { // +7 for "NexOS> "
         uart_sendc(' ');
     }
     uart_puts("\r");
@@ -95,6 +86,29 @@ void parse_command(char* buffer, char** cmd_name, char** args) {
     if (**args == '\0') {
         *args = NULL; // No arguments
     }
+}
+
+// Add a command to history
+void add_to_history(char* command) {
+    if (command[0] == '\0') return; // Don't store empty commands
+
+    // Shift history if full
+    if (history_count == MAX_HISTORY) {
+        for (int i = 1; i < MAX_HISTORY; i++) {
+            for (int j = 0; j < MAX_CMD_SIZE; j++) {
+                history[i - 1][j] = history[i][j];
+            }
+        }
+        history_count--;
+    }
+
+    // Add new command to history
+    for (int i = 0; i < MAX_CMD_SIZE; i++) {
+        history[history_count][i] = command[i];
+        if (command[i] == '\0') break;
+    }
+    history_count++;
+    history_pos = history_count; // Reset position to the end
 }
 
 // Command implementations
@@ -157,8 +171,44 @@ void cli() {
     // Clear the current line
     clear_line();
 
+    // Handle escape sequences for arrow keys
+    if (c == 27) { // Escape character
+        char next = uart_getc(); // Should be '['
+        if (next == '[') {
+            char arrow = uart_getc(); // Should be 'A' (up) or 'B' (down)
+            if (arrow == 'A') { // Up arrow
+                if (history_count > 0 && history_pos > 0) {
+                    history_pos--;
+                    // Copy history command to buffer
+                    for (int i = 0; i < MAX_CMD_SIZE; i++) {
+                        cli_buffer[i] = history[history_pos][i];
+                        if (cli_buffer[i] == '\0') break;
+                    }
+                    index = 0;
+                    while (cli_buffer[index] != '\0') index++;
+                }
+            } else if (arrow == 'B') { // Down arrow
+                if (history_pos < history_count) {
+                    history_pos++;
+                    if (history_pos == history_count) {
+                        // Clear buffer if at the end (new command)
+                        cli_buffer[0] = '\0';
+                        index = 0;
+                    } else {
+                        // Copy history command to buffer
+                        for (int i = 0; i < MAX_CMD_SIZE; i++) {
+                            cli_buffer[i] = history[history_pos][i];
+                            if (cli_buffer[i] == '\0') break;
+                        }
+                        index = 0;
+                        while (cli_buffer[index] != '\0') index++;
+                    }
+                }
+            }
+        }
+    }
     // Handle backspace (ASCII 127)
-    if (c == 127) {
+    else if (c == 127) {
         if (index > 0) {
             index--; // Move index back
             cli_buffer[index] = '\0'; // Null-terminate at the new end
@@ -177,6 +227,9 @@ void cli() {
         uart_puts("\nGot command: ");
         uart_puts(cli_buffer);
         uart_puts("\n");
+
+        // Add command to history
+        add_to_history(cli_buffer);
 
         // Parse the command and arguments
         char* cmd_name;
@@ -222,3 +275,4 @@ void os_welcome() {
 
     uart_puts("Developed By Thai Duong, only Thai Duong - S39878955.\n\n");
 }
+
