@@ -14,12 +14,12 @@ void uart_init()
 
 	/* Set GPIO14 and GPIO15 to be pl011 TX/RX which is ALT0	*/
 	r = GPFSEL1;
-	r &= ~((7 << 12) | (7 << 15));			// clear bits 17-12 (FSEL15, FSEL14)
+	r &= ~((7 << 12) | (7 << 15));		// clear bits 17-12 (FSEL15, FSEL14)
 	r |= (0b100 << 12) | (0b100 << 15); // Set value 0b100 (select ALT0: TXD0/RXD0)
 	GPFSEL1 = r;
 
 	/* enable GPIO 14, 15 */
-#ifdef RPI3	 // RPI3
+#ifdef RPI3	   // RPI3
 	GPPUD = 0; // No pull up/down control
 	// Toogle clock to flush GPIO setup
 	r = 150;
@@ -158,10 +158,23 @@ void uart_dec(int num)
 	for (int i = 0; i < len; i++)
 	{
 		int digit = num % 10; // get last digit
-		num = num / 10;				// remove last digit from the number
+		num = num / 10;		  // remove last digit from the number
 		str[len - (i + 1)] = digit + '0';
 	}
 	str[len] = '\0';
 
 	uart_puts(str);
+}
+
+unsigned int uart_isReadByteReady()
+{
+	return (!(UART0_FR & UART0_FR_RXFE));
+}
+
+unsigned char getUart()
+{
+	unsigned char ch = 0;
+	if (uart_isReadByteReady())
+		ch = uart_getc();
+	return ch;
 }

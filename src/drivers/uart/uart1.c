@@ -8,11 +8,11 @@ void uart_init()
 	unsigned int r;
 
 	/* initialize UART */
-	AUX_ENABLE |= 1;	 // enable mini UART (UART1)
-	AUX_MU_CNTL = 0;	 // stop transmitter and receiver
-	AUX_MU_LCR = 3;		 // 8-bit mode (also enable bit 1 to be used for RPI3)
-	AUX_MU_MCR = 0;		 // clear RTS (request to send)
-	AUX_MU_IER = 0;		 // disable interrupts
+	AUX_ENABLE |= 1;   // enable mini UART (UART1)
+	AUX_MU_CNTL = 0;   // stop transmitter and receiver
+	AUX_MU_LCR = 3;	   // 8-bit mode (also enable bit 1 to be used for RPI3)
+	AUX_MU_MCR = 0;	   // clear RTS (request to send)
+	AUX_MU_IER = 0;	   // disable interrupts
 	AUX_MU_IIR = 0xc6; // enable and clear FIFOs
 	AUX_MU_BAUD = 270; // configure 115200 baud rate [system_clk_freq/(baud_rate*8) - 1]
 
@@ -21,12 +21,12 @@ void uart_init()
 
 	/* map UART1 to GPIO pins 14 and 15 */
 	r = GPFSEL1;
-	r &= ~((7 << 12) | (7 << 15));			// clear bits 17-12 (FSEL15, FSEL14)
+	r &= ~((7 << 12) | (7 << 15));		// clear bits 17-12 (FSEL15, FSEL14)
 	r |= (0b010 << 12) | (0b010 << 15); // set value 0b010 (select ALT5: TXD1/RXD1)
 	GPFSEL1 = r;
 
 	/* enable GPIO 14, 15 */
-#ifdef RPI3	 // RPI3
+#ifdef RPI3	   // RPI3
 	GPPUD = 0; // No pull up/down control
 	// Toogle clock to flush GPIO setup
 	r = 150;
@@ -141,10 +141,23 @@ void uart_dec(int num)
 	for (int i = 0; i < len; i++)
 	{
 		int digit = num % 10; // get last digit
-		num = num / 10;				// remove last digit from the number
+		num = num / 10;		  // remove last digit from the number
 		str[len - (i + 1)] = digit + '0';
 	}
 	str[len] = '\0';
 
 	uart_puts(str);
+}
+
+unsigned int uart_isReadByteReady()
+{
+	return (AUX_MU_LSR & 0x01);
+}
+
+unsigned char getUart()
+{
+	unsigned char ch = 0;
+	if (uart_isReadByteReady())
+		ch = uart_getc();
+	return ch;
 }
