@@ -1,4 +1,5 @@
 #include "../include/video.h"
+#include "../include/framebf.h"
 
 // Implementation of video functions
 void video_init(Video *video)

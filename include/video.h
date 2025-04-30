@@ -28,5 +28,5 @@ typedef struct
 const unsigned int *video_get_current_frame(Video *video);
 void video_next_frame(Video *video);
 void video_init(Video *video);
-
+void play_video(Video *video, int pos_x, int pos_y);
 #endif // VIDEO_H
