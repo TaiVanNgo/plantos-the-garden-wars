@@ -3,7 +3,8 @@
 # Directories
 SRC_DIR = src
 ARCH_DIR = $(SRC_DIR)/arch
-UART_DIR = uart
+DRIVERS_DIR = $(SRC_DIR)/drivers
+UART_DIR = $(DRIVERS_DIR)/uart
 BUILD_DIR = build
 
 # Files
