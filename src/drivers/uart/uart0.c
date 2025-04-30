@@ -120,6 +120,22 @@ void uart_puts(const char *s)
 	}
 }
 
+void uart_hex(unsigned int num)
+{
+	uart_puts("0x");
+	for (int pos = 28; pos >= 0; pos = pos - 4)
+	{
+
+		// Get highest 4-bit nibble
+		char digit = (num >> pos) & 0xF;
+
+		/* Convert to ASCII code */
+		// 0-9 => '0'-'9', 10-15 => 'A'-'F'
+		digit += (digit > 9) ? (-10 + 'A') : '0';
+		uart_sendc(digit);
+	}
+}
+
 /*
 **
 * Display a value in decimal format
