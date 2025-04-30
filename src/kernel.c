@@ -6,7 +6,7 @@
 #include "../include/video.h"
 #include "../include/utils.h"
 
-// #define TASK1
+#define TASK1
 #ifdef TASK1
 void main()
 {
@@ -15,7 +15,7 @@ void main()
     os_welcome(); // Display welcome message
 
     // Display initial prompt
-    uart_puts("BOMOS> ");
+    uart_puts("BitOS> ");
 
     // Run CLI
     while (1)

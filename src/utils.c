@@ -1,3 +1,20 @@
+/**
+ * @brief Compare two strings.
+ *
+ * @param s1 First string to compare.
+ * @param s2 Second string to compare.
+ * @return Negative if s1 < s2, zero if s1 == s2, positive if s1 > s2.
+ */
+int strcmp(const char *s1, const char *s2)
+{
+  while (*s1 && (*s1 == *s2))
+  {
+    s1++;
+    s2++;
+  }
+  return *(const unsigned char *)s1 - *(const unsigned char *)s2;
+}
+
 void delay_ms(unsigned int ms)
 {
   // Each iteration takes about 4 cycles

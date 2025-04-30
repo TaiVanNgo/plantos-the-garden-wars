@@ -24,7 +24,7 @@
 // CLI configuration constants
 #define MAX_CMD_SIZE 100 // Maximum length of a command string
 #define MAX_HISTORY 10   // Maximum number of commands to store in history
-#define PROMPT "NexOS> " // CLI prompt displayed to the user
+#define PROMPT "BitOS> " // CLI prompt displayed to the user
 
 /**
  * @brief Structure to define a CLI command.

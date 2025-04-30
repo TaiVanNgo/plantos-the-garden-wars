@@ -12,23 +12,7 @@
  */
 
 #include "../include/cmd.h"
- 
- // === Utility Functions ===
- 
- /**
-  * @brief Compare two strings (custom implementation since no standard library).
-  *
-  * @param s1 First string to compare.
-  * @param s2 Second string to compare.
-  * @return Negative if s1 < s2, zero if s1 == s2, positive if s1 > s2 (lexicographically).
-  */
- int strcmp(const char *s1, const char *s2) {
-     while (*s1 && (*s1 == *s2)) {
-         s1++;
-         s2++;
-     }
-     return *(const unsigned char *)s1 - *(const unsigned char *)s2;
- }
+#include "utils.h"
  
  /**
   * @brief Simple busy-wait delay function.
@@ -398,15 +382,6 @@
      }
  
      uart_puts("Developed By Thai Duong, only Thai Duong - S39878955.\n\n");
- 
-     // Simulate blinking "BitOS Loaded!" twice
-     for (int i = 0; i < 2; i++) {
-         uart_puts("BitOS Loaded!\r");
-         delay(500); // Show for 500ms
-         uart_puts("             \r"); // Clear the line (13 spaces to overwrite)
-         delay(500); // Hide for 500ms
-     }
-     uart_puts("\n\n"); // Extra newlines for spacing after blinking
  }
  
  /**
