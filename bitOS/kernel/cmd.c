@@ -11,11 +11,7 @@
  * @author Thai Duong (S39878955)
  */
 
- #include "../uart/uart0.h"
- #include "../uart/uart1.h"
- #include "mbox.h"
- #include "framebf.h"
- #include "cli.h"
+#include "../include/cmd.h"
  
  // === Utility Functions ===
  

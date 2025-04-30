@@ -1,9 +1,8 @@
 #include "../uart/uart0.h"
 #include "../uart/uart1.h"
-#include "mbox.h"
-#include "framebf.h"
-
-#include "cli.h"
+#include "../include/mbox.h"
+#include "../include/framebf.h"
+#include "../include/cmd.h"
 
 void main()
 {
