@@ -336,10 +336,15 @@
   * @todo Implement this command to fetch and display board information.
   */
  void cmd_showinfo(char *args) {
-     uart_puts("\nshowinfo: Not yet implemented.\n");
-     // TODO: Use mailbox interface (mbox.h) to fetch board revision and MAC address.
- }
- 
+    uint32_t revision = get_board_revision();
+    if (revision == 0) {
+        uart_puts("\nFailed to get board revision.\n");
+    } else {
+        uart_puts("\nBoard Revision: ");
+        uart_hex(revision);
+        uart_puts("\n");
+    }
+}
  /**
   * @brief Command: Change the baudrate of the current UART.
   *

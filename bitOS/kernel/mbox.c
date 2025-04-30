@@ -80,3 +80,28 @@ int mbox_call(unsigned int buffer_addr, unsigned char channel)
 
     return 0;
 }
+
+/**
+ * Get the board revision using the mailbox property tags.
+ *
+ * @return The board revision as a 32-bit unsigned integer, or 0 on failure.
+ */
+uint32_t get_board_revision(void) {
+    // Step 1: Prepare the mailbox buffer
+    mBuf[0] = 7 * 4;            // Buffer size in bytes (7 words * 4 bytes)
+    mBuf[1] = MBOX_REQUEST;     // Request code (0 initially)
+    mBuf[2] = 0x00010002;       // Tag: Get board revision
+    mBuf[3] = 4;                // Value buffer size (4 bytes for u32 response)
+    mBuf[4] = 0;                // Request length (0 bytes)
+    mBuf[5] = 0;                // Value buffer (will hold the board revision)
+    mBuf[6] = MBOX_TAG_LAST;    // End tag (0)
+
+    // Step 2: Make the mailbox call
+    if (mbox_call(ADDR(mBuf), MBOX_CH_PROP)) {
+        // Step 3: Return the board revision from mBuf[5]
+        return mBuf[5];
+    }
+
+    // Return 0 on failure
+    return 0;
+}
