@@ -1,7 +1,7 @@
 // ----------------------------------- framebf.c -------------------------------------
 #include "../include/mbox.h"
-#include "../uart/uart0.h"
-#include "../uart/uart1.h"
+#include "../include/uart1.h"
+#include "../include/uart0.h"
 
 // Use RGBA32 (32 bits for each pixel)
 #define COLOR_DEPTH 32
@@ -16,11 +16,12 @@ unsigned int width, height, pitch;
  * (declare as pointer of unsigned char to access each byte) */
 unsigned char *fb;
 
-enum {
-    FONT_WIDTH     = 8,  // Width in pixels
-    FONT_HEIGHT    = 8,  // Height in pixel
-    FONT_BPG       = 8,  // Bytes per character glyph
-    FONT_BPL       = 1,  // Bytes per line
+enum
+{
+    FONT_WIDTH = 8,      // Width in pixels
+    FONT_HEIGHT = 8,     // Height in pixel
+    FONT_BPG = 8,        // Bytes per character glyph
+    FONT_BPL = 1,        // Bytes per line
     FONT_NUMGLYPHS = 224 // Total number of characters in the font
 };
 
@@ -123,11 +124,12 @@ void drawPixelARGB32(int x, int y, unsigned int attr)
     // Access 32-bit together
     *((unsigned int *)(fb + offs)) = attr;
 }
-void drawWhiteSquare(int x, int y, int size) {
+void drawWhiteSquare(int x, int y, int size)
+{
     // Draw top dashes
     drawRectARGB32(x - 1, y - 1, x + size, y - 1, 0xFFFFFFFF, 1); // Top border
     // Draw left and right borders
-    drawRectARGB32(x - 1, y, x - 1, y + size, 0xFFFFFFFF, 1); // Left border
+    drawRectARGB32(x - 1, y, x - 1, y + size, 0xFFFFFFFF, 1);       // Left border
     drawRectARGB32(x + size, y, x + size, y + size, 0xFFFFFFFF, 1); // Right border
     // Draw bottom dashes
     drawRectARGB32(x - 1, y + size, x + size, y + size, 0xFFFFFFFF, 1); // Bottom border
@@ -139,7 +141,7 @@ void drawWhiteSquare(int x, int y, int size) {
 //         if (*str == '\r') {
 //             x = 0;
 //         } else if (*str == '\n') {
-//             x = 0; 
+//             x = 0;
 //             y += (FONT_HEIGHT * zoom);
 //         } else {
 //             drawChar(*str, x, y, attr, zoom);
@@ -240,11 +242,12 @@ void drawLCircle(int center_x, int center_y, int radius, unsigned int attr, int 
     }
 }
 
-void drawImage(const unsigned int pixel_data[], int pos_x, int pos_y, int width, int height){
-    for (int i = 0; i < width*height; i++){
+void drawImage(const unsigned int pixel_data[], int pos_x, int pos_y, int width, int height)
+{
+    for (int i = 0; i < width * height; i++)
+    {
         int x = pos_x + (i % width);
         int y = pos_y + (i / width);
         drawPixelARGB32(x, y, pixel_data[i]);
     }
 }
-
