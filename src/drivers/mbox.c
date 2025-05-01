@@ -113,6 +113,99 @@ uint32_t get_board_revision(void)
 }
 
 /**
+ * @brief Parse and display board information based on revision code
+ * 
+ * @param revision Board revision code
+ */
+void print_board_info(uint32_t revision)
+{
+    uart_puts("Board Information: ");
+    
+    // Parse revision code to determine board model
+    if (revision & (1 << 23))
+    {
+        // New-style revision code (bit 23 is set)
+        uint32_t model = (revision & 0xFF0) >> 4;
+        uint32_t pcb_rev = (revision & 0xF);
+        uint32_t memory = (revision & 0x700000) >> 20;
+        uint32_t manufacturer = (revision & 0xF0000) >> 16;
+        
+        // Display board model
+        uart_puts("Raspberry Pi ");
+        switch (model)
+        {
+            case 0: uart_puts("A"); break;
+            case 1: uart_puts("B"); break;
+            case 2: uart_puts("A+"); break;
+            case 3: uart_puts("B+"); break;
+            case 4: uart_puts("2B"); break;
+            case 6: uart_puts("CM1"); break;
+            case 8: uart_puts("3B"); break;
+            case 9: uart_puts("Zero"); break;
+            case 10: uart_puts("CM3"); break;
+            case 12: uart_puts("Zero W"); break;
+            case 13: uart_puts("3B+"); break;
+            case 14: uart_puts("3A+"); break;
+            case 16: uart_puts("CM3+"); break;
+            case 17: uart_puts("4B"); break;
+            default: uart_puts("Unknown"); break;
+        }
+        
+        // Display memory size
+        uart_puts(", Memory: ");
+        switch (memory)
+        {
+            case 0: uart_puts("256MB"); break;
+            case 1: uart_puts("512MB"); break;
+            case 2: uart_puts("1GB"); break;
+            case 3: uart_puts("2GB"); break;
+            case 4: uart_puts("4GB"); break;
+            case 5: uart_puts("8GB"); break;
+            default: uart_puts("Unknown"); break;
+        }
+        
+        // Display manufacturer
+        uart_puts(", Manufacturer: ");
+        switch (manufacturer)
+        {
+            case 0: uart_puts("Sony UK"); break;
+            case 1: uart_puts("Egoman"); break;
+            case 2: uart_puts("Embest"); break;
+            case 3: uart_puts("Sony Japan"); break;
+            case 4: uart_puts("Embest"); break;
+            case 5: uart_puts("Stadium"); break;
+            default: uart_puts("Unknown"); break;
+        }
+        
+        // Display PCB revision
+        uart_puts(", PCB Rev: ");
+        uart_dec(pcb_rev);
+    }
+    else
+    {
+        // Old-style revision code
+        switch (revision)
+        {
+            case 0x2: uart_puts("Raspberry Pi B Rev 1.0 (256MB)"); break;
+            case 0x3: uart_puts("Raspberry Pi B Rev 1.0 + ECN0001 (256MB)"); break;
+            case 0x4: uart_puts("Raspberry Pi B Rev 2.0 (256MB)"); break;
+            case 0x5: uart_puts("Raspberry Pi B Rev 2.0 (256MB)"); break;
+            case 0x6: uart_puts("Raspberry Pi B Rev 2.0 (256MB)"); break;
+            case 0x7: uart_puts("Raspberry Pi A (256MB)"); break;
+            case 0x8: uart_puts("Raspberry Pi A (256MB)"); break;
+            case 0x9: uart_puts("Raspberry Pi A (256MB)"); break;
+            case 0xd: uart_puts("Raspberry Pi B Rev 2.0 (512MB)"); break;
+            case 0xe: uart_puts("Raspberry Pi B Rev 2.0 (512MB)"); break;
+            case 0xf: uart_puts("Raspberry Pi B Rev 2.0 (512MB)"); break;
+            case 0x10: uart_puts("Raspberry Pi B+ (512MB)"); break;
+            case 0x11: uart_puts("Raspberry Pi Compute Module (512MB)"); break;
+            case 0x12: uart_puts("Raspberry Pi A+ (256MB)"); break;
+            default: uart_puts("Unknown Raspberry Pi Model"); break;
+        }
+    }
+}
+
+/**
  * Get the MAC address using the mailbox property tags.
  *
  * @param mac Buffer to store the 6-byte MAC address
