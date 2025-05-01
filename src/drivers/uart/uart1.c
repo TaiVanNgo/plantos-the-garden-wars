@@ -161,3 +161,8 @@ unsigned char getUart()
 		ch = uart_getc();
 	return ch;
 }
+
+void uart_toggle_rts_cts() {
+    /* Check if RTS and CTS are enabled */
+    uart_puts("Currently at Uart1, no support for RTS and CTS\n");
+}

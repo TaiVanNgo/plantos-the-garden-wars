@@ -57,6 +57,7 @@ void cmd_clear(char *args);     // Clear the terminal screen
 void cmd_showinfo(char *args);  // Show board information (not implemented)
 void cmd_baudrate(char *args);  // Change UART baudrate (not implemented)
 void cmd_handshake(char *args); // Toggle UART handshaking (not implemented)
+void cmd_kaboom(char *args);   // Display an ASCII explosion animation (not implemented)
 void os_welcome(void);
 
 #endif // CLI_H
