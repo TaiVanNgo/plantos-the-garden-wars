@@ -479,7 +479,7 @@ void cmd_handshake(char *args)
      {
          uart_puts(banner[i]);
          uart_puts("\n");
-         delay(200); // 200ms delay between lines
+         delay(150); // 200ms delay between lines
      }
  
      uart_puts("Developed By Thai Duong, only Thai Duong - S39878955.\n\n");
