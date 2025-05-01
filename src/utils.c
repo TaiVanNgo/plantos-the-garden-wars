@@ -1,3 +1,5 @@
+#include "utils.h"
+
 /**
  * @brief Compare two strings.
  *
@@ -25,4 +27,43 @@ void delay_ms(unsigned int ms)
   {
     asm volatile("nop"); // No operation, prevents optimization
   }
+}
+
+/**
+ * @brief Simple string to integer conversion function
+ *
+ * @param str The string to convert
+ * @return int The converted integer value, or -1 if invalid
+ */
+int str_to_int(const char *str)
+{
+    int result = 0;
+    
+    // Handle null pointer
+    if (str == NULL)
+        return -1;
+    
+    // Skip leading whitespace
+    while (*str == ' ' || *str == '\t')
+        str++;
+    
+    // Check if string is empty
+    if (*str == '\0')
+        return -1;
+    
+    // Process each digit
+    while (*str >= '0' && *str <= '9') {
+        // Check for overflow
+        if (result > (__INT_MAX__ - (*str - '0')) / 10)
+            return -1;
+        
+        result = result * 10 + (*str - '0');
+        str++;
+    }
+    
+    // Check if there are non-digit characters
+    if (*str != '\0' && *str != ' ' && *str != '\t' && *str != '\r' && *str != '\n')
+        return -1;
+    
+    return result;
 }
