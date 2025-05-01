@@ -493,18 +493,55 @@ void cmd_showinfo(char *args)
         uart_puts("\nFailed to get MAC address.\n");
     }
 }
+
 /**
  * @brief Command: Change the baudrate of the current UART.
  *
  * @param args The new baudrate value (e.g., "9600").
- * @todo Implement this command to change UART baudrate.
  */
 void cmd_baudrate(char *args)
 {
-    uart_puts("\nbaudrate: Not yet implemented.\n");
     // TODO: Parse args to get baudrate, validate, and update UART settings.
     // Supported baudrates: 9600, 19200, 38400, 57600, 115200.
+
+    if (args == NULL)
+    {
+        uart_puts("Error: No baudrate specified.\n");
+        uart_puts("Usage: baudrate <9600|19200|38400|57600|115200>\n");
+        return;
+    }
+
+    int baudrate = str_to_int(args); // Convert argument to integer 
+
+    // Validate the baudrate
+    switch (baudrate)
+    {
+        case 9600:
+        case 19200:
+        case 38400:
+        case 57600:
+        case 115200:
+            uart_puts("Setting baudrate to ");
+            uart_dec(baudrate);
+            uart_puts("...\n");
+
+            if (set_uart_baudrate(baudrate) == 0)
+            {
+                uart_puts("Baudrate successfully updated.\n");
+            }
+            else
+            {
+                uart_puts("Failed to update baudrate.\n");
+            }
+            break;
+
+        default:
+            uart_puts("Error: Unsupported baudrate.\n");
+            uart_puts("Usage: baudrate <9600|19200|38400|57600|115200>\n");
+            break;
+    }
 }
+
 
 /**
  * @brief Command: Turn on/off CTS/RTS handshaking on the current UART.

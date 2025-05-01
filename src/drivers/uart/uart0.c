@@ -178,3 +178,28 @@ unsigned char getUart()
 		ch = uart_getc();
 	return ch;
 }
+
+int set_uart_baudrate(int baudrate)
+{
+    // Check if baudrate is valid
+    if (baudrate <= 0)
+        return -1; // Invalid baudrate
+    
+    // UART clock frequency (48MHz)
+    const unsigned int UART_CLOCK = 48000000;
+    
+    // Calculate divider using formula: Divider = UART_CLOCK/(16 * Baud)
+    float divider = (float)UART_CLOCK / (16.0f * baudrate);
+    
+    // Calculate integer and fractional parts
+    // UART0_IBRD = integer part of Divider
+    // UART0_FBRD = (Fractional part * 64) + 0.5
+    unsigned int ibrd = (unsigned int)divider;
+    unsigned int fbrd = (unsigned int)((divider - ibrd) * 64.0f + 0.5f);
+    
+    // Assign calculated values to registers
+    UART0_IBRD = ibrd;
+    UART0_FBRD = fbrd;
+    
+    return 0; // Success
+}

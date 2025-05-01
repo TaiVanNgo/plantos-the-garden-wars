@@ -161,3 +161,14 @@ unsigned char getUart()
 		ch = uart_getc();
 	return ch;
 }
+
+int set_uart_baudrate(int baudrate)
+{
+	// Calculate the value to set in AUX_MU_BAUD register
+	unsigned int baud_value = (250000000 / (baudrate * 8)) - 1;
+
+	// Set the new baud rate
+	AUX_MU_BAUD = baud_value;
+
+	return 0; // Success
+}
