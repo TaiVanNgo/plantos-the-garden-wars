@@ -1,4 +1,5 @@
 // ----------------------------------- framebf.c -------------------------------------
+#include "../include/framebf.h"
 #include "../include/mbox.h"
 #include "../include/uart0.h"
 #include "../include/uart1.h"
@@ -29,14 +30,14 @@ void framebf_init()
     mBuf[2] = MBOX_TAG_SETPHYWH; // Set physical width-height
     mBuf[3] = 8;                 // Value size in bytes
     mBuf[4] = 0;                 // REQUEST CODE = 0
-    mBuf[5] = 1024;              // Value(width)
-    mBuf[6] = 768;               // Value(height)
+    mBuf[5] = PHYSICAL_WIDTH;    // Value(width)
+    mBuf[6] = PHYSICAL_HEIGHT;   // Value(height)
 
     mBuf[7] = MBOX_TAG_SETVIRTWH; // Set virtual width-height
     mBuf[8] = 8;
     mBuf[9] = 0;
-    mBuf[10] = 1024;
-    mBuf[11] = 768;
+    mBuf[10] = VIRTUAL_WIDTH;
+    mBuf[11] = VIRTUAL_HEIGHT;
 
     mBuf[12] = MBOX_TAG_SETVIRTOFF; // Set virtual offset
     mBuf[13] = 8;
@@ -103,7 +104,7 @@ void framebf_init()
     }
 }
 
-void drawPixelARGB32(int x, int y, unsigned int attr)
+void draw_pixel(int x, int y, unsigned int attr)
 {
     int offs = (y * pitch) + (COLOR_DEPTH / 8 * x);
 
@@ -118,25 +119,25 @@ void drawPixelARGB32(int x, int y, unsigned int attr)
     *((unsigned int *)(fb + offs)) = attr;
 }
 
-void drawRectARGB32(int x1, int y1, int x2, int y2, unsigned int attr, int fill)
+void draw_rect(int x1, int y1, int x2, int y2, unsigned int attr, int fill)
 {
     for (int y = y1; y <= y2; y++)
         for (int x = x1; x <= x2; x++)
         {
             if ((x == x1 || x == x2) || (y == y1 || y == y2))
-                drawPixelARGB32(x, y, attr);
+                draw_pixel(x, y, attr);
             else if (fill)
-                drawPixelARGB32(x, y, attr);
+                draw_pixel(x, y, attr);
         }
 }
 
 // Function to draw line
-void drawLine(int x1, int y1, int x2, int y2, unsigned int attr)
+void draw_line(int x1, int y1, int x2, int y2, unsigned int attr)
 {
     for (int x = x1; x <= x2; x++)
     {
         int y = (float)(y1 - y2) / (x1 - x2) * (x - x1) + y1;
-        drawPixelARGB32(x, y, attr);
+        draw_pixel(x, y, attr);
     }
 }
 
@@ -170,7 +171,7 @@ double sqrt(double number)
 }
 
 // Function to draw circle
-void drawCircle(int center_x, int center_y, int radius, unsigned int attr, int fill)
+void draw_circle(int center_x, int center_y, int radius, unsigned int attr, int fill)
 {
     // Draw the circle when going on x side
     for (int x = center_x - radius; x <= center_x + radius; x++)
@@ -180,15 +181,15 @@ void drawCircle(int center_x, int center_y, int radius, unsigned int attr, int f
         int upper_y = center_y + dy;
         int lower_y = center_y - dy;
 
-        drawPixelARGB32(x, upper_y, attr);
-        drawPixelARGB32(x, lower_y, attr);
+        draw_pixel(x, upper_y, attr);
+        draw_pixel(x, lower_y, attr);
 
         // Fill the circle, draw a line between lower_y and upper_y
         if (fill)
         {
             for (int y = lower_y; y <= upper_y; y++)
             {
-                drawPixelARGB32(x, y, attr);
+                draw_pixel(x, y, attr);
             }
         }
     }
@@ -204,56 +205,104 @@ void drawCircle(int center_x, int center_y, int radius, unsigned int attr, int f
         int left_x = center_x - dx;
         int right_x = center_x + dx;
 
-        drawPixelARGB32(left_x, y, attr);
-        drawPixelARGB32(right_x, y, attr);
+        draw_pixel(left_x, y, attr);
+        draw_pixel(right_x, y, attr);
     }
 }
 
-void drawImage(const unsigned int pixel_data[], int pos_x, int pos_y, int width, int height)
+void draw_image(const unsigned int pixel_data[], int pos_x, int pos_y, int width, int height)
 {
     for (int i = 0; i < width * height; i++)
     {
         int x = pos_x + (i % width);
         int y = pos_y + (i / width);
-        drawPixelARGB32(x, y, pixel_data[i]);
+        draw_pixel(x, y, pixel_data[i]);
     }
 }
 
+void clear_screen()
+{
+    // Total number of 32-bit pixels
+    unsigned int pixel_count = height * pitch / 4;
+
+    // Get pointer to framebuffer as 32-bit integers
+    unsigned int *fb_ptr = (unsigned int *)fb;
+
+    // Fill entire framebuffer with zeros (black)
+    for (unsigned int i = 0; i < pixel_count; i++)
+    {
+        fb_ptr[i] = BLACK;
+    }
+}
+
+/**
+ * Draws a single character at the specified position
+ *
+ * @param ch character to show
+ * @param x x-coordinate for the top-left corner
+ * @param y y-coordinate for the top-left corner
+ * @param attr the color for character (32-bit ARGB format)
+ */
 void draw_char(unsigned char ch, int x, int y, unsigned int attr)
 {
+    // Calculate pointer to the glyph data for the given character
+    // If the character out of range, default to the first glyph
     unsigned char *glyph = (unsigned char *)&font + (ch < FONT_NUMGLYPHS ? ch : 0) * FONT_BPG;
 
+    // Loop through each row of the character
     for (int i = 0; i < FONT_HEIGHT; i++)
     {
+        // Loop through each column of the character
         for (int j = 0; j < FONT_WIDTH; j++)
         {
+            // Extract current pixel
             unsigned char mask = 1 << j;
+
+            // if bit is set in the glyph data, use that color
+            // Otherwise, use black (0)
             unsigned int color = (*glyph & mask) ? attr : 0;
 
-            drawPixelARGB32(x + j, y + i, color);
+            // Draw the pixel
+            draw_pixel(x + j, y + i, color);
         }
+        // Move to the next line of the glyph data
         glyph += FONT_BPL;
     }
 }
 
+/**
+ * Draws a string of text at the specified position
+ *
+ * @param x Starting x-coordinate
+ * @param y Starting y-coordinate
+ * @param s string to draw
+ * @param attr the color to use for text
+ */
 void draw_string(int x, int y, char *s, unsigned int attr)
 {
+    // Go each character of the given string
     while (*s)
     {
         if (*s == '\r')
         {
+            // Carriage return - Move to the start of the line
             x = 0;
         }
         else if (*s == '\n')
         {
+            // newline - go to the next line
             x = 0;
             y += FONT_HEIGHT;
         }
         else
         {
+            // Draw the current character
             draw_char(*s, x, y, attr);
+
+            // Move to the next charater position
             x += FONT_WIDTH;
         }
+        // Move to the next character in string
         s++;
     }
 }

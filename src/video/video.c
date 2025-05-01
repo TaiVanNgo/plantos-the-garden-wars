@@ -34,7 +34,7 @@ void play_video(Video *video, int pos_x, int pos_y)
 	{
 		// Get current frame and draw it
 		const unsigned int *frame = video_get_current_frame(video);
-		drawImage(frame, pos_x, pos_y, FRAME_WIDTH, FRAME_HEIGHT);
+		draw_image(frame, pos_x, pos_y, FRAME_WIDTH, FRAME_HEIGHT);
 
 		// Move to next frame
 		video_next_frame(video);
