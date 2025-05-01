@@ -219,7 +219,7 @@ void drawImage(const unsigned int pixel_data[], int pos_x, int pos_y, int width,
     }
 }
 
-void drawChar(unsigned char ch, int x, int y, unsigned char attr)
+void draw_char(unsigned char ch, int x, int y, unsigned int attr)
 {
     unsigned char *glyph = (unsigned char *)&font + (ch < FONT_NUMGLYPHS ? ch : 0) * FONT_BPG;
 
@@ -228,15 +228,15 @@ void drawChar(unsigned char ch, int x, int y, unsigned char attr)
         for (int j = 0; j < FONT_WIDTH; j++)
         {
             unsigned char mask = 1 << j;
-            unsigned char col = (*glyph & mask) ? attr & 0x0f : (attr & 0xf0) >> 4;
+            unsigned int color = (*glyph & mask) ? attr : 0;
 
-            drawPixelARGB32(x + j, y + i, col);
+            drawPixelARGB32(x + j, y + i, color);
         }
         glyph += FONT_BPL;
     }
 }
 
-void drawString(int x, int y, char *s, unsigned char attr)
+void draw_string(int x, int y, char *s, unsigned int attr)
 {
     while (*s)
     {
@@ -251,7 +251,7 @@ void drawString(int x, int y, char *s, unsigned char attr)
         }
         else
         {
-            drawChar(*s, x, y, attr);
+            draw_char(*s, x, y, attr);
             x += FONT_WIDTH;
         }
         s++;

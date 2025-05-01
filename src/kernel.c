@@ -37,8 +37,8 @@ void main()
 
     // drawRectARGB32(0, 0, 200, 200, 0xFF0000, 1);
 
-    drawChar('O', 30, 30, 0xFF0000);
-    drawString(100, 100, "Hello world!", 0xFF0000);
+    draw_char('O', 30, 30, RED);
+    draw_string(100, 100, "Hello world!", RED);
 
     // Run CLI
     while (1)
