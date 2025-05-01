@@ -178,3 +178,13 @@ unsigned char getUart()
 		ch = uart_getc();
 	return ch;
 }
+void uart_toggle_rts_cts() {
+    /* Check if RTS and CTS are enabled */
+    if (UART0_CR & (UART0_CR_RTSEN | UART0_CR_CTSEN)) {
+        /* If enabled, disable RTS and CTS */
+        UART0_CR &= ~(UART0_CR_RTSEN | UART0_CR_CTSEN);
+    } else {
+        /* If disabled, enable RTS and CTS */
+        UART0_CR |= (UART0_CR_RTSEN | UART0_CR_CTSEN);
+    }
+}

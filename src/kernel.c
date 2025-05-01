@@ -6,7 +6,7 @@
 #include "../include/video.h"
 #include "../include/utils.h"
 
-// #define TASK1
+ #define TASK1
 // #define TASK2_VID
 
 void display_team_members()

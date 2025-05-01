@@ -21,8 +21,8 @@ IMAGE = $(BUILD_DIR)/kernel8.img
 # Detect operating system
 ifeq ($(OS),Windows_NT)
     # Windows
-    RM = del /Q
-    RM_PATH = $(BUILD_DIR)\kernel8.elf $(BUILD_DIR)\*.o $(BUILD_DIR)\**\*.o $(BUILD_DIR)\*.img
+    RM = del /S /Q
+    RM_PATH = $(BUILD_DIR)\kernel8.elf $(BUILD_DIR)\*.o $(BUILD_DIR)\*.img
     MKDIR = if not exist $(BUILD_DIR) mkdir $(BUILD_DIR) & if not exist $(BUILD_DIR)\video mkdir $(BUILD_DIR)\video
 else
     # macOS/Linux
@@ -39,7 +39,7 @@ endif
 all: clean uart1_build build_core build_video $(IMAGE)_video run1
 
 # Build basic OS without video
-basic: clean uart1_build build_core $(IMAGE) run1
+basic: clean uart0_build build_core $(IMAGE) run0
 
 # Build OS including video
 video: clean uart1_build build_core build_video $(IMAGE)_video run1

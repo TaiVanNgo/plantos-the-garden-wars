@@ -148,12 +148,14 @@
 /* TDR = Test Data Register */
 #define UART0_TDR (*(volatile unsigned int *)(UART0_BASE + 0x8C))
 
+#define UART_HANDSHAKE_SUPPORTED 1
+
 /* Function prototypes */
 void uart_init();
 void uart_sendc(char c);
 char uart_getc();
 void uart_puts(const char *s);
-
+void uart_toggle_rts_cts();
 void uart_hex(unsigned int num);
 unsigned int uart_isReadByteReady();
 unsigned char getUart();
