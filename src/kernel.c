@@ -6,7 +6,7 @@
 #include "../include/video.h"
 #include "../include/utils.h"
 
-#define TASK1
+// #define TASK1
 #ifdef TASK1
 void main()
 {
@@ -31,14 +31,14 @@ void main()
 
     framebf_init();
 
-    Video vid;
-    video_init(&vid);
+    // Video vid;
+    // video_init(&vid);
+    // play_video(&vid, 100, 100);
 
-    play_video(&vid, 100, 100);
+    // drawRectARGB32(0, 0, 200, 200, 0xFF0000, 1);
 
-    // Test pattern - draw a red square
-    const unsigned int *frame = video_get_current_frame(&vid);
-    drawImage(frame, 100, 100, FRAME_WIDTH, FRAME_HEIGHT);
+    drawChar('O', 30, 30, 0xFF0000);
+    drawString(100, 100, "Hello world!", 0xFF0000);
 
     // Run CLI
     while (1)

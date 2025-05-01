@@ -1,6 +1,6 @@
 #include "../include/video.h"
 #include "../include/framebf.h"
-
+#include "../include/utils.h"
 // Implementation of video functions
 void video_init(Video *video)
 {
