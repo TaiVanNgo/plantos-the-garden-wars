@@ -20,7 +20,7 @@ unsigned int width, height, pitch;
 unsigned char *fb;
 
 /**
- * Set screen resolution to 1024x768
+ * Set screen resolution to 800x600
  */
 void framebf_init()
 {
@@ -262,8 +262,11 @@ void draw_char(unsigned char ch, int x, int y, unsigned int attr)
             // Otherwise, use black (0)
             unsigned int color = (*glyph & mask) ? attr : 0;
 
-            // Draw the pixel
-            draw_pixel(x + j, y + i, color);
+            if (color != 0)
+            {
+                // Draw the pixel
+                draw_pixel(x + j, y + i, color);
+            }
         }
         // Move to the next line of the glyph data
         glyph += FONT_BPL;

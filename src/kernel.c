@@ -5,12 +5,14 @@
 #include "../include/cmd.h"
 #include "../include/video.h"
 #include "../include/utils.h"
-
- #define TASK1
+#include "../include/background.h"
+// #define TASK1
 // #define TASK2_VID
 
 void display_team_members()
 {
+    draw_image(BACKGROUND, 0, 0, 984, 600);
+
     // TItle
     draw_string(200, 20, "EMBEDDED SYSTEMS: OPERATING SYSTEMS AND INTERFACING", RED);
 
