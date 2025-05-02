@@ -59,7 +59,7 @@ Command commands[] = {
      "Change the baudrate of current UART",
      "baudrate - Allow the user to change the baudrate of current UART being used\n"
      "Supports baud rates: 9600, 19200, 38400, 57600, 115200 bits per second\n"
-     "Example: BitOS> baudrate (not yet implemented)",
+     "Example: BitOS> baudrate 9600",
      cmd_baudrate},
     {"handshake",
      "Turn on/off CTS/RTS handshaking on current UART",
