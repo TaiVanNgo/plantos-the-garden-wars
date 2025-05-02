@@ -598,7 +598,7 @@ int handle_tab_completion(char *cli_buffer, int *index)
     }
     
     // Check if we're completing a command or an argument
-    if (args_part == NULL || args_part[0] == '\0')
+    if (args_part == NULL)
     {
         // Command completion
         Command *matches[num_commands];
