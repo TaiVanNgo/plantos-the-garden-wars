@@ -11,26 +11,37 @@
 
 void display_team_members()
 {
-    draw_image(BACKGROUND, 0, 0, 984, 600);
+    draw_image(BACKGROUND, 0, 0, 800, 600);
+
+    int isLen = 0;
+    if (isLen == 0)
+    {
+        int len = calculate_string_width("EMBEDDED SYSTEMS", 2);
+        uart_puts("LENGTH OF THE STRING");
+        uart_dec(len);
+        uart_puts("\n");
+        isLen = 1;
+    }
 
     // TItle
-    draw_string(200, 20, "EMBEDDED SYSTEMS: OPERATING SYSTEMS AND INTERFACING", RED);
+    draw_string(260, 20, "EMBEDDED SYSTEMS", RED, 2);
+    draw_string(200, 40, "OPERATING SYSTEMS AND INTERFACING", RED, 2);
 
     // Member 1
     draw_circle(160, 70, 8, GREEN_YELLOW, 1);
-    draw_string(180, 65, "NGO VAN TAI (S3974892)", GREEN_YELLOW);
+    draw_string(180, 65, "NGO VAN TAI (S3974892)", GREEN_YELLOW, 1);
 
     // Member 2
     draw_circle(160, 90, 8, BRIGHT_BLUE, 1);
-    draw_string(180, 85, "HUYNH TAN PHAT (S3929218)", BRIGHT_BLUE);
+    draw_string(180, 85, "HUYNH TAN PHAT (S3929218)", BRIGHT_BLUE, 1);
 
     // Member 3
     draw_circle(160, 110, 8, SALMON_RED, 1);
-    draw_string(180, 105, "HUYNH THAI DUONG (S3978955)", SALMON_RED);
+    draw_string(180, 105, "HUYNH THAI DUONG (S3978955)", SALMON_RED, 1);
 
     // Member 4
     draw_circle(160, 130, 8, THISTLE, 1);
-    draw_string(180, 125, "NGUYEN PHAM ANH THU (S3926793)", THISTLE);
+    draw_string(180, 125, "NGUYEN PHAM ANH THU (S3926793)", THISTLE, 1);
 
     // Pulse circle animation
     int pulse = 0;

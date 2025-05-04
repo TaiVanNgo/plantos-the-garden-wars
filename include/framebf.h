@@ -9,7 +9,7 @@
 #define WHITE 0xFFFFFF
 #define BLACK 0x000000
 #define LAVENDER 0xE6E6FA
-#define THISTLE 0xD8BFD8	
+#define THISTLE 0xD8BFD8
 #define PULSE_CIRCLE_COLOR 0x000080
 
 #define PHYSICAL_WIDTH 800
@@ -24,5 +24,5 @@ void draw_line(int x1, int y1, int x2, int y2, unsigned int attr);
 void draw_circle(int center_x, int center_y, int radius, unsigned int attr, int fill);
 void draw_image(const unsigned int pixel_data[], int pos_x, int pos_y, int width, int height);
 void clear_screen();
-void draw_char(unsigned char ch, int x, int y, unsigned int attr);
-void draw_string(int x, int y, char *s, unsigned int attr);
+void draw_char(unsigned char ch, int x, int y, unsigned int attr, int scale);
+void draw_string(int x, int y, char *s, unsigned int attr, int scale);

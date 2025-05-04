@@ -242,26 +242,29 @@ void clear_screen()
  * @param x x-coordinate for the top-left corner
  * @param y y-coordinate for the top-left corner
  * @param attr the color for character (32-bit ARGB format)
+ * @param scale
  */
-void draw_char(unsigned char ch, int x, int y, unsigned int attr)
+void draw_char(unsigned char ch, int x, int y, unsigned int attr, int scale)
 {
     // Calculate pointer to the glyph data for the given character
     // If the character out of range, default to the first glyph
     unsigned char *glyph = (unsigned char *)&font + (ch < FONT_NUMGLYPHS ? ch : 0) * FONT_BPG;
 
     // Loop through each row of the character
-    for (int i = 0; i < FONT_HEIGHT; i++)
+    for (int i = 0; i < FONT_HEIGHT * scale; i++)
     {
         // Loop through each column of the character
-        for (int j = 0; j < FONT_WIDTH; j++)
+        for (int j = 0; j < FONT_WIDTH * scale; j++)
         {
             // Extract current pixel
-            unsigned char mask = 1 << j;
+            // unsigned char mask = 1 << (j / scale);
+            unsigned char mask = 1 << ((j / scale) % FONT_WIDTH);
 
             // if bit is set in the glyph data, use that color
             // Otherwise, use black (0)
             unsigned int color = (*glyph & mask) ? attr : 0;
 
+            // do not draw the background
             if (color != 0)
             {
                 // Draw the pixel
@@ -269,7 +272,11 @@ void draw_char(unsigned char ch, int x, int y, unsigned int attr)
             }
         }
         // Move to the next line of the glyph data
-        glyph += FONT_BPL;
+        // glyph += (i % scale) ? 0 : FONT_BPL;
+        if ((i + 1) % scale == 0)
+        {
+            glyph += FONT_BPL;
+        }
     }
 }
 
@@ -280,8 +287,9 @@ void draw_char(unsigned char ch, int x, int y, unsigned int attr)
  * @param y Starting y-coordinate
  * @param s string to draw
  * @param attr the color to use for text
+ * @param scale
  */
-void draw_string(int x, int y, char *s, unsigned int attr)
+void draw_string(int x, int y, char *s, unsigned int attr, int scale)
 {
     // Go each character of the given string
     while (*s)
@@ -295,17 +303,36 @@ void draw_string(int x, int y, char *s, unsigned int attr)
         {
             // newline - go to the next line
             x = 0;
-            y += FONT_HEIGHT;
+            y += (FONT_HEIGHT * scale);
         }
         else
         {
             // Draw the current character
-            draw_char(*s, x, y, attr);
+            draw_char(*s, x, y, attr, scale);
 
             // Move to the next charater position
-            x += FONT_WIDTH;
+            x += (FONT_WIDTH * scale);
         }
         // Move to the next character in string
         s++;
     }
+}
+
+int calculate_string_width(char *s, int scale)
+{
+    int length = 0;
+    int cnt = 0;
+
+    // Count the number of visible chars
+    while (s[cnt] != '\0')
+    {
+        // Skip characters that don't render
+        if (s[cnt] != '\r' && s[cnt] != '\n')
+        {
+            length++;
+        }
+        cnt++;
+    }
+
+    return length * FONT_WIDTH * scale;
 }
