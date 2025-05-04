@@ -11,8 +11,8 @@
  * @author Thai Duong (S39878955)
  */
 
- #include "../include/cmd.h"
- #include "utils.h"
+ #include "../../include/cmd.h"
+ #include "../../include/utils.h"
  
  /**
   * @brief Simple busy-wait delay function.
