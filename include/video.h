@@ -43,7 +43,6 @@ extern const unsigned int FRAME34[];
 extern const unsigned int FRAME35[];
 extern const unsigned int FRAME36[];
 
-
 // Video structure definition
 typedef struct
 {
@@ -57,4 +56,6 @@ void video_next_frame(Video *video);
 void video_init(Video *video);
 void play_video(Video *video, int pos_x, int pos_y, int max_frames);
 void render_next_frame(Video *video, int pos_x, int pos_y);
+void wipe_transition();
+
 #endif // VIDEO_H

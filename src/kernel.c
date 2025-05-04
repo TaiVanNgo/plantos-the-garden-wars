@@ -10,36 +10,8 @@
 // #define TASK1
 #define TASK2_VID
 
-unsigned int create_color(unsigned char r, unsigned char g, unsigned char b)
-{
-    return (r << 16) | (g << 8) | b;
-}
-
-void simple_wipe_transition(void)
-{
-    for (int y = 0; y < BACKGROUND_HEIGHT; y++)
-    {
-        // Only draw the current row that's being revealed
-        for (int x = 0; x < BACKGROUND_WIDTH; x++)
-        {
-            // Calculate the index in the background image array
-            int index = y * BACKGROUND_WIDTH + x;
-
-            // Draw just this pixel at the correct location
-            draw_pixel(x, y, BACKGROUND[index]);
-        }
-        // Short delay to control the animation speed
-        delay_ms(20);
-    }
-
-    clear_screen();
-}
-
 void display_team_members()
 {
-    // Draw background_image first
-    draw_image(BACKGROUND, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT);
-
     // Title
     draw_string(260, 20, "EMBEDDED SYSTEMS", RED, 2);
     draw_string(150, 50, "OPERATING SYSTEMS AND INTERFACING", RED, 2);
@@ -132,7 +104,7 @@ void main()
     Video vid;
     video_init(&vid);
     play_video(&vid, 0, 0, vid.total_frames);
-    simple_wipe_transition();
+    wipe_transition();
     display_team_members();
     // Run CLI
     while (1)
