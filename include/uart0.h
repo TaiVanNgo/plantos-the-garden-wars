@@ -159,3 +159,4 @@ void uart_toggle_rts_cts();
 void uart_hex(unsigned int num);
 unsigned int uart_isReadByteReady();
 unsigned char getUart();
+int set_uart_baudrate(int baudrate);

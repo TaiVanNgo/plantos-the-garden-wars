@@ -6,8 +6,34 @@
 #include "../include/video.h"
 #include "../include/utils.h"
 #include "../include/background.h"
+
 // #define TASK1
-// #define TASK2_VID
+#define TASK2_VID
+
+unsigned int create_color(unsigned char r, unsigned char g, unsigned char b)
+{
+    return (r << 16) | (g << 8) | b;
+}
+
+void simple_wipe_transition(void)
+{
+    for (int y = 0; y < 600; y++)
+    {
+        // Only draw the current row that's being revealed
+        for (int x = 0; x < 984; x++)
+        {
+            // Calculate the index in the background image array
+            int index = y * 984 + x;
+
+            // Draw just this pixel at the correct location
+            draw_pixel(x, y, BACKGROUND[index]);
+        }
+        // Short delay to control the animation speed
+        delay_ms(20);
+    }
+
+    clear_screen();
+}
 
 void display_team_members()
 {
@@ -105,8 +131,9 @@ void main()
 
     Video vid;
     video_init(&vid);
-    play_video(&vid, 0, 50);
-
+    play_video(&vid, 0, 0, vid.total_frames);
+    simple_wipe_transition();
+    display_team_members();
     // Run CLI
     while (1)
     {

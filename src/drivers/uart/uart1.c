@@ -166,3 +166,15 @@ void uart_toggle_rts_cts() {
     /* Check if RTS and CTS are enabled */
     uart_puts("Currently at Uart1, no support for RTS and CTS\n");
 }
+
+
+int set_uart_baudrate(int baudrate)
+{
+	// Calculate the value to set in AUX_MU_BAUD register
+	unsigned int baud_value = (250000000 / (baudrate * 8)) - 1;
+
+	// Set the new baud rate
+	AUX_MU_BAUD = baud_value;
+
+	return 0; // Success
+}

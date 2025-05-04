@@ -2,6 +2,9 @@
 #include "../include/framebf.h"
 #include "../include/utils.h"
 // Implementation of video functions
+// Function to convert an integer to string
+
+
 void video_init(Video *video)
 {
 	video->frames[0] = FRAME1;
@@ -14,7 +17,33 @@ void video_init(Video *video)
 	video->frames[7] = FRAME8;
 	video->frames[8] = FRAME9;
 	video->frames[9] = FRAME10;
-	video->total_frames = sizeof(video->frames) / sizeof(video->frames[0]); // Update this based on number of frames;
+	video->frames[10] = FRAME11;
+	video->frames[11] = FRAME12;
+	video->frames[12] = FRAME13;
+	video->frames[13] = FRAME14;
+	video->frames[14] = FRAME15;
+	video->frames[15] = FRAME16;
+	video->frames[16] = FRAME17;
+	video->frames[17] = FRAME18;
+	video->frames[18] = FRAME19;
+	video->frames[19] = FRAME20;
+	video->frames[20] = FRAME21;
+	video->frames[21] = FRAME22;
+	video->frames[22] = FRAME23;
+	video->frames[23] = FRAME24;
+	video->frames[24] = FRAME25;
+	video->frames[25] = FRAME26;
+	video->frames[26] = FRAME27;
+	video->frames[27] = FRAME28;
+	video->frames[28] = FRAME29;
+	video->frames[29] = FRAME30;
+	video->frames[30] = FRAME31;
+	video->frames[31] = FRAME32;
+	video->frames[32] = FRAME33;
+	video->frames[33] = FRAME34;
+	video->frames[34] = FRAME35;
+	video->frames[35] = FRAME36;
+	video->total_frames = 36; 
 	video->current_frame = 0;
 }
 
@@ -27,19 +56,40 @@ void video_next_frame(Video *video)
 {
 	video->current_frame = (video->current_frame + 1) % video->total_frames;
 }
-
-void play_video(Video *video, int pos_x, int pos_y)
+void render_next_frame(Video *video, int pos_x, int pos_y)
 {
-	while (1)
-	{
-		// Get current frame and draw it
-		const unsigned int *frame = video_get_current_frame(video);
-		draw_image(frame, pos_x, pos_y, FRAME_WIDTH, FRAME_HEIGHT);
+	delay_ms(700);
+    const unsigned int *frame = video_get_current_frame(video);
+    draw_image(frame, pos_x, pos_y, FRAME_WIDTH, FRAME_HEIGHT);
 
-		// Move to next frame
-		video_next_frame(video);
 
-		// Add delay between frames
-		delay_ms(300);
-	}
+    video_next_frame(video);
+}
+void play_video(Video *video, int pos_x, int pos_y, int max_frames)
+{
+	char total_frames_str[12];
+    for (int i = 0; i < video->total_frames; i++) {
+		// Convert the total_frames integer to string
+		int_to_str(video->total_frames, total_frames_str);
+
+		uart_puts("Playing frame: ");
+		char current_frame_str[12];
+		int_to_str(i, current_frame_str);
+		uart_puts(current_frame_str); 
+		uart_puts("\n");
+        // Get the current frame
+        const unsigned int *frame = video_get_current_frame(video);
+        
+        // Draw the current frame
+        draw_image(frame, pos_x, pos_y, FRAME_WIDTH, FRAME_HEIGHT);
+
+        // Move to the next frame
+        video_next_frame(video);
+
+        // Add a delay between frames (e.g., 700ms)
+        delay_ms(600);
+    }
+
+    // After all frames have been displayed, print completion message
+    uart_puts("Video playback completed!\n");
 }
