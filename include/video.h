@@ -16,6 +16,33 @@ extern const unsigned int FRAME7[];
 extern const unsigned int FRAME8[];
 extern const unsigned int FRAME9[];
 extern const unsigned int FRAME10[];
+extern const unsigned int FRAME11[];
+extern const unsigned int FRAME12[];
+extern const unsigned int FRAME13[];
+extern const unsigned int FRAME14[];
+extern const unsigned int FRAME15[];
+extern const unsigned int FRAME16[];
+extern const unsigned int FRAME17[];
+extern const unsigned int FRAME18[];
+extern const unsigned int FRAME19[];
+extern const unsigned int FRAME20[];
+extern const unsigned int FRAME21[];
+extern const unsigned int FRAME22[];
+extern const unsigned int FRAME23[];
+extern const unsigned int FRAME24[];
+extern const unsigned int FRAME25[];
+extern const unsigned int FRAME26[];
+extern const unsigned int FRAME27[];
+extern const unsigned int FRAME28[];
+extern const unsigned int FRAME29[];
+extern const unsigned int FRAME30[];
+extern const unsigned int FRAME31[];
+extern const unsigned int FRAME32[];
+extern const unsigned int FRAME33[];
+extern const unsigned int FRAME34[];
+extern const unsigned int FRAME35[];
+extern const unsigned int FRAME36[];
+
 
 // Video structure definition
 typedef struct

@@ -7,7 +7,7 @@
 #include "../include/utils.h"
 #include "../include/background.h"
 // #define TASK1
-// #define TASK2_VID
+#define TASK2_VID
 
 void display_team_members()
 {
