@@ -317,22 +317,3 @@ void draw_string(int x, int y, char *s, unsigned int attr, int scale)
         s++;
     }
 }
-
-int calculate_string_width(char *s, int scale)
-{
-    int length = 0;
-    int cnt = 0;
-
-    // Count the number of visible chars
-    while (s[cnt] != '\0')
-    {
-        // Skip characters that don't render
-        if (s[cnt] != '\r' && s[cnt] != '\n')
-        {
-            length++;
-        }
-        cnt++;
-    }
-
-    return length * FONT_WIDTH * scale;
-}

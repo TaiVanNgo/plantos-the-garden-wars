@@ -11,37 +11,29 @@
 
 void display_team_members()
 {
+    // Draw background_image first
     draw_image(BACKGROUND, 0, 0, 800, 600);
 
-    int isLen = 0;
-    if (isLen == 0)
-    {
-        int len = calculate_string_width("EMBEDDED SYSTEMS", 2);
-        uart_puts("LENGTH OF THE STRING");
-        uart_dec(len);
-        uart_puts("\n");
-        isLen = 1;
-    }
-
-    // TItle
+    // Title
     draw_string(260, 20, "EMBEDDED SYSTEMS", RED, 2);
-    draw_string(200, 40, "OPERATING SYSTEMS AND INTERFACING", RED, 2);
+    draw_string(150, 50, "OPERATING SYSTEMS AND INTERFACING", RED, 2);
 
     // Member 1
-    draw_circle(160, 70, 8, GREEN_YELLOW, 1);
-    draw_string(180, 65, "NGO VAN TAI (S3974892)", GREEN_YELLOW, 1);
+
+    draw_circle(160, 80, 8, GREEN_YELLOW, 1);
+    draw_string(200, 75, "NGUYEN PHAM ANH THU (S3926793)", GREEN_YELLOW, 2);
 
     // Member 2
-    draw_circle(160, 90, 8, BRIGHT_BLUE, 1);
-    draw_string(180, 85, "HUYNH TAN PHAT (S3929218)", BRIGHT_BLUE, 1);
+    draw_circle(160, 100, 8, BRIGHT_BLUE, 1);
+    draw_string(200, 95, "HUYNH TAN PHAT (S3929218)", BRIGHT_BLUE, 2);
 
     // Member 3
-    draw_circle(160, 110, 8, SALMON_RED, 1);
-    draw_string(180, 105, "HUYNH THAI DUONG (S3978955)", SALMON_RED, 1);
+    draw_circle(160, 120, 8, SALMON_RED, 1);
+    draw_string(200, 115, "HUYNH THAI DUONG (S3978955)", SALMON_RED, 2);
 
     // Member 4
-    draw_circle(160, 130, 8, THISTLE, 1);
-    draw_string(180, 125, "NGUYEN PHAM ANH THU (S3926793)", THISTLE, 1);
+    draw_circle(160, 140, 8, THISTLE, 1);
+    draw_string(200, 135, "NGO VAN TAI (S3974892)", THISTLE, 2);
 
     // Pulse circle animation
     int pulse = 0;
@@ -63,14 +55,14 @@ void display_team_members()
                 pulse_dir = 1;
         }
         // Clear previous left circle
-        draw_circle(170, 20, 15, PULSE_CIRCLE_COLOR, 1);
+        draw_circle(210, 20, 15, PULSE_CIRCLE_COLOR, 1);
         // Draw new pulse left circle
-        draw_circle(170, 20, pulse, WHITE, 1);
+        draw_circle(210, 20, pulse, WHITE, 1);
 
         // Clear previous right circle
-        draw_circle(630, 20, 15, PULSE_CIRCLE_COLOR, 1);
+        draw_circle(550, 20, 15, PULSE_CIRCLE_COLOR, 1);
         // Draw new pulse right circle
-        draw_circle(630, 20, pulse, WHITE, 1);
+        draw_circle(550, 20, pulse, WHITE, 1);
 
         // Process UART input
         char c = getUart();

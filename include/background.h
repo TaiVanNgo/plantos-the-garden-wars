@@ -1,1 +1,1 @@
-const unsigned int BACKGROUND[];
+extern const unsigned int BACKGROUND[];
