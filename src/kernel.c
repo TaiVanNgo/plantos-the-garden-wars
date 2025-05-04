@@ -166,7 +166,7 @@ void main()
 
     Video vid;
     video_init(&vid);
-    play_video(&vid, 0, 50, vid.total_frames); 
+    play_video(&vid, 0, 0, vid.total_frames); 
     simple_wipe_transition();
     display_team_members();
     // Run CLI
