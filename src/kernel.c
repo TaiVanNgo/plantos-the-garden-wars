@@ -6,7 +6,8 @@
 #include "../include/video.h"
 #include "../include/utils.h"
 #include "../include/background.h"
-// #define TASK1
+//#include "background.c"
+ #define TASK1
 // #define TASK2_VID
 
 void display_team_members()
