@@ -7,6 +7,42 @@
  * @param s2 Second string to compare.
  * @return Negative if s1 < s2, zero if s1 == s2, positive if s1 > s2.
  */
+
+ void int_to_str(int num, char* str)
+{
+    int i = 0;
+    
+    // Handle the special case for 0
+    if (num == 0) {
+        str[i++] = '0';
+    }
+    
+    // Handle the negative numbers (if you want to handle negative integers)
+    if (num < 0) {
+        str[i++] = '-';
+        num = -num;
+    }
+
+    // Convert each digit to string
+    int start = i;
+    while (num > 0) {
+        str[i++] = (num % 10) + '0';  
+        num /= 10;
+    }
+    
+    str[i] = '\0';
+
+    int end = i - 1;
+    while (start < end) {
+        char temp = str[start];
+        str[start] = str[end];
+        str[end] = temp;
+        start++;
+        end--;
+    }
+}
+
+
 int strcmp(const char *s1, const char *s2)
 {
   while (*s1 && (*s1 == *s2))

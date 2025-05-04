@@ -2,7 +2,7 @@
 #define VIDEO_H
 
 #define FRAME_WIDTH 800
-#define FRAME_HEIGHT 500
+#define FRAME_HEIGHT 600
 #define FRAME_DELAY 100000
 
 // Define in frames.c
@@ -47,7 +47,7 @@ extern const unsigned int FRAME36[];
 // Video structure definition
 typedef struct
 {
-    const unsigned int *frames[10];
+    const unsigned int *frames[100];
     int current_frame;
     int total_frames;
 } Video;
@@ -55,5 +55,6 @@ typedef struct
 const unsigned int *video_get_current_frame(Video *video);
 void video_next_frame(Video *video);
 void video_init(Video *video);
-void play_video(Video *video, int pos_x, int pos_y);
+void play_video(Video *video, int pos_x, int pos_y, int max_frames);
+void render_next_frame(Video *video, int pos_x, int pos_y);
 #endif // VIDEO_H
