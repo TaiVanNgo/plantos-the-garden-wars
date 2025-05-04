@@ -17,13 +17,13 @@ unsigned int create_color(unsigned char r, unsigned char g, unsigned char b)
 
 void simple_wipe_transition(void)
 {
-    for (int y = 0; y < 600; y++)
+    for (int y = 0; y < BACKGROUND_HEIGHT; y++)
     {
         // Only draw the current row that's being revealed
-        for (int x = 0; x < 984; x++)
+        for (int x = 0; x < BACKGROUND_WIDTH; x++)
         {
             // Calculate the index in the background image array
-            int index = y * 984 + x;
+            int index = y * BACKGROUND_WIDTH + x;
 
             // Draw just this pixel at the correct location
             draw_pixel(x, y, BACKGROUND[index]);
@@ -38,7 +38,7 @@ void simple_wipe_transition(void)
 void display_team_members()
 {
     // Draw background_image first
-    draw_image(BACKGROUND, 0, 0, 800, 600);
+    draw_image(BACKGROUND, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT);
 
     // Title
     draw_string(260, 20, "EMBEDDED SYSTEMS", RED, 2);
