@@ -8,10 +8,16 @@
 #include "../include/background.h"
 
 // #define TASK1
-#define TASK2_VID
+// #define TASK2_VID
 
-void display_team_members()
+void display_team_members(int show_bg)
 {
+    // if show background
+    if (show_bg)
+    {
+        draw_image(BACKGROUND, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT);
+    }
+
     // Title
     draw_string(260, 20, "EMBEDDED SYSTEMS", RED, 2);
     draw_string(150, 50, "OPERATING SYSTEMS AND INTERFACING", RED, 2);
@@ -105,7 +111,7 @@ void main()
     video_init(&vid);
     play_video(&vid, 0, 0, vid.total_frames);
     wipe_transition();
-    display_team_members();
+    display_team_members(0);
     // Run CLI
     while (1)
     {
@@ -120,7 +126,7 @@ void main()
     uart_init();
     framebf_init();
 
-    display_team_members();
+    display_team_members(1);
 
     while (1)
     {
