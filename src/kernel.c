@@ -85,7 +85,7 @@ void main()
     os_welcome(); // Display welcome message
 
     // Display initial prompt
-    uart_puts("BitOS> ");
+    uart_puts("PlantOS> ");
 
     // Run CLI
     while (1)

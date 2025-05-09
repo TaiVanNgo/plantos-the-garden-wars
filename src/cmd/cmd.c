@@ -1,184 +1,178 @@
 /**
  * @file cli.c
- * @brief Command Line Interface (CLI) implementation for BitOS.
+ * @brief Command Line Interface (CLI) implementation for PlantOS.
  *
- * This file implements the CLI for BitOS, a lightweight operating system designed
+ * This file implements the CLI for PlantOS, a lightweight operating system designed
  * for embedded systems (e.g., Raspberry Pi). The CLI allows users to interact with
  * the system via UART by entering commands such as "help", "clear", etc.
  * Features include command parsing, history navigation (up/down arrow keys),
- * and a welcome banner with animation.
+ * and a welcome banner.
  *
  * @author Thai Duong (S39878955)
  */
 
- #include "../../include/cmd.h"
- #include "../../include/utils.h"
- #include "cmd-utils.c"
- 
- /**
-  * @brief Simple busy-wait delay function.
-  *
-  * @param milliseconds Approximate delay in milliseconds (needs tuning for accuracy).
-  * @note This is a rough approximation and may need adjustment based on system clock speed.
-  */
- void delay(int milliseconds)
- {
-     volatile unsigned int count = milliseconds * 100000; // Example: 100,000 cycles per ms
-     while (count--)
-     {
-         asm("nop"); // No operation to keep the loop busy
-     }
- }
- 
- // === Command Definitions ===
- 
- /**
-  * @brief Table of supported CLI commands.
-  *
-  * Each entry defines a command with its name, brief description, detailed help text,
-  * and function pointer to its implementation.
-  */
- Command commands[] = {
-     {"help",
-      "Show brief information of all commands",
-      "help - Show brief information of all commands\n"
-      "help <command_name> - Show full information of a specific command\n"
-      "Example: BitOS> help showinfo",
-      cmd_help},
-     {"clear",
-      "Clear screen (scrolls down to current cursor position)",
-      "clear - Clear screen (scrolls down to current cursor position)\n"
-      "Example: BitOS> clear",
-      cmd_clear},
-     {"showinfo",
-      "Show board revision and MAC address",
-      "showinfo - Show board revision (value and information) and board MAC address in correct format\n"
-      "Example: BitOS> showinfo",
-      cmd_showinfo},
-     {"baudrate",
-      "Change the baudrate of current UART",
-      "baudrate - Allow the user to change the baudrate of current UART being used\n"
-      "Supports baud rates: 9600, 19200, 38400, 57600, 115200 bits per second\n"
-      "Example: BitOS> baudrate (not yet implemented)",
-      cmd_baudrate},
-     {"handshake",
-      "Turn on/off CTS/RTS handshaking on current UART",
-      "handshake - Allow the user to turn on/off CTS/RTS handshaking on current UART if possible\n"
-      "Example: BitOS> handshake on\n"
-      "Example: BitOS> handshake off",
-      cmd_handshake}
- };
- 
- const int num_commands = sizeof(commands) / sizeof(commands[0]);
- 
- // === Command History Management ===
- 
- static char history[MAX_HISTORY][MAX_CMD_SIZE]; // Command history buffer
- static int history_count = 0;                   // Number of commands in history
- static int history_pos = 0;                     // Current position in history for navigation
- 
- /**
-  * @brief Add a command to the history buffer.
-  *
-  * @param command The command string to add.
-  * @note Empty commands are not stored. If history is full, the oldest command is removed.
-  */
- void add_to_history(char *command)
- {
-     if (command[0] == '\0')
-         return; // Don't store empty commands
- 
-     // Shift history if full
-     if (history_count == MAX_HISTORY)
-     {
-         for (int i = 1; i < MAX_HISTORY; i++)
-         {
-             for (int j = 0; j < MAX_CMD_SIZE; j++)
-             {
-                 history[i - 1][j] = history[i][j];
-             }
-         }
-         history_count--;
-     }
- 
-     // Add new command to history
-     for (int i = 0; i < MAX_CMD_SIZE; i++)
-     {
-         history[history_count][i] = command[i];
-         if (command[i] == '\0')
-             break;
-     }
-     history_count++;
-     history_pos = history_count; // Reset position to the end
- }
- 
- // === CLI Core Functions ===
- 
- /**
-  * @brief Clear the current line on the terminal.
-  *
-  * Overwrites the line with spaces and returns the cursor to the start.
-  */
- void clear_line()
- {
-     uart_puts("\r");
-     for (int i = 0; i < MAX_CMD_SIZE + 7; i++)
-     { // +7 for "BitOS> "
-         uart_sendc(' ');
-     }
-     uart_puts("\r");
- }
- 
- /**
-  * @brief Display the CLI prompt and current buffer contents.
-  *
-  * @param buffer The current command buffer to display.
-  */
- void display_prompt(char *buffer)
- {
-     uart_puts(PROMPT);
-     uart_puts(buffer);
- }
- 
- /**
-  * @brief Parse a command string into command name and arguments.
-  *
-  * @param buffer The command buffer to parse.
-  * @param cmd_name Pointer to store the command name (points within buffer).
-  * @param args Pointer to store the arguments (or NULL if none).
-  */
- void parse_command(char *buffer, char **cmd_name, char **args)
- {
-     *cmd_name = buffer;
-     *args = buffer;
- 
-     // Find the first space to separate command name and arguments
-     while (**args != ' ' && **args != '\0')
-     {
-         (*args)++;
-     }
- 
-     if (**args == ' ')
-     {
-         **args = '\0'; // Null-terminate the command name
-         (*args)++;
-         // Skip any additional spaces
-         while (**args == ' ')
-             (*args)++;
-     }
- 
-     if (**args == '\0')
-     {
-         *args = NULL; // No arguments
-     }
- }
- 
- /**
-  * @brief Main CLI loop to read and process user input.
-  *
-  * Reads characters from UART, handles command input, history navigation,
-  * and executes commands when Enter is pressed.
-  */
+#include "../../include/cmd.h"
+#include "../../include/utils.h"
+#include "cmd-utils.c"
+
+/**
+ * @brief Simple busy-wait delay function.
+ *
+ * @param milliseconds Approximate delay in milliseconds (needs tuning for accuracy).
+ * @note This is a rough approximation and may need adjustment based on system clock speed.
+ */
+void delay(int milliseconds)
+{
+    volatile unsigned int count = milliseconds * 100000; // Example: 100,000 cycles per ms
+    while (count--)
+    {
+        asm("nop"); // No operation to keep the loop busy
+    }
+}
+
+// === Command Definitions ===
+
+/**
+ * @brief Table of supported CLI commands.
+ *
+ * Each entry defines a command with its name, brief description, detailed help text,
+ * and function pointer to its implementation.
+ */
+Command commands[] = {
+    {"help",
+     "Show brief information of all commands",
+     "help - Show brief information of all commands\n"
+     "help <command_name> - Show full information of a specific command\n"
+     "Example: PlantOS> help showinfo",
+     cmd_help},
+    {"clear",
+     "Clear screen (scrolls down to current cursor position)",
+     "clear - Clear screen (scrolls down to current cursor position)\n"
+     "Example: PlantOS> clear",
+     cmd_clear},
+    {"showinfo",
+     "Show board revision and MAC address",
+     "showinfo - Show board revision (value and information) and board MAC address in correct format\n"
+     "Example: PlantOS> showinfo",
+     cmd_showinfo},
+    {"baudrate",
+     "Change the baudrate of current UART",
+     "baudrate - Allow the user to change the baudrate of current UART being used\n"
+     "Supports baud rates: 9600, 19200, 38400, 57600, 115200 bits per second\n"
+     "Example: PlantOS> baudrate (not yet implemented)",
+     cmd_baudrate},
+    {"handshake",
+     "Turn on/off CTS/RTS handshaking on current UART",
+     "handshake - Allow the user to turn on/off CTS/RTS handshaking on current UART if possible\n"
+     "Example: PlantOS> handshake on\n"
+     "Example: PlantOS> handshake off",
+     cmd_handshake}
+};
+
+const int num_commands = sizeof(commands) / sizeof(commands[0]);
+
+// === Command History Management ===
+
+static char history[MAX_HISTORY][MAX_CMD_SIZE]; // Command history buffer
+static int history_count = 0;                   // Number of commands in history
+static int history_pos = 0;                     // Current position in history for navigation
+
+/**
+ * @brief Add a command to the history buffer.
+ *
+ * @param command The command string to add.
+ * @note Empty commands are not stored. If history is full, the oldest command is removed.
+ */
+void add_to_history(char *command)
+{
+    if (command[0] == '\0')
+        return; // Don't store empty commands
+
+    // Shift history if full
+    if (history_count == MAX_HISTORY)
+    {
+        for (int i = 1; i < MAX_HISTORY; i++)
+        {
+            for (int j = 0; j < MAX_CMD_SIZE; j++)
+            {
+                history[i - 1][j] = history[i][j];
+            }
+        }
+        history_count--;
+    }
+
+    // Add new command to history
+    for (int i = 0; i < MAX_CMD_SIZE; i++)
+    {
+        history[history_count][i] = command[i];
+        if (command[i] == '\0')
+            break;
+    }
+    history_count++;
+    history_pos = history_count; // Reset position to the end
+}
+
+// === CLI Core Functions ===
+
+/**
+ * @brief Clear the current line on the terminal.
+ *
+ * Overwrites the line with spaces and returns the cursor to the start.
+ */
+void clear_line()
+{
+    uart_puts("\r");
+    for (int i = 0; i < MAX_CMD_SIZE + 8; i++) // +8 for "PlantOS> "
+    {
+        uart_sendc(' ');
+    }
+    uart_puts("\r");
+}
+
+/**
+ * @brief Display the CLI prompt and current buffer contents.
+ *
+ * @param buffer The current command buffer to display.
+ */
+void display_prompt(char *buffer)
+{
+    uart_puts(PROMPT);
+    uart_puts(buffer);
+}
+
+/**
+ * @brief Parse a command string into command name and arguments.
+ *
+ * @param buffer The command buffer to parse.
+ * @param cmd_name Pointer to store the command name (points within buffer).
+ * @param args Pointer to store the arguments (or NULL if none).
+ */
+void parse_command(char *buffer, char **cmd_name, char **args)
+{
+    *cmd_name = buffer;
+    *args = buffer;
+
+    // Find the first space to separate command name and arguments
+    while (**args != ' ' && **args != '\0')
+    {
+        (*args)++;
+    }
+
+    if (**args == ' ')
+    {
+        **args = '\0'; // Null-terminate the command name
+        (*args)++;
+        // Skip any additional spaces
+        while (**args == ' ')
+            (*args)++;
+    }
+
+    if (**args == '\0')
+    {
+        *args = NULL; // No arguments
+    }
+}
+
 /**
  * @brief Main CLI loop to read and process user input.
  *
@@ -469,7 +463,6 @@ void cmd_baudrate(char *args)
     }
 }
 
-
 /**
  * @brief Command: Turn on/off CTS/RTS handshaking on the current UART.
  *
@@ -481,7 +474,7 @@ void cmd_handshake(char *args)
     if (args == NULL)
     {
         uart_puts("\nUsage: handshake <on|off>\n");
-        uart_puts("Example: BitOS> handshake on\n");
+        uart_puts("Example: PlantOS> handshake on\n");
         return;
     }
 
@@ -501,52 +494,44 @@ void cmd_handshake(char *args)
         uart_puts("\nInvalid argument: ");
         uart_puts(args);
         uart_puts("\nUsage: handshake <on|off>\n");
-        uart_puts("Example: BitOS> handshake on\n");
+        uart_puts("Example: PlantOS> handshake on\n");
     }
 }
 
- // === Welcome Message ===
- 
- /**
-  * @brief Display the BitOS welcome banner with animation.
-  *
-  * Prints the ASCII art banner line by line with a delay, followed by a blinking
-  * "BitOS Loaded!" message.
-  */
- void os_welcome()
- {
-     // Array of banner lines
-     const char *banner[] = {
-         "     888                                      .d88888b.   .d8888b.  ",
-         "     888                                     d88P\" \"Y88b d88P  Y88b ",
-         "     888                                     888     888 Y88b.      ",
-         " .d88888 888  888  .d88b.  88888b.   .d88b.  888     888  \"Y888b.   ",
-         "d88\" 888 888  888 d88\"\"88b 888 \"88b d88P\"88b 888     888     \"Y88b. ",
-         "888  888 888  888 888  888 888  888 888  888 888     888       \"888 ",
-         "Y88b 888 Y88b 888 Y88..88P 888  888 Y88b 888 Y88b. .d88P Y88b  d88P ",
-         " \"Y88888  \"Y88888  \"Y88P\"  888  888  \"Y88888  \"Y88888P\"   \"Y8888P\"  ",
-         "                                         888                        ",
-         "                                    Y8b d88P                        ",
-         "                                     \"Y88P\"                         ",
-         NULL // End marker
-     };
- 
-     // Print banner line by line with delay
-     uart_puts("\n\n");
-     for (int i = 0; banner[i] != NULL; i++)
-     {
-         uart_puts(banner[i]);
-         uart_puts("\n");
-         delay(150); // 200ms delay between lines
-     }
- 
-     uart_puts("Developed By Thai Duong, only Thai Duong - S39878955.\n\n");
-     uart_puts("BitOS Loaded!\n\n");
- }
- 
- /**
-  * @brief Main entry point for BitOS.
-  *
-  * Initializes the UART, displays the welcome message, and enters the CLI loop.
-  */
+// === Welcome Message ===
 
+/**
+ * @brief Display the PlantOS welcome banner immediately.
+ *
+ * Prints the ASCII art banner all at once, followed by additional messages.
+ */
+void os_welcome()
+{
+    // Array of banner lines
+    const char *banner[] = {
+        "8888888b.  888                   888     .d88888b.   .d8888b.  ",
+        "888   Y88b 888                   888    d88P\" \"Y88b d88P  Y88b ",
+        "888    888 888                   888    888     888 Y88b.      ",
+        "888   d88P 888  8888b.  88888b.  888888 888     888  \"Y888b.   ",
+        "8888888P\"  888     \"88b 888 \"88b 888    888     888     \"Y88b. ",
+        "888        888 .d888888 888  888 888    888     888       \"888 ",
+        "888        888 888  888 888  888 Y88b.  Y88b. .d88P Y88b  d88P ",
+        "888        888 \"Y888888 888  888  \"Y888  \"Y88888P\"   \"Y8888P\"  ",
+        NULL // End marker
+    };
+
+    uart_puts("\n\n");
+    for (int i = 0; banner[i] != NULL; i++)
+    {
+        uart_puts(banner[i]);
+        uart_puts("\n");
+    }
+
+    uart_puts("PlantOS Loaded!\n\n");
+}
+
+/**
+ * @brief Main entry point for PlantOS.
+ *
+ * Initializes the UART, displays the welcome message, and enters the CLI loop.
+ */

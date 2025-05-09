@@ -117,8 +117,8 @@ clean:
 #//////////////////////////////////////////////////////////////
 # Run emulation with QEMU (UART1)
 run1: 
-	qemu-system-aarch64 -M raspi3b -kernel $(IMAGE) -serial null -serial stdio
+	qemu-system-aarch64 -M raspi4b -kernel $(IMAGE) -serial null -serial stdio
 
 # Run emulation with QEMU (UART0)
 run0: 
-	qemu-system-aarch64 -M raspi3b -kernel $(IMAGE) -serial stdio
+	qemu-system-aarch64 -M raspi4b -kernel $(IMAGE) -serial stdio
