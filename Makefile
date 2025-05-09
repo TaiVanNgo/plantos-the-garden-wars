@@ -6,10 +6,11 @@ ARCH_DIR = $(SRC_DIR)/arch
 DRIVERS_DIR = $(SRC_DIR)/drivers
 UART_DIR = $(DRIVERS_DIR)/uart
 VIDEO_DIR = $(SRC_DIR)/video
+CMD_DIR = $(SRC_DIR)/cmd
 BUILD_DIR = build
 
 # Files
-COMMON_CFILES = $(wildcard $(SRC_DIR)/*.c)
+COMMON_CFILES = $(wildcard $(SRC_DIR)/*.c) 
 COMMON_OFILES = $(COMMON_CFILES:$(SRC_DIR)/%.c=$(BUILD_DIR)/%.o)
 VIDEO_CFILES = $(wildcard $(VIDEO_DIR)/*.c)
 VIDEO_OFILES = $(VIDEO_CFILES:$(VIDEO_DIR)/%.c=$(BUILD_DIR)/%.o)
@@ -87,10 +88,12 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c | $(BUILD_DIR)
 # Build video C files
 $(BUILD_DIR)/%.o: $(VIDEO_DIR)/%.c | $(BUILD_DIR)
 	aarch64-none-elf-gcc $(GCCFLAGS) -c $< -o $@
+$(BUILD_DIR)/%.o: $(CMD_DIR)/%.c | $(BUILD_DIR)
+	aarch64-none-elf-gcc $(GCCFLAGS) -c $< -o $@
 
 # Link and generate kernel image (without video)
-$(IMAGE): $(BUILD_DIR)/boot.o $(BUILD_DIR)/uart.o $(BUILD_DIR)/mbox.o $(BUILD_DIR)/framebf.o $(COMMON_OFILES) | $(BUILD_DIR)
-	aarch64-none-elf-ld -nostdlib $(BUILD_DIR)/boot.o $(BUILD_DIR)/mbox.o $(BUILD_DIR)/framebf.o $(BUILD_DIR)/uart.o $(COMMON_OFILES) -T $(ARCH_DIR)/link.ld -o $(BUILD_DIR)/kernel8.elf
+$(IMAGE): $(BUILD_DIR)/boot.o $(BUILD_DIR)/uart.o $(BUILD_DIR)/mbox.o $(BUILD_DIR)/framebf.o $(COMMON_OFILES) $(BUILD_DIR)/cmd.o | $(BUILD_DIR)
+	aarch64-none-elf-ld -nostdlib $(BUILD_DIR)/boot.o $(BUILD_DIR)/mbox.o $(BUILD_DIR)/framebf.o $(BUILD_DIR)/uart.o $(COMMON_OFILES) $(BUILD_DIR)/cmd.o -T $(ARCH_DIR)/link.ld -o $(BUILD_DIR)/kernel8.elf
 	aarch64-none-elf-objcopy -O binary $(BUILD_DIR)/kernel8.elf $(IMAGE)
 
 # Link and generate kernel image (with video)
@@ -111,8 +114,8 @@ clean:
 #//////////////////////////////////////////////////////////////
 # Run emulation with QEMU (UART1)
 run1: 
-	qemu-system-aarch64 -M raspi3b -kernel $(IMAGE) -serial null -serial stdio
+	qemu-system-aarch64 -M raspi4b -kernel $(IMAGE) -serial null -serial stdio
 
 # Run emulation with QEMU (UART0)
 run0: 
-	qemu-system-aarch64 -M raspi3b -kernel $(IMAGE) -serial stdio
+	qemu-system-aarch64 -M raspi4b -kernel $(IMAGE) -serial stdio

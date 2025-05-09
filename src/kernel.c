@@ -6,9 +6,9 @@
 #include "../include/video.h"
 #include "../include/utils.h"
 #include "../include/background.h"
-
-// #define TASK1
-// #define TASK2_VID
+//#include "background.c"
+  #define TASK1
+ // #define TASK2_VID
 
 void display_team_members(int show_bg)
 {
@@ -91,7 +91,7 @@ void main()
     os_welcome(); // Display welcome message
 
     // Display initial prompt
-    uart_puts("BitOS> ");
+    uart_puts("PlantOS> ");
 
     // Run CLI
     while (1)

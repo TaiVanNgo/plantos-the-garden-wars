@@ -24,7 +24,7 @@
 // CLI configuration constants
 #define MAX_CMD_SIZE 100 // Maximum length of a command string
 #define MAX_HISTORY 10   // Maximum number of commands to store in history
-#define PROMPT "BitOS> " // CLI prompt displayed to the user
+#define PROMPT "PlantOS> " // CLI prompt displayed to the user
 
 /**
  * @brief Structure to define a CLI command.
@@ -59,10 +59,5 @@ void cmd_baudrate(char *args);  // Change UART baudrate (not implemented)
 void cmd_handshake(char *args); // Toggle UART handshaking (not implemented)
 void cmd_kaboom(char *args);   // Display an ASCII explosion animation (not implemented)
 void os_welcome(void);
-
-// Autocompletion Functions 
-int handle_tab_completion(char *cli_buffer, int *index);
-int find_matches(const char *partial, Command **matches);
-void find_common_prefix(Command **matches, int count, char *buffer);
 
 #endif // CLI_H
