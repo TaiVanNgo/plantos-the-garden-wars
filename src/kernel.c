@@ -7,31 +7,37 @@
 #include "../include/utils.h"
 #include "../include/background.h"
 //#include "background.c"
- #define TASK1
-// #define TASK2_VID
+  #define TASK1
+ // #define TASK2_VID
 
-void display_team_members()
+void display_team_members(int show_bg)
 {
-    draw_image(BACKGROUND, 0, 0, 984, 600);
+    // if show background
+    if (show_bg)
+    {
+        draw_image(BACKGROUND, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT);
+    }
 
-    // TItle
-    draw_string(200, 20, "EMBEDDED SYSTEMS: OPERATING SYSTEMS AND INTERFACING", RED);
+    // Title
+    draw_string(260, 20, "EMBEDDED SYSTEMS", RED, 2);
+    draw_string(150, 50, "OPERATING SYSTEMS AND INTERFACING", RED, 2);
 
     // Member 1
-    draw_circle(160, 70, 8, GREEN_YELLOW, 1);
-    draw_string(180, 65, "NGO VAN TAI (S3974892)", GREEN_YELLOW);
+
+    draw_circle(160, 80, 8, GREEN_YELLOW, 1);
+    draw_string(200, 75, "NGUYEN PHAM ANH THU (S3926793)", GREEN_YELLOW, 2);
 
     // Member 2
-    draw_circle(160, 90, 8, BRIGHT_BLUE, 1);
-    draw_string(180, 85, "HUYNH TAN PHAT (S3929218)", BRIGHT_BLUE);
+    draw_circle(160, 100, 8, BRIGHT_BLUE, 1);
+    draw_string(200, 95, "HUYNH TAN PHAT (S3929218)", BRIGHT_BLUE, 2);
 
     // Member 3
-    draw_circle(160, 110, 8, SALMON_RED, 1);
-    draw_string(180, 105, "HUYNH THAI DUONG (S3978955)", SALMON_RED);
+    draw_circle(160, 120, 8, SALMON_RED, 1);
+    draw_string(200, 115, "HUYNH THAI DUONG (S3978955)", SALMON_RED, 2);
 
     // Member 4
-    draw_circle(160, 130, 8, THISTLE, 1);
-    draw_string(180, 125, "NGUYEN PHAM ANH THU (S3926793)", THISTLE);
+    draw_circle(160, 140, 8, THISTLE, 1);
+    draw_string(200, 135, "NGO VAN TAI (S3974892)", THISTLE, 2);
 
     // Pulse circle animation
     int pulse = 0;
@@ -53,14 +59,14 @@ void display_team_members()
                 pulse_dir = 1;
         }
         // Clear previous left circle
-        draw_circle(170, 20, 15, PULSE_CIRCLE_COLOR, 1);
+        draw_circle(210, 20, 15, PULSE_CIRCLE_COLOR, 1);
         // Draw new pulse left circle
-        draw_circle(170, 20, pulse, WHITE, 1);
+        draw_circle(210, 20, pulse, WHITE, 1);
 
         // Clear previous right circle
-        draw_circle(630, 20, 15, PULSE_CIRCLE_COLOR, 1);
+        draw_circle(550, 20, 15, PULSE_CIRCLE_COLOR, 1);
         // Draw new pulse right circle
-        draw_circle(630, 20, pulse, WHITE, 1);
+        draw_circle(550, 20, pulse, WHITE, 1);
 
         // Process UART input
         char c = getUart();
@@ -103,8 +109,9 @@ void main()
 
     Video vid;
     video_init(&vid);
-    play_video(&vid, 0, 50);
-
+    play_video(&vid, 0, 0, vid.total_frames);
+    wipe_transition();
+    display_team_members(0);
     // Run CLI
     while (1)
     {
@@ -119,7 +126,7 @@ void main()
     uart_init();
     framebf_init();
 
-    display_team_members();
+    display_team_members(1);
 
     while (1)
     {

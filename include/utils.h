@@ -20,3 +20,4 @@ char *strncpy(char *dest, const char *src, unsigned int n);
 char *strchr(const char *s, int c);
 int sprintf(char *str, const char *format, ...);
 int str_to_int(const char *str);
+void int_to_str(int num, char* str);

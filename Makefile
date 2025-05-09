@@ -10,7 +10,7 @@ CMD_DIR = $(SRC_DIR)/cmd
 BUILD_DIR = build
 
 # Files
-COMMON_CFILES = $(filter-out $(SRC_DIR)/background.c,$(wildcard $(SRC_DIR)/*.c)) 
+COMMON_CFILES = $(wildcard $(SRC_DIR)/*.c) 
 COMMON_OFILES = $(COMMON_CFILES:$(SRC_DIR)/%.c=$(BUILD_DIR)/%.o)
 VIDEO_CFILES = $(wildcard $(VIDEO_DIR)/*.c)
 VIDEO_OFILES = $(VIDEO_CFILES:$(VIDEO_DIR)/%.c=$(BUILD_DIR)/%.o)
@@ -44,9 +44,6 @@ basic: clean uart0_build build_core $(IMAGE) run0
 
 # Build OS including video
 video: clean uart1_build build_core build_video $(IMAGE)_video run1
-
-# all: clean uart1_build build_core $(IMAGE) run1
-# video: clean uart1_build build_video $(IMAGE) run1
 
 # # UART targets
 # uart1: clean uart1_build $(IMAGE) run1
