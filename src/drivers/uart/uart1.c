@@ -149,6 +149,25 @@ void uart_dec(int num)
 	uart_puts(str);
 }
 
+// Function to display 2-digit hex representation for MAC address
+void uart_mac_hex(unsigned char num)
+{
+    // Get highest 4-bit nibble
+    char digit = (num >> 4) & 0xF;
+    
+    // Convert to ASCII code
+    // 0-9 => '0'-'9', 10-15 => 'A'-'F'
+    digit += (digit > 9) ? (-10 + 'A') : '0';
+    uart_sendc(digit);
+    
+    // Get lowest 4-bit nibble
+    digit = num & 0xF;
+    
+    // Convert to ASCII code
+    digit += (digit > 9) ? (-10 + 'A') : '0';
+    uart_sendc(digit);
+}
+
 unsigned int uart_isReadByteReady()
 {
 	return (AUX_MU_LSR & 0x01);

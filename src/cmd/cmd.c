@@ -403,7 +403,7 @@ void cmd_showinfo(char *args)
         uart_puts("\nMAC Address: ");
         for (int i = 0; i < 6; i++)
         {
-            uart_hex(mac[i]);
+            uart_mac_hex(mac[i]);
             if (i < 5)
                 uart_puts(":");
         }
