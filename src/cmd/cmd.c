@@ -446,7 +446,7 @@ void cmd_baudrate(char *args)
             uart_dec(baudrate);
             uart_puts("...\n");
 
-            if (set_uart_baudrate(baudrate) == 0)
+            if (uart_init_with_baudrate(baudrate) == 0)
             {
                 uart_puts("Baudrate successfully updated.\n");
             }
