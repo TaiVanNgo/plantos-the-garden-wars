@@ -29,12 +29,12 @@ ifeq ($(OS),Windows_NT)
     # Windows
     RM = del /S /Q
     RM_PATH = $(BUILD_DIR)\kernel8.elf $(BUILD_DIR)\*.o $(BUILD_DIR)\*.img
-    MKDIR = if not exist $(BUILD_DIR) mkdir $(BUILD_DIR) & if not exist $(BUILD_DIR)\video mkdir $(BUILD_DIR)\video
+    MKDIR = if not exist $(subst /,\\,$(dir $@)) mkdir $(subst /,\\,$(dir $@))
 else
     # macOS/Linux
     RM = rm -f
     RM_PATH = $(BUILD_DIR)/kernel8.elf $(BUILD_DIR)/*.o $(BUILD_DIR)/**/*.o $(BUILD_DIR)/*.img
-    MKDIR = mkdir -p $(BUILD_DIR)/video
+    MKDIR = mkdir -p $(dir $@)
 endif
 
 #//////////////////////////////////////////////////////////////
@@ -98,12 +98,12 @@ $(BUILD_DIR)/%.o: $(CMD_DIR)/%.c | $(BUILD_DIR)
 
 # Build assets C files
 $(BUILD_DIR)/%.o: assets/%.c | $(BUILD_DIR)
-	@mkdir -p $(dir $@)
+	$(MKDIR)
 	aarch64-none-elf-gcc $(GCCFLAGS) -c $< -o $@
 
 # Build game C files
 $(BUILD_DIR)/games/%.o: $(SRC_DIR)/games/%.c | $(BUILD_DIR)
-	@mkdir -p $(dir $@)
+	$(MKDIR)
 	aarch64-none-elf-gcc $(GCCFLAGS) -c $< -o $@
 
 # Link and generate kernel image (without video)
@@ -116,9 +116,20 @@ $(IMAGE)_video: $(BUILD_DIR)/boot.o $(BUILD_DIR)/uart.o $(BUILD_DIR)/mbox.o $(BU
 	aarch64-none-elf-ld -nostdlib $(BUILD_DIR)/boot.o $(BUILD_DIR)/mbox.o $(BUILD_DIR)/framebf.o $(BUILD_DIR)/uart.o $(COMMON_OFILES) $(VIDEO_OFILES) $(ASSETS_OFILES) $(GAMES_OFILES) -T $(ARCH_DIR)/link.ld -o $(BUILD_DIR)/kernel8.elf
 	aarch64-none-elf-objcopy -O binary $(BUILD_DIR)/kernel8.elf $(IMAGE)
 
-# Ensure build directory exists
 $(BUILD_DIR):
-	$(MKDIR)
+ifeq ($(OS),Windows_NT)
+	if not exist $(BUILD_DIR) mkdir $(BUILD_DIR)
+	if not exist $(BUILD_DIR)\backgrounds mkdir $(BUILD_DIR)\backgrounds
+	if not exist $(BUILD_DIR)\fonts mkdir $(BUILD_DIR)\fonts
+	if not exist $(BUILD_DIR)\sprites mkdir $(BUILD_DIR)\sprites
+	if not exist $(BUILD_DIR)\games mkdir $(BUILD_DIR)\games
+else
+	mkdir -p $(BUILD_DIR)
+	mkdir -p $(BUILD_DIR)/backgrounds
+	mkdir -p $(BUILD_DIR)/fonts
+	mkdir -p $(BUILD_DIR)/sprites
+	mkdir -p $(BUILD_DIR)/games
+endif
 
 # Clean build artifacts
 clean:
