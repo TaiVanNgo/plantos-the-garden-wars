@@ -59,7 +59,7 @@ void render_next_frame(Video *video, int pos_x, int pos_y)
 {
 	delay_ms(700);
 	const unsigned int *frame = video_get_current_frame(video);
-	draw_image(frame, pos_x, pos_y, FRAME_WIDTH, FRAME_HEIGHT);
+	draw_image(frame, pos_x, pos_y, FRAME_WIDTH, FRAME_HEIGHT, 0);
 
 	video_next_frame(video);
 }
@@ -81,7 +81,7 @@ void play_video(Video *video, int pos_x, int pos_y, int max_frames)
 		const unsigned int *frame = video_get_current_frame(video);
 
 		// Draw the current frame
-		draw_image(frame, pos_x, pos_y, FRAME_WIDTH, FRAME_HEIGHT);
+		draw_image(frame, pos_x, pos_y, FRAME_WIDTH, FRAME_HEIGHT, 0);
 
 		// Move to the next frame
 		video_next_frame(video);

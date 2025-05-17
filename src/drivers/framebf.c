@@ -216,12 +216,20 @@ void draw_circle(int center_x, int center_y, int radius, unsigned int attr,
 }
 
 void draw_image(const unsigned int pixel_data[], int pos_x, int pos_y,
-                int width, int height)
+                int width, int height, int show_transparent)
 {
   for (int i = 0; i < width * height; i++)
   {
     int x = pos_x + (i % width);
     int y = pos_y + (i / width);
+
+    // skip transparent pixels if show_transparent is 0
+    if (pixel_data[i] == 0 && !show_transparent)
+    {
+      continue;
+    }
+    
+    // Draw pixel
     draw_pixel(x, y, pixel_data[i]);
   }
 }

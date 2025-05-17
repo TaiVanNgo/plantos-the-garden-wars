@@ -22,7 +22,7 @@ void draw_pixel(int x, int y, unsigned int attr);
 void draw_rect(int x1, int y1, int x2, int y2, unsigned int attr, int fill);
 void draw_line(int x1, int y1, int x2, int y2, unsigned int attr);
 void draw_circle(int center_x, int center_y, int radius, unsigned int attr, int fill);
-void draw_image(const unsigned int pixel_data[], int pos_x, int pos_y, int width, int height);
+void draw_image(const unsigned int pixel_data[], int pos_x, int pos_y, int width, int height, int draw_transparent);
 void clear_screen();
 void draw_char(unsigned char ch, int x, int y, unsigned int attr, int scale);
 void draw_string(int x, int y, char *s, unsigned int attr, int scale);
