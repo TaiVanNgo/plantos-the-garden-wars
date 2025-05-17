@@ -1,7 +1,7 @@
 #include "../include/video.h"
 #include "../include/framebf.h"
 #include "../include/utils.h"
-#include "../include/background.h"
+#include "../assets/backgrounds/background.h"
 
 void video_init(Video *video)
 {
