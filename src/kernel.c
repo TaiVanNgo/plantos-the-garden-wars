@@ -5,17 +5,20 @@
 #include "../include/cmd.h"
 #include "../include/video.h"
 #include "../include/utils.h"
-#include "../include/background.h"
-//#include "background.c"
-  #define TASK1
- // #define TASK2_VID
+#include "../include/zombies.h"
+#include "../assets/backgrounds/background.h"
+
+// #include "background.c"
+// #define TASK1
+// #define TASK2_VID
+#define ZOMBIE_INIT
 
 void display_team_members(int show_bg)
 {
     // if show background
     if (show_bg)
     {
-        draw_image(BACKGROUND, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT);
+        draw_image(BACKGROUND, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
     }
 
     // Title
@@ -113,6 +116,21 @@ void main()
     wipe_transition();
     display_team_members(0);
     // Run CLI
+    while (1)
+    {
+        char c = uart_getc();
+        uart_sendc(c);
+    }
+}
+#elif defined(ZOMBIE_INIT)
+void main()
+{
+    uart_init();
+
+    framebf_init();
+    draw_image(GAME_BACKGROUND, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
+    draw_zombie(100, 100);
+    
     while (1)
     {
         char c = uart_getc();
