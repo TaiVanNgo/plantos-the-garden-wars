@@ -121,12 +121,8 @@ void add_to_history(char *command)
  */
 void clear_line()
 {
-    uart_puts("\r");
-    for (int i = 0; i < MAX_CMD_SIZE + 8; i++) // +8 for "PlantOS> "
-    {
-        uart_sendc(' ');
-    }
-    uart_puts("\r");
+    uart_puts("\r");  // Return to start of line
+    uart_puts(PROMPT); // Print prompt
 }
 
 /**
@@ -136,8 +132,7 @@ void clear_line()
  */
 void display_prompt(char *buffer)
 {
-    uart_puts(PROMPT);
-    uart_puts(buffer);
+    uart_puts(buffer); // Just print the buffer contents
 }
 
 /**
@@ -183,136 +178,134 @@ void cli()
 {
     static char cli_buffer[MAX_CMD_SIZE]; // Current command buffer
     static int index = 0;                 // Current position in the buffer
-
-    // Read character from UART
-    char c = uart_getc();
-
+    static int escape_state = 0;          // State for parsing escape sequences
+    static char escape_seq[3];            // Buffer for escape sequence
+    
+    // Check if there's a character available and read it
+    char c = getUart();
+    if (c == 0) {
+        return; // Exit if no character was available
+    }
+    
+    // Handle escape sequence state machine
+    if (escape_state > 0) {
+        escape_seq[escape_state] = c;
+        escape_state++;
+        
+        if (escape_state == 3) {
+            escape_state = 0; // Reset state
+            
+            if (escape_seq[1] == '[') {
+                if (escape_seq[2] == 'A') { // Up arrow
+                    if (history_count > 0 && history_pos > 0) {
+                        history_pos--;
+                        strncpy(cli_buffer, history[history_pos], MAX_CMD_SIZE - 1);
+                        cli_buffer[MAX_CMD_SIZE - 1] = '\0';
+                        index = strlen(cli_buffer);
+                        clear_line();
+                        display_prompt(cli_buffer);
+                    }
+                    return;
+                }
+                else if (escape_seq[2] == 'B') { // Down arrow
+                    if (history_pos < history_count) {
+                        history_pos++;
+                        if (history_pos == history_count) {
+                            cli_buffer[0] = '\0';
+                            index = 0;
+                        } else {
+                            strncpy(cli_buffer, history[history_pos], MAX_CMD_SIZE - 1);
+                            cli_buffer[MAX_CMD_SIZE - 1] = '\0';
+                            index = strlen(cli_buffer);
+                        }
+                        clear_line();
+                        display_prompt(cli_buffer);
+                    }
+                    return;
+                }
+            }
+        }
+        return;
+    }
+    
+    // Start of escape sequence
+    if (c == 27) {
+        escape_state = 1;
+        escape_seq[0] = c;
+        return;
+    }
+    
     // Handle TAB key for autocompletion (ASCII 9)
-    if (c == 9)
-    {
+    if (c == 9) {
         int needs_update = handle_tab_completion(cli_buffer, &index);
-        if (needs_update)
-        {
+        if (needs_update) {
             clear_line();
             display_prompt(cli_buffer);
         }
         return;
     }
-
-    // Clear the current line
-    clear_line();
-
-    // Handle escape sequences for arrow keys
-    if (c == 27)
-    {                            // Escape character (start of arrow key sequence)
-        char next = getUart(); // Should be '['
-        if (next == '[')
-        {
-            char arrow = getUart(); // Should be 'A' (up) or 'B' (down)
-            if (arrow == 'A')
-            { // Up arrow
-                if (history_count > 0 && history_pos > 0)
-                {
-                    history_pos--;
-                    // Copy history command to buffer
-                    for (int i = 0; i < MAX_CMD_SIZE; i++)
-                    {
-                        cli_buffer[i] = history[history_pos][i];
-                        if (cli_buffer[i] == '\0')
-                            break;
-                    }
-                    index = 0;
-                    while (cli_buffer[index] != '\0')
-                        index++;
-                }
-            }
-            else if (arrow == 'B')
-            { // Down arrow
-                if (history_pos < history_count)
-                {
-                    history_pos++;
-                    if (history_pos == history_count)
-                    {
-                        // Clear buffer if at the end (new command)
-                        cli_buffer[0] = '\0';
-                        index = 0;
-                    }
-                    else
-                    {
-                        // Copy history command to buffer
-                        for (int i = 0; i < MAX_CMD_SIZE; i++)
-                        {
-                            cli_buffer[i] = history[history_pos][i];
-                            if (cli_buffer[i] == '\0')
-                                break;
-                        }
-                        index = 0;
-                        while (cli_buffer[index] != '\0')
-                            index++;
-                    }
-                }
-            }
+    
+    // Handle backspace (ASCII 127) or delete (ASCII 8)
+    if (c == 127 || c == 8) {
+        if (index > 0) {
+            index--;
+            cli_buffer[index] = '\0';
+            clear_line();
+            display_prompt(cli_buffer);
         }
+        return;
     }
-    // Handle backspace (ASCII 127)
-    else if (c == 127)
-    {
-        if (index > 0)
-        {
-            index--;                  // Move index back
-            cli_buffer[index] = '\0'; // Null-terminate at the new end
-        }
-    }
+    
     // Handle new character input (normal characters)
-    else if (c != '\n')
-    {
-        if (index < MAX_CMD_SIZE - 1)
-        {
-            cli_buffer[index] = c; // Store character into the buffer
+    if (c != '\n' && c != '\r') {
+        if (index < MAX_CMD_SIZE - 1) {
+            cli_buffer[index] = c;
             index++;
-            cli_buffer[index] = '\0'; // Null-terminate the string
+            cli_buffer[index] = '\0';
+            uart_sendc(c); // Echo the character directly
         }
+        return;
     }
+    
     // When newline is received, process the command
-    else if (c == '\n')
-    {
+    if (c == '\n' || c == '\r') {
         uart_puts("\nGot command: ");
         uart_puts(cli_buffer);
         uart_puts("\n");
-
-        // Add command to history
-        add_to_history(cli_buffer);
-
-        // Parse the command and arguments
-        char *cmd_name;
-        char *args;
-        parse_command(cli_buffer, &cmd_name, &args);
-
-        // Execute the command
-        int found = 0;
-        for (int i = 0; i < num_commands; i++)
-        {
-            if (strcmp(cmd_name, commands[i].name) == 0)
-            {
-                commands[i].execute(args);
-                found = 1;
-                break;
+        
+        // Only add non-empty commands to history
+        if (cli_buffer[0] != '\0') {
+            add_to_history(cli_buffer);
+            
+            // Parse the command and arguments
+            char *cmd_name;
+            char *args;
+            parse_command(cli_buffer, &cmd_name, &args);
+            
+            // Execute the command
+            int found = 0;
+            for (int i = 0; i < num_commands; i++) {
+                if (strcmp(cmd_name, commands[i].name) == 0) {
+                    commands[i].execute(args);
+                    found = 1;
+                    break;
+                }
+            }
+            
+            if (!found) {
+                uart_puts("Unknown command: ");
+                uart_puts(cmd_name);
+                uart_puts("\n");
             }
         }
-        if (!found && cli_buffer[0] != '\0')
-        {
-            uart_puts("Unknown command: ");
-            uart_puts(cli_buffer);
-            uart_puts("\n");
-        }
-
+        
         // Reset the buffer for the next command
         index = 0;
         cli_buffer[0] = '\0';
+        history_pos = history_count;
+        clear_line();
+        return;
     }
-
-    // Display the prompt and current buffer contents
-    display_prompt(cli_buffer);
 }
 
 // === Command Implementations ===
@@ -435,32 +428,27 @@ void cmd_baudrate(char *args)
     int baudrate = str_to_int(args); // Convert argument to integer 
 
     // Validate the baudrate
-    switch (baudrate)
+    if (baudrate == 9600 || baudrate == 19200 || baudrate == 38400 || baudrate == 57600 || baudrate == 115200)
+{
+    uart_puts("Setting baudrate to ");
+    uart_dec(baudrate);
+    uart_puts("...\n");
+
+    if (uart_init_with_baudrate(baudrate) == 0)
     {
-        case 9600:
-        case 19200:
-        case 38400:
-        case 57600:
-        case 115200:
-            uart_puts("Setting baudrate to ");
-            uart_dec(baudrate);
-            uart_puts("...\n");
-
-            if (set_uart_baudrate(baudrate) == 0)
-            {
-                uart_puts("Baudrate successfully updated.\n");
-            }
-            else
-            {
-                uart_puts("Failed to update baudrate.\n");
-            }
-            break;
-
-        default:
-            uart_puts("Error: Unsupported baudrate.\n");
-            uart_puts("Usage: baudrate <9600|19200|38400|57600|115200>\n");
-            break;
+        uart_puts("Baudrate successfully updated.\n");
     }
+    else
+    {
+        uart_puts("Failed to update baudrate.\n");
+    }
+}
+else
+{
+    uart_puts("Error: Unsupported baudrate.\n");
+    uart_puts("Usage: baudrate <9600|19200|38400|57600|115200>\n");
+}
+
 }
 
 /**
