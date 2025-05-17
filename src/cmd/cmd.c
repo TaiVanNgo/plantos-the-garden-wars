@@ -121,12 +121,8 @@ void add_to_history(char *command)
  */
 void clear_line()
 {
-    uart_puts("\r");
-    for (int i = 0; i < MAX_CMD_SIZE + 8; i++) // +8 for "PlantOS> "
-    {
-        uart_sendc(' ');
-    }
-    uart_puts("\r");
+    uart_puts("\r");  // Return to start of line
+    uart_puts(PROMPT); // Print prompt
 }
 
 /**
@@ -136,8 +132,7 @@ void clear_line()
  */
 void display_prompt(char *buffer)
 {
-    uart_puts(PROMPT);
-    uart_puts(buffer);
+    uart_puts(buffer); // Just print the buffer contents
 }
 
 /**
@@ -194,11 +189,9 @@ void cli()
     
     // Handle escape sequence state machine
     if (escape_state > 0) {
-        // We're in the middle of an escape sequence
         escape_seq[escape_state] = c;
         escape_state++;
         
-        // Check if we've completed an escape sequence (ESC [ A/B/C/D)
         if (escape_state == 3) {
             escape_state = 0; // Reset state
             
@@ -207,34 +200,32 @@ void cli()
                     if (history_count > 0 && history_pos > 0) {
                         history_pos--;
                         strncpy(cli_buffer, history[history_pos], MAX_CMD_SIZE - 1);
-                        cli_buffer[MAX_CMD_SIZE - 1] = '\0'; // Ensure null termination
+                        cli_buffer[MAX_CMD_SIZE - 1] = '\0';
                         index = strlen(cli_buffer);
+                        clear_line();
+                        display_prompt(cli_buffer);
                     }
-                    clear_line();
-                    display_prompt(cli_buffer);
                     return;
                 }
                 else if (escape_seq[2] == 'B') { // Down arrow
                     if (history_pos < history_count) {
                         history_pos++;
                         if (history_pos == history_count) {
-                            // Clear buffer if at the end (new command)
                             cli_buffer[0] = '\0';
                             index = 0;
-                        }
-                        else {
+                        } else {
                             strncpy(cli_buffer, history[history_pos], MAX_CMD_SIZE - 1);
-                            cli_buffer[MAX_CMD_SIZE - 1] = '\0'; // Ensure null termination
+                            cli_buffer[MAX_CMD_SIZE - 1] = '\0';
                             index = strlen(cli_buffer);
                         }
+                        clear_line();
+                        display_prompt(cli_buffer);
                     }
-                    clear_line();
-                    display_prompt(cli_buffer);
                     return;
                 }
             }
         }
-        return; // Don't process this character further
+        return;
     }
     
     // Start of escape sequence
@@ -257,8 +248,8 @@ void cli()
     // Handle backspace (ASCII 127) or delete (ASCII 8)
     if (c == 127 || c == 8) {
         if (index > 0) {
-            index--;                  // Move index back
-            cli_buffer[index] = '\0'; // Null-terminate at the new end
+            index--;
+            cli_buffer[index] = '\0';
             clear_line();
             display_prompt(cli_buffer);
         }
@@ -268,11 +259,10 @@ void cli()
     // Handle new character input (normal characters)
     if (c != '\n' && c != '\r') {
         if (index < MAX_CMD_SIZE - 1) {
-            cli_buffer[index] = c; // Store character into the buffer
+            cli_buffer[index] = c;
             index++;
-            cli_buffer[index] = '\0'; // Null-terminate the string
-            clear_line();
-            display_prompt(cli_buffer);
+            cli_buffer[index] = '\0';
+            uart_sendc(c); // Echo the character directly
         }
         return;
     }
@@ -285,7 +275,6 @@ void cli()
         
         // Only add non-empty commands to history
         if (cli_buffer[0] != '\0') {
-            // Add command to history
             add_to_history(cli_buffer);
             
             // Parse the command and arguments
@@ -295,10 +284,8 @@ void cli()
             
             // Execute the command
             int found = 0;
-            for (int i = 0; i < num_commands; i++) 
-            {
-                if (strcmp(cmd_name, commands[i].name) == 0) 
-                {
+            for (int i = 0; i < num_commands; i++) {
+                if (strcmp(cmd_name, commands[i].name) == 0) {
                     commands[i].execute(args);
                     found = 1;
                     break;
@@ -315,8 +302,8 @@ void cli()
         // Reset the buffer for the next command
         index = 0;
         cli_buffer[0] = '\0';
-        history_pos = history_count; // Reset history position
-        display_prompt(cli_buffer);
+        history_pos = history_count;
+        clear_line();
         return;
     }
 }
