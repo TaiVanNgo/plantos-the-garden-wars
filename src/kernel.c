@@ -7,6 +7,7 @@
 #include "../include/utils.h"
 #include "../include/zombies.h"
 #include "../include/plants.h"
+#include "../assets/backgrounds/background.h"
 //#include "background.c"
 //   #define TASK1
 //  #define TASK2_VID
@@ -142,7 +143,9 @@ void main()
 {
     uart_init();
     framebf_init();
-    draw_sunflower(400, 400);
+    draw_image(GAME_BACKGROUND, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
+
+    draw_sunflower(100, 200);
     
     while (1)
     {
