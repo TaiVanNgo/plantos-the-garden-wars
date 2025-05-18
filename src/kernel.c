@@ -6,9 +6,10 @@
 #include "../include/video.h"
 #include "../include/utils.h"
 #include "../assets/backgrounds/background.h"
+#include "../assets/button/button.h"
 //#include "background.c"
 //   #define TASK1
- #define TASK2_VID
+//  #define TASK2_VID
 
 void display_team_members(int show_bg)
 {
@@ -125,9 +126,10 @@ void main()
 
     uart_init();
     framebf_init();
-
-    display_team_members(1);
-
+    
+    draw_image(QUIT, 0, 0, 300, 85, 0);
+    // display_team_members(1);
+    
     while (1)
     {
         char c = uart_getc();
