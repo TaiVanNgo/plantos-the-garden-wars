@@ -5,11 +5,15 @@
 #include "../include/cmd.h"
 #include "../include/video.h"
 #include "../include/utils.h"
+#include "../include/zombies.h"
+#include "../include/plants.h"
 #include "../assets/backgrounds/background.h"
 #include "games/bullet.h"
 //#include "background.c"
 //   #define TASK1
-//#define TASK2_VID
+//  #define TASK2_VID
+// #define ZOMBIE_INIT
+#define PLANT_INIT
 #define TASK3_BULLET
 
 // void display_team_members(int show_bg)
@@ -116,6 +120,36 @@ void main()
     wipe_transition();
     display_team_members(0);
     // Run CLI
+    while (1)
+    {
+        char c = uart_getc();
+        uart_sendc(c);
+    }
+}
+#elif defined(ZOMBIE_INIT)
+void main()
+{
+    uart_init();
+
+    framebf_init();
+    draw_image(GAME_BACKGROUND, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
+    draw_zombie(100, 100);
+     
+    while (1)
+    {
+        char c = uart_getc();
+        uart_sendc(c);
+    }
+}
+#elif defined(PLANT_INIT)
+void main()
+{
+    uart_init();
+    framebf_init();
+    draw_image(GAME_BACKGROUND, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
+
+    draw_sunflower(100, 200);
+    
     while (1)
     {
         char c = uart_getc();
