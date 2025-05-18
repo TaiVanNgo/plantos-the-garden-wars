@@ -7,8 +7,8 @@
 #include "../include/utils.h"
 #include "../assets/backgrounds/background.h"
 //#include "background.c"
-  #define TASK1
- // #define TASK2_VID
+//   #define TASK1
+ #define TASK2_VID
 
 // void display_team_members(int show_bg)
 // {
