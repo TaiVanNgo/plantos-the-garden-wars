@@ -14,7 +14,7 @@
 //  #define TASK2_VID
 // #define ZOMBIE_INIT
 #define PLANT_INIT
-#define TASK3_BULLET
+// #define TASK3_BULLET
 
 // void display_team_members(int show_bg)
 // {
@@ -149,6 +149,9 @@ void main()
     draw_image(GAME_BACKGROUND, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
 
     draw_sunflower(100, 200);
+    draw_peashooter(200, 200);
+    draw_bullet_green(300, 200);
+
     
     while (1)
     {
