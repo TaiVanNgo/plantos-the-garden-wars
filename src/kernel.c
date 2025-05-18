@@ -6,9 +6,11 @@
 #include "../include/video.h"
 #include "../include/utils.h"
 #include "../assets/backgrounds/background.h"
+#include "../include/plants.h"
 //#include "background.c"
 //   #define TASK1
- #define TASK2_VID
+//  #define TASK2_VID
+#define PLANT_INIT
 
 void display_team_members(int show_bg)
 {
@@ -113,6 +115,23 @@ void main()
     wipe_transition();
     display_team_members(0);
     // Run CLI
+    while (1)
+    {
+        char c = uart_getc();
+        uart_sendc(c);
+    }
+}
+#elif defined(PLANT_INIT)
+void main()
+{
+    uart_init();
+
+    framebf_init();
+    draw_rect(0, 0, 800, 800, "ffffff", 0);
+
+
+    draw_sunflower(400, 400);
+    
     while (1)
     {
         char c = uart_getc();
