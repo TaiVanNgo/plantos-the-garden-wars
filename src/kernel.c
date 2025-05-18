@@ -13,8 +13,8 @@
 //   #define TASK1
 //  #define TASK2_VID
 // #define ZOMBIE_INIT
-#define PLANT_INIT
-// #define TASK3_BULLET
+// #define PLANT_INIT
+ #define TASK3_BULLET
 
 // void display_team_members(int show_bg)
 // {
@@ -150,12 +150,17 @@ void main()
 
     draw_sunflower(100, 200);
     draw_peashooter(200, 200);
-    draw_bullet_green(300, 200);
+    bullet_set_position(300, 200);
+    update_bullets();
 
-    
     while (1)
     {
-        char c = uart_getc();
+        char c = getUart();
+        if (c == ' ') {
+            bullet_set_position(300, 200);
+        }
+        update_bullets();
+        draw_game();
         uart_sendc(c);
     }
 }
@@ -170,12 +175,12 @@ void main()
     bullet_game();
     
     // After game ends, run CLI
-    while (1)
-    {
-        char c = getUart();
-        uart_dec(c);
-        uart_sendc(c);
-    }
+    // while (1)
+    // {
+    //     char c = getUart();
+    //     uart_dec(c);
+    //     uart_sendc(c);
+    // }
 }
 #else // task 2 name
 void main()
