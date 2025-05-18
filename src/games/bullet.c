@@ -187,8 +187,6 @@ void update_bullets() {
             bullets.score++;
             bullets.bullet_active = 0;
         }
-        
-        // Check if bullet went off screen
         if (bullets.bullet_x > PHYSICAL_WIDTH) {
             bullets.bullet_active = 0;
         }
@@ -240,7 +238,7 @@ void bullet_game() {
         // Clear previous bullet area
         clear_bullet_area();
         
-        // Redraw plants
+        
         draw_sunflower(100, 200);
         draw_peashooter(200, 200);
         
