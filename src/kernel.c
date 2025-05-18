@@ -6,12 +6,12 @@
 #include "../include/video.h"
 #include "../include/utils.h"
 #include "../include/zombies.h"
-#include "../assets/backgrounds/background.h"
-
-// #include "background.c"
-// #define TASK1
-// #define TASK2_VID
-#define ZOMBIE_INIT
+#include "../include/plants.h"
+//#include "background.c"
+//   #define TASK1
+//  #define TASK2_VID
+// #define ZOMBIE_INIT
+#define PLANT_INIT
 
 void display_team_members(int show_bg)
 {
@@ -130,6 +130,19 @@ void main()
     framebf_init();
     draw_image(GAME_BACKGROUND, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
     draw_zombie(100, 100);
+     
+    while (1)
+    {
+        char c = uart_getc();
+        uart_sendc(c);
+    }
+}
+#elif defined(PLANT_INIT)
+void main()
+{
+    uart_init();
+    framebf_init();
+    draw_sunflower(400, 400);
     
     while (1)
     {

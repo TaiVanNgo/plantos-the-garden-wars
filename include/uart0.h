@@ -161,3 +161,4 @@ unsigned int uart_isReadByteReady();
 unsigned char getUart();
 int set_uart_baudrate(int baudrate);
 void uart_mac_hex(unsigned char num);
+int uart_init_with_baudrate(int baudrate);

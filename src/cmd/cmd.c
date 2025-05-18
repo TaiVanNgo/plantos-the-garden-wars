@@ -13,7 +13,7 @@
 
 #include "../../include/cmd.h"
 #include "../../include/utils.h"
-#include "cmd-utils.c"
+#include "cmd_utils.c"
 
 /**
  * @brief Simple busy-wait delay function.

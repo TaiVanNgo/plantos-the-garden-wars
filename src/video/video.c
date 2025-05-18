@@ -34,14 +34,7 @@ void video_init(Video *video)
 	video->frames[26] = FRAME27;
 	video->frames[27] = FRAME28;
 	video->frames[28] = FRAME29;
-	video->frames[29] = FRAME30;
-	video->frames[30] = FRAME31;
-	video->frames[31] = FRAME32;
-	video->frames[32] = FRAME33;
-	video->frames[33] = FRAME34;
-	video->frames[34] = FRAME35;
-	video->frames[35] = FRAME36;
-	video->total_frames = 36;
+	video->total_frames = 30;
 	video->current_frame = 0;
 }
 
