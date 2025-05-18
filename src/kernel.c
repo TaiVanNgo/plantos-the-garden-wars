@@ -127,7 +127,7 @@ void main()
     uart_init();
 
     framebf_init();
-    draw_rect(0, 0, 800, 800, "ffffff", 0);
+    // draw_rect(0, 0, 800, 800, "ffffff", 0);
 
 
     draw_sunflower(400, 400);
