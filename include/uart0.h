@@ -1,3 +1,6 @@
+#ifndef UART0_H
+#define UART0_H
+
 #include "gpio.h"
 
 /* PL011 UART (UART0) registers */
@@ -161,3 +164,6 @@ unsigned int uart_isReadByteReady();
 unsigned char getUart();
 int set_uart_baudrate(int baudrate);
 void uart_mac_hex(unsigned char num);
+void uart_irq_handler();
+void uart_dec(int num);
+#endif // UART0_H

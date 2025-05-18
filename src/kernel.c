@@ -6,9 +6,11 @@
 #include "../include/video.h"
 #include "../include/utils.h"
 #include "../assets/backgrounds/background.h"
+#include "games/bullet.h"
 //#include "background.c"
 //   #define TASK1
- #define TASK2_VID
+//#define TASK2_VID
+#define TASK3_BULLET
 
 // void display_team_members(int show_bg)
 // {
@@ -88,15 +90,16 @@ void main()
 {
     // Set up the serial console
     uart_init();
-    os_welcome(); // Display welcome message
-
-    // Display initial prompt
-    uart_puts("PlantOS> ");
-
-    // Run CLI
+    uart_puts("Starting Bullet Game...\n");
+    
+    // Run the bullet game
+    bullet_game();
+    
+    // After game ends, run CLI
     while (1)
     {
-        cli();
+        char c = uart_getc();
+        uart_sendc(c);
     }
 }
 #elif defined(TASK2_VID)
@@ -116,6 +119,24 @@ void main()
     while (1)
     {
         char c = uart_getc();
+        uart_sendc(c);
+    }
+}
+#elif defined(TASK3_BULLET)
+void main()
+{
+    // Set up the serial console
+    uart_init();
+    uart_puts("Starting Bullet Game...\n");
+    
+    // Run the bullet game
+    bullet_game();
+    
+    // After game ends, run CLI
+    while (1)
+    {
+        char c = getUart();
+        uart_dec(c);
         uart_sendc(c);
     }
 }
