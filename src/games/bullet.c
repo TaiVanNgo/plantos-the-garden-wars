@@ -239,8 +239,8 @@ void bullet_game() {
     clear_screen();
     draw_image(GAME_BACKGROUND, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
     draw_grid();
-    draw_sunflower(100, 200);
-    draw_peashooter(200, 200);
+    // draw_sunflower(100, 200);
+    // draw_peashooter(200, 200);
     bullet_set_grid(1, 3); 
     update_bullets();
     while (!bullets.game_over) {
@@ -254,8 +254,8 @@ void bullet_game() {
         }
         clear_bullet_area();
         draw_grid();
-        draw_sunflower(100, 200);
-        draw_peashooter(200, 200);
+        // draw_sunflower(100, 200);
+        // draw_peashooter(200, 200);
         update_bullets();
         if (bullets.bullet_active) {
             save_background(bullets.bullet_x, bullets.bullet_y);
