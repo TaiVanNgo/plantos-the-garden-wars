@@ -10,7 +10,7 @@ void game_init()
   while (1)
   {
 
-    update_zombie(&zombie1);
+    update_zombie_position(&zombie1);
     if (cnt >= 50 && !zombie2_spawned)
     {
       zombie2 = spawn_zombie(1, 2);
@@ -18,9 +18,9 @@ void game_init()
     }
     if (zombie2_spawned)
     {
-      update_zombie(&zombie2);
+      update_zombie_position(&zombie2);
     }
     cnt++;
-    delay_ms(200);
+    delay_ms(100);
   }
 }

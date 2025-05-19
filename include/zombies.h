@@ -32,7 +32,7 @@ typedef struct
 extern const Zombie default_zombie_normal;
 Zombie create_zombie(uint8_t type, uint8_t row); // update zombie data
 Zombie spawn_zombie(uint8_t type, uint8_t row);  // Draw zombie on screen
-int move_left(Zombie *zombie);                   // Returns 1 if reached edge, 0 otherwise
-void update_zombie(Zombie *zombie);
+int move_zombie(Zombie *zombie);                 // Returns 1 if reached edge, 0 otherwise
+void update_zombie_position(Zombie *zombie);
 
 #endif

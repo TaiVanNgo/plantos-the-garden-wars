@@ -40,12 +40,13 @@ Zombie create_zombie(uint8_t type, uint8_t row)
 Zombie spawn_zombie(uint8_t type, uint8_t row)
 {
   Zombie new_zombie = create_zombie(type, row);
-  draw_image(zombie_normal, new_zombie.x, new_zombie.y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);
+
+  draw_image(ZOMBIE_NORMAL_SPRITE, new_zombie.x, new_zombie.y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);
 
   return new_zombie;
 }
 
-int move_left(Zombie *zombie)
+int move_zombie(Zombie *zombie)
 {
   // if zombie is dead
   if (!zombie->active)
@@ -53,9 +54,11 @@ int move_left(Zombie *zombie)
 
   uint8_t actual_speed = zombie->is_frozen ? (zombie->speed / 2) : zombie->speed;
 
+  // Calculate new position
+  int new_x = zombie->x;
   if (zombie->x > actual_speed)
   {
-    zombie->x -= actual_speed;
+    new_x -= actual_speed;
   }
   else
   {
@@ -64,25 +67,33 @@ int move_left(Zombie *zombie)
     return 1; // zombie reached the edge
   }
 
+  // Update new position
+  zombie->x = new_x;
+
   return 0;
 }
 
-void update_zombie(Zombie *zombie)
+void update_zombie_position(Zombie *zombie)
 {
   if (!zombie->active)
   {
     return;
   }
 
-  // Move zombie left
+  int old_x = zombie->x;
+  int old_y = zombie->y;
 
-  move_left(zombie);
+  // Restore background from old position
+  restore_background_area(old_x, old_y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT);
+
+  // Move zombie left (update position)
+  move_zombie(zombie);
 
   // Draw the zombie at its current position
   switch (zombie->type)
   {
   case ZOMBIE_NORMAL:
-    draw_image(zombie_normal, zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);
+    draw_image(ZOMBIE_NORMAL_SPRITE, zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);
     break;
   case ZOMBIE_BUCKET:
     // draw_image(bucket_zombie, zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);

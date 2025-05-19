@@ -1,11 +1,6 @@
 // ----------------------------------- framebf.c
 // -------------------------------------
 #include "../include/framebf.h"
-#include "../../assets/fonts/fonts.h"
-#include "../include/mbox.h"
-#include "../include/uart0.h"
-#include "../include/uart1.h"
-#include "../include/video.h"
 
 // Use RGBA32 (32 bits for each pixel)
 #define COLOR_DEPTH 32
@@ -228,7 +223,7 @@ void draw_image(const unsigned int pixel_data[], int pos_x, int pos_y,
     {
       continue;
     }
-    
+
     // Draw pixel
     draw_pixel(x, y, pixel_data[i]);
   }
@@ -330,5 +325,26 @@ void draw_string(int x, int y, char *s, unsigned int attr, int scale)
     }
     // Move to the next character in string
     s++;
+  }
+}
+
+void restore_background_area(int x, int y, int width, int height)
+{
+  for (int row = 0; row < height; row++)
+  {
+    for (int col = 0; col < width; col++)
+    {
+      int screen_x = x + col;
+      int screen_y = y + row;
+
+      if (screen_x >= 0 && screen_x < BACKGROUND_WIDTH &&
+          screen_y >= 0 && screen_y < BACKGROUND_HEIGHT)
+      {
+        int bg_index = screen_y * BACKGROUND_WIDTH + screen_x;
+        int fb_index = screen_y * (pitch / 4) + screen_x;
+
+        *((unsigned int *)fb + fb_index) = GAME_BACKGROUND[bg_index];
+      }
+    }
   }
 }
