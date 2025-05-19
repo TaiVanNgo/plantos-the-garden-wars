@@ -8,13 +8,14 @@
 #include "../include/zombies.h"
 #include "../include/plants.h"
 #include "../assets/backgrounds/background.h"
+#include "../assets/backgrounds/garden.h"
 #include "games/bullet.h"
 //#include "background.c"
 //   #define TASK1
 //  #define TASK2_VID
 // #define ZOMBIE_INIT
-// #define PLANT_INIT
- #define TASK3_BULLET
+#define PLANT_INIT
+//  #define TASK3_BULLET
 
 // void display_team_members(int show_bg)
 // {
@@ -146,21 +147,28 @@ void main()
 {
     uart_init();
     framebf_init();
-    draw_image(GAME_BACKGROUND, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
+    draw_image(GARDEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
 
-    draw_sunflower(100, 200);
     draw_peashooter(200, 200);
-    bullet_set_position(300, 200);
-    update_bullets();
+    draw_bullet_green(200, 200);
+
+    draw_sunflower(300, 200);
+    draw_sunflower_unhappy(400, 200);
+    draw_frozen_peashooter(500, 200);
+    draw_bullet_blue(500, 200);
+    draw_chillies(600, 200);
+    draw_chillies_unhappy(700, 200);
+    draw_wallnut(800, 200);
+    draw_wallnut_unhappy(900, 200);
 
     while (1)
     {
         char c = getUart();
-        if (c == ' ') {
-            bullet_set_position(300, 200);
-        }
-        update_bullets();
-        draw_game();
+        // if (c == ' ') {
+        //     bullet_set_position(300, 200);
+        // }
+        // update_bullets();
+        // draw_game();
         uart_sendc(c);
     }
 }
