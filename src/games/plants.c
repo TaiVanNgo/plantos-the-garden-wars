@@ -82,6 +82,30 @@ void draw_plant_grid(void) {
             PLANT_GRID_TOP_MARGIN + i, 
             margin_color
         );
+    } 
+}
+
+// Fill the plant grid for testing purposes
+void fill_plant_grid(void) {
+    int plant_types[] = {
+        PLANT_TYPE_PEASHOOTER,
+        PLANT_TYPE_SUNFLOWER,
+        PLANT_TYPE_SUNFLOWER_UNHAPPY,
+        PLANT_TYPE_FROZEN_PEASHOOTER,
+        PLANT_TYPE_CHILLIES,
+        PLANT_TYPE_CHILLIES_UNHAPPY,
+        PLANT_TYPE_WALLNUT,
+        PLANT_TYPE_WALLNUT_UNHAPPY
+    };
+    int num_types = sizeof(plant_types) / sizeof(plant_types[0]);
+    int cols = 9;
+    int rows = 4;
+    int type_idx = 0;
+    for (int y = 0; y < rows; y++) {
+        for (int x = 0; x < cols; x++) {
+            draw_plant(plant_types[type_idx], x, y);
+            type_idx = (type_idx + 1) % num_types;
+        }
     }
-    
+
 }
