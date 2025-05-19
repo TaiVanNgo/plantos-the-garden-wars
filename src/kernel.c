@@ -127,6 +127,7 @@ void main()
     framebf_init();
     
     game_init();
+    
     // draw_image(QUIT, 0, 0, 300, 85, 0);
     // display_team_members(1);
     
