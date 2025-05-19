@@ -1,11 +1,6 @@
 // ----------------------------------- framebf.c
 // -------------------------------------
 #include "../include/framebf.h"
-#include "../../assets/fonts/fonts.h"
-#include "../include/mbox.h"
-#include "../include/uart0.h"
-#include "../include/uart1.h"
-#include "../include/video.h"
 
 // Use RGBA32 (32 bits for each pixel)
 #define COLOR_DEPTH 32
@@ -144,7 +139,8 @@ void draw_line(int x1, int y1, int x2, int y2, unsigned int attr)
 // Function to draw a vertical line from (x, y1) to (x, y2)
 void draw_vline(int x, int y1, int y2, unsigned int attr)
 {
-  if (y2 < y1) {
+  if (y2 < y1)
+  {
     int temp = y1;
     y1 = y2;
     y2 = temp;
@@ -242,7 +238,7 @@ void draw_image(const unsigned int pixel_data[], int pos_x, int pos_y,
     {
       continue;
     }
-    
+
     // Draw pixel
     draw_pixel(x, y, pixel_data[i]);
   }
@@ -347,31 +343,60 @@ void draw_string(int x, int y, char *s, unsigned int attr, int scale)
   }
 }
 
-// Function to create a simulated background that includes both garden and plants
-void create_simulated_background(unsigned int *sim_bg, const unsigned int garden[], int garden_width, int garden_height) {
-    // First copy the garden background
-    for (int i = 0; i < garden_width * garden_height; i++) {
-        sim_bg[i] = garden[i];
+void restore_background_area(int x, int y, int width, int height)
+{
+  for (int row = 0; row < height; row++)
+  {
+    for (int col = 0; col < width; col++)
+    {
+      int screen_x = x + col;
+      int screen_y = y + row;
+
+      if (screen_x >= 0 && screen_x < GARDEN_WIDTH &&
+          screen_y >= 0 && screen_y < GARDEN_HEIGHT)
+      {
+        int bg_index = screen_y * GARDEN_WIDTH + screen_x;
+        int fb_index = screen_y * (pitch / 4) + screen_x;
+
+        *((unsigned int *)fb + fb_index) = GARDEN[bg_index];
+      }
     }
+  }
+}
+
+// Function to create a simulated background that includes both garden and plants
+void create_simulated_background(unsigned int *sim_bg, const unsigned int garden[], int garden_width, int garden_height)
+{
+  // First copy the garden background
+  for (int i = 0; i < garden_width * garden_height; i++)
+  {
+    sim_bg[i] = garden[i];
+  }
 }
 
 // Function to draw on simulated background (for plants)
-void draw_on_simulated_background(unsigned int *sim_bg, const unsigned int plant[], int plant_x, int plant_y, int plant_width, int plant_height, int garden_width) {
-    for (int y = 0; y < plant_height; y++) {
-        for (int x = 0; x < plant_width; x++) {
-            int plant_pixel = plant[y * plant_width + x];
-            // Only draw non-transparent pixels (where plant_pixel != 0)
-            if (plant_pixel != 0) {
-                sim_bg[(plant_y + y) * garden_width + (plant_x + x)] = plant_pixel;
-            }
-        }
+void draw_on_simulated_background(unsigned int *sim_bg, const unsigned int plant[], int plant_x, int plant_y, int plant_width, int plant_height, int garden_width)
+{
+  for (int y = 0; y < plant_height; y++)
+  {
+    for (int x = 0; x < plant_width; x++)
+    {
+      int plant_pixel = plant[y * plant_width + x];
+      // Only draw non-transparent pixels (where plant_pixel != 0)
+      if (plant_pixel != 0)
+      {
+        sim_bg[(plant_y + y) * garden_width + (plant_x + x)] = plant_pixel;
+      }
     }
+  }
 }
 
 // Function to get pixel from simulated background
-unsigned int get_simulated_pixel(const unsigned int *sim_bg, int x, int y, int garden_width) {
-    if (x < 0 || y < 0 || x >= garden_width || y >= PHYSICAL_HEIGHT) {
-        return 0;
-    }
-    return sim_bg[y * garden_width + x];
+unsigned int get_simulated_pixel(const unsigned int *sim_bg, int x, int y, int garden_width)
+{
+  if (x < 0 || y < 0 || x >= garden_width || y >= PHYSICAL_HEIGHT)
+  {
+    return 0;
+  }
+  return sim_bg[y * garden_width + x];
 }

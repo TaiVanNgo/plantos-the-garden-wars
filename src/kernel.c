@@ -7,13 +7,15 @@
 #include "../include/utils.h"
 #include "../include/zombies.h"
 #include "../include/plants.h"
+#include "../include/game_init.h"
 #include "../assets/backgrounds/background.h"
 #include "../assets/backgrounds/garden.h"
 #include "games/bullet.h"
-//#include "background.c"
-//   #define TASK1
-//  #define TASK2_VID
-// #define ZOMBIE_INIT
+
+// #include "background.c"
+//    #define TASK1
+//   #define TASK2_VID
+//  #define ZOMBIE_INIT
 #define PLANT_INIT
 //   #define TASK3_BULLET
 
@@ -96,10 +98,10 @@ void main()
     // Set up the serial console
     uart_init();
     uart_puts("Starting Bullet Game...\n");
-    
+
     // Run the bullet game
     bullet_game();
-    
+
     // After game ends, run CLI
     while (1)
     {
@@ -133,9 +135,8 @@ void main()
     uart_init();
 
     framebf_init();
-    draw_image(GAME_BACKGROUND, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
-    draw_zombie(100, 100);
-     
+    game_init();
+
     while (1)
     {
         char c = uart_getc();
@@ -147,15 +148,14 @@ void main()
 {
     uart_init();
     framebf_init();
-    
+
     // Draw the garden background
     draw_image(GARDEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
-    
+
     draw_plant_grid();
-    
+
     fill_plant_grid();
-    
-    
+
     // Main loop
     while (1)
     {
@@ -169,10 +169,10 @@ void main()
     // Set up the serial console
     uart_init();
     uart_puts("Starting Bullet Game...\n");
-    
+
     // Run the bullet game
     bullet_game();
-    
+
     // After game ends, run CLI
     // while (1)
     // {
