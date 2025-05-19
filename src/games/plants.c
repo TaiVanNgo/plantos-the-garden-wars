@@ -14,9 +14,11 @@ void draw_plant(int plant_type, int col, int row) {
         return; // Invalid position, do nothing
     }
     
-    // Calculate pixel coordinates from grid position
-    int x = PLANT_GRID_LEFT_MARGIN + (col * PLANT_COL_WIDTH);
-    int y = PLANT_GRID_TOP_MARGIN + (row * PLANT_ROW_HEIGHT);
+    // Calculate pixel coordinates from grid position, centered in cell
+    int horizontal_offset = (PLANT_COL_WIDTH - PLANT_WIDTH) / 2;
+    int vertical_offset = (PLANT_ROW_HEIGHT - PLANT_HEIGHT) / 2;
+    int x = PLANT_GRID_LEFT_MARGIN + (col * PLANT_COL_WIDTH) + horizontal_offset;
+    int y = PLANT_GRID_TOP_MARGIN + (row * PLANT_ROW_HEIGHT) + vertical_offset;
     
     const unsigned int* plant_sprite;
     

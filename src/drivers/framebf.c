@@ -141,6 +141,20 @@ void draw_line(int x1, int y1, int x2, int y2, unsigned int attr)
   }
 }
 
+// Function to draw a vertical line from (x, y1) to (x, y2)
+void draw_vline(int x, int y1, int y2, unsigned int attr)
+{
+  if (y2 < y1) {
+    int temp = y1;
+    y1 = y2;
+    y2 = temp;
+  }
+  for (int y = y1; y <= y2; y++)
+  {
+    draw_pixel(x, y, attr);
+  }
+}
+
 // Function to calculate the square root of a number using the Newton-Raphson
 // method
 double sqrt(double number)

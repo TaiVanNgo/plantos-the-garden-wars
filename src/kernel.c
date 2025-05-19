@@ -151,29 +151,10 @@ void main()
     // Draw the garden background
     draw_image(GARDEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
     
-    // Draw the plant grid
     draw_plant_grid();
     
-    // Place plants using the grid-based system
-    // Row 0
-    draw_plant(PLANT_TYPE_PEASHOOTER, 0, 0);
-    draw_plant(PLANT_TYPE_SUNFLOWER, 1, 0);
-    draw_plant(PLANT_TYPE_SUNFLOWER_UNHAPPY, 2, 0);
-    draw_plant(PLANT_TYPE_FROZEN_PEASHOOTER, 3, 0);
-    draw_plant(PLANT_TYPE_CHILLIES, 4, 0);
+    fill_plant_grid();
     
-    // Row 1
-    draw_plant(PLANT_TYPE_CHILLIES_UNHAPPY, 0, 1);
-    draw_plant(PLANT_TYPE_WALLNUT, 1, 1);
-    draw_plant(PLANT_TYPE_WALLNUT_UNHAPPY, 2, 1);
-    
-    // Row 2
-    draw_plant(PLANT_TYPE_PEASHOOTER, 0, 2);
-    draw_plant(PLANT_TYPE_CHILLIES, 1, 2);
-    
-    // Row 3 
-    draw_plant(PLANT_TYPE_SUNFLOWER, 0, 3);
-    draw_plant(PLANT_TYPE_FROZEN_PEASHOOTER, 1, 3);
     
     // Main loop
     while (1)
