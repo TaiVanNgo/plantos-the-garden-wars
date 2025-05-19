@@ -45,7 +45,7 @@ endif
 all: clean uart1_build build_core build_video $(IMAGE)_video run1
 
 # Build basic OS without video
-basic: clean uart0_build build_core $(IMAGE) run0
+basic: clean uart0_build build_core build_game $(IMAGE) run0
 
 # Build OS including video
 video: clean uart1_build build_core build_video $(IMAGE)_video run1
@@ -105,7 +105,11 @@ $(BUILD_DIR)/%.o: assets/%.c | $(BUILD_DIR)
 $(BUILD_DIR)/games/%.o: $(SRC_DIR)/games/%.c | $(BUILD_DIR)
 	$(MKDIR)
 	aarch64-none-elf-gcc $(GCCFLAGS) -c $< -o $@
-
+build_game: 
+# Build game C files
+$(BUILD_DIR)/games/%.o: $(SRC_DIR)/games/%.c | $(BUILD_DIR)
+	$(MKDIR)
+	aarch64-none-elf-gcc $(GCCFLAGS) -c $< -o $@
 # Link and generate kernel image (without video)
 $(IMAGE): $(BUILD_DIR)/boot.o $(BUILD_DIR)/uart.o $(BUILD_DIR)/mbox.o $(BUILD_DIR)/framebf.o $(COMMON_OFILES) $(BUILD_DIR)/cmd.o $(ASSETS_OFILES) $(GAMES_OFILES) | $(BUILD_DIR)
 	aarch64-none-elf-ld -nostdlib $(BUILD_DIR)/boot.o $(BUILD_DIR)/mbox.o $(BUILD_DIR)/framebf.o $(BUILD_DIR)/uart.o $(COMMON_OFILES) $(BUILD_DIR)/cmd.o $(ASSETS_OFILES) $(GAMES_OFILES) -T $(ARCH_DIR)/link.ld -o $(BUILD_DIR)/kernel8.elf
