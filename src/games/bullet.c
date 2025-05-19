@@ -42,12 +42,10 @@ static void clear_score_area() {
 }
 
 static void init_game() {
-    // Fixed row for the peashooter (using row 1)
-    int fixed_row = 1;
     
     // Position the peashooter in the first column
     int shooter_x = PLANT_GRID_LEFT_MARGIN + ((PLANT_COL_WIDTH - PLANT_WIDTH) / 2);
-    int shooter_y = PLANT_GRID_TOP_MARGIN + (fixed_row * PLANT_ROW_HEIGHT) + 
+    int shooter_y = PLANT_GRID_TOP_MARGIN + PLANT_ROW_HEIGHT + 
                   ((PLANT_ROW_HEIGHT - PLANT_HEIGHT) / 2);
     
     // Initial bullet position (at the shooter's "mouth")
@@ -138,12 +136,9 @@ void update_bullets() {
 
 void fire_bullet() {
     if (!bullets.bullet_active) {
-        // Fixed row for the peashooter (using row 1)
-        int fixed_row = 1;
-        
         // Calculate peashooter position
         int shooter_x = PLANT_GRID_LEFT_MARGIN + ((PLANT_COL_WIDTH - PLANT_WIDTH) / 2);
-        int shooter_y = PLANT_GRID_TOP_MARGIN + (fixed_row * PLANT_ROW_HEIGHT) + 
+        int shooter_y = PLANT_GRID_TOP_MARGIN + PLANT_ROW_HEIGHT + 
                       ((PLANT_ROW_HEIGHT - PLANT_HEIGHT) / 2);
         
         // Set bullet position to start at the right side of the peashooter
