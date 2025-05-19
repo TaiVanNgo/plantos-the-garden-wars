@@ -14,15 +14,15 @@ static unsigned int background_buffer[BULLET_WIDTH * BULLET_HEIGHT];
 void handle_background(int x, int y, int restore) {
     for (int i = 0; i < BULLET_HEIGHT; i++) {
         int bg_y = y + i;
-        if (bg_y < 0 || bg_y >= BACKGROUND_HEIGHT) continue;
+        if (bg_y < 0 || bg_y >= GARDEN_HEIGHT) continue;
         for (int j = 0; j < BULLET_WIDTH; j++) {
             int bg_x = x + j;
-            if (bg_x < 0 || bg_x >= BACKGROUND_WIDTH) continue;
+            if (bg_x < 0 || bg_x >= GARDEN_WIDTH) continue;
             if (restore) {
                 if (bg_x < PHYSICAL_WIDTH && bg_y < PHYSICAL_HEIGHT)
                     draw_pixel(bg_x, bg_y, background_buffer[i * BULLET_WIDTH + j]);
             } else {
-                background_buffer[i * BULLET_WIDTH + j] = GARDEN[bg_y * BACKGROUND_WIDTH + bg_x];
+                background_buffer[i * BULLET_WIDTH + j] = GARDEN[bg_y * GARDEN_WIDTH + bg_x];
             }
         }
     }
@@ -164,7 +164,7 @@ void bullet_game() {
     init_game();
     
     // Draw the garden background
-    draw_image(GARDEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
+    draw_image(GARDEN, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
     
     // Draw the plant grid
     draw_plant_grid();

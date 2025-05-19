@@ -64,58 +64,24 @@ void draw_plant_grid(void) {
     
     // Draw horizontal grid lines
     for (int i = 0; i <= PLANT_GRID_ROWS; i++) {
-        int y = PLANT_GRID_TOP_MARGIN + (i * PLANT_ROW_HEIGHT);
-        int x1 = PLANT_GRID_LEFT_MARGIN;
-        int x2 = BACKGROUND_WIDTH;
-        draw_line(x1, y, x2, y, grid_color);
+        draw_line(
+            PLANT_GRID_LEFT_MARGIN, 
+            PLANT_GRID_TOP_MARGIN + (i * PLANT_ROW_HEIGHT), 
+            GARDEN_WIDTH, 
+            PLANT_GRID_TOP_MARGIN + (i * PLANT_ROW_HEIGHT), 
+            grid_color
+        );
     }
     
     // Top margin (horizontal line)
-    draw_line(
-        0, 
-        PLANT_GRID_TOP_MARGIN, 
-        BACKGROUND_WIDTH, 
-        PLANT_GRID_TOP_MARGIN, 
-        margin_color
-    );
-
-    // Draw vertical grid lines using draw_vline
-    for (int i = 0; i <= PLANT_GRID_COLS; i++) {
-        int x = PLANT_GRID_LEFT_MARGIN + (i * PLANT_COL_WIDTH);
-        int y1 = PLANT_GRID_TOP_MARGIN;
-        int y2 = PLANT_GRID_TOP_MARGIN + (PLANT_GRID_ROWS * PLANT_ROW_HEIGHT);
-        draw_vline(x, y1, y2, grid_color);
+    for (int i = 0; i < 3; i++) {
+        draw_line(
+            0, 
+            PLANT_GRID_TOP_MARGIN + i, 
+            GARDEN_WIDTH, 
+            PLANT_GRID_TOP_MARGIN + i, 
+            margin_color
+        );
     }
-
-    // Left margin (vertical line)
-    draw_vline(
-        PLANT_GRID_LEFT_MARGIN, 
-        PLANT_GRID_TOP_MARGIN, 
-        BACKGROUND_HEIGHT, 
-        margin_color
-    ); 
-}
-
-// Fill the plant grid for testing purposes
-void fill_plant_grid(void) {
-    int plant_types[] = {
-        PLANT_TYPE_PEASHOOTER,
-        PLANT_TYPE_SUNFLOWER,
-        PLANT_TYPE_SUNFLOWER_UNHAPPY,
-        PLANT_TYPE_FROZEN_PEASHOOTER,
-        PLANT_TYPE_CHILLIES,
-        PLANT_TYPE_CHILLIES_UNHAPPY,
-        PLANT_TYPE_WALLNUT,
-        PLANT_TYPE_WALLNUT_UNHAPPY
-    };
-    int num_types = sizeof(plant_types) / sizeof(plant_types[0]);
-    int cols = 9;
-    int rows = 4;
-    int type_idx = 0;
-    for (int y = 0; y < rows; y++) {
-        for (int x = 0; x < cols; x++) {
-            draw_plant(plant_types[type_idx], x, y);
-            type_idx = (type_idx + 1) % num_types;
-        }
-    }
+    
 }
