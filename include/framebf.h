@@ -26,3 +26,4 @@ void draw_image(const unsigned int pixel_data[], int pos_x, int pos_y, int width
 void clear_screen();
 void draw_char(unsigned char ch, int x, int y, unsigned int attr, int scale);
 void draw_string(int x, int y, char *s, unsigned int attr, int scale);
+void restore_background_area(int x, int y, int width, int height);
