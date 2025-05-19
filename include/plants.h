@@ -15,9 +15,9 @@
 #define PLANT_TYPE_WALLNUT_UNHAPPY    7
 
 // Grid parameters
-#define PLANT_GRID_LEFT_MARGIN   50   // Starting x position for the first column
+#define PLANT_GRID_LEFT_MARGIN   45   // Starting x position for the first column
 #define PLANT_GRID_TOP_MARGIN    180  // Starting y position for the first row
-#define PLANT_COL_WIDTH          70   // Width of each column
+#define PLANT_COL_WIDTH          78   // Width of each column
 #define PLANT_ROW_HEIGHT         85   // Height of each row
 #define PLANT_GRID_ROWS          4    // Number of rows in grid
 #define PLANT_GRID_COLS          9    // Number of columns in grid
