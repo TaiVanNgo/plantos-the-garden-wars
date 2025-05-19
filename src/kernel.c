@@ -15,8 +15,8 @@
 // #include "background.c"
 //    #define TASK1
 //   #define TASK2_VID
-//  #define ZOMBIE_INIT
-#define PLANT_INIT
+ #define ZOMBIE_INIT
+// #define PLANT_INIT
 //   #define TASK3_BULLET
 
 // void display_team_members(int show_bg)
@@ -135,7 +135,9 @@ void main()
     uart_init();
 
     framebf_init();
-    game_init();
+    // game_init();
+
+    game_start();
 
     while (1)
     {
@@ -171,7 +173,10 @@ void main()
     uart_puts("Starting Bullet Game...\n");
 
     // Run the bullet game
-    bullet_game();
+    // bullet_game();
+
+    start_game();
+
 
     // After game ends, run CLI
     // while (1)
@@ -187,13 +192,16 @@ void main()
 
     uart_init();
     framebf_init();
-
-    display_team_members(1);
-
-    while (1)
-    {
-        char c = uart_getc();
-        uart_sendc(c);
-    }
+    
+    game_init();
+    
+    // draw_image(QUIT, 0, 0, 300, 85, 0);
+    // display_team_members(1);
+    
+    // while (1)
+    // {
+    //     char c = uart_getc();
+    //     uart_sendc(c);
+    // }
 }
 #endif

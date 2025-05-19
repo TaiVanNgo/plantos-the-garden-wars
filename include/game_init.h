@@ -6,5 +6,5 @@
 #include "utils.h"
 
 void game_init();
-
+void game_start();
 #endif

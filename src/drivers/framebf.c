@@ -343,8 +343,10 @@ void draw_string(int x, int y, char *s, unsigned int attr, int scale)
   }
 }
 
-void restore_background_area(int x, int y, int width, int height)
+
+void restore_background_area(int x, int y, int width, int height, int draw_main_screen)
 {
+
   for (int row = 0; row < height; row++)
   {
     for (int col = 0; col < width; col++)
@@ -358,7 +360,12 @@ void restore_background_area(int x, int y, int width, int height)
         int bg_index = screen_y * GARDEN_WIDTH + screen_x;
         int fb_index = screen_y * (pitch / 4) + screen_x;
 
-        *((unsigned int *)fb + fb_index) = GARDEN[bg_index];
+        if( draw_main_screen){
+          *((unsigned int *)fb + fb_index) = MAIN_SCREEN[bg_index];
+        }else{
+          *((unsigned int *)fb + fb_index) = GARDEN[bg_index];
+        }
+        
       }
     }
   }
