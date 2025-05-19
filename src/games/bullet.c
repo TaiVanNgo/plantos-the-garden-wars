@@ -217,9 +217,7 @@ void bullet_game() {
     clear_screen();
     // Draw background
     draw_image(GAME_BACKGROUND, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);   
-    // Draw initial plants
-    draw_sunflower(100, 200);
-    draw_peashooter(200, 200);
+    // Draw initial plant
     bullet_set_position(300, 200);
     update_bullets();
     
@@ -237,10 +235,7 @@ void bullet_game() {
         
         // Clear previous bullet area
         clear_bullet_area();
-        
-        
-        draw_sunflower(100, 200);
-        draw_peashooter(200, 200);
+    
         
         // Update and draw bullet
         update_bullets();

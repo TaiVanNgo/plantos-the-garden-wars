@@ -147,28 +147,38 @@ void main()
 {
     uart_init();
     framebf_init();
+    
+    // Draw the garden background
     draw_image(GARDEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
-
-    draw_peashooter(200, 200);
-    draw_bullet_green(200, 200);
-
-    draw_sunflower(300, 200);
-    draw_sunflower_unhappy(400, 200);
-    draw_frozen_peashooter(500, 200);
-    draw_bullet_blue(500, 200);
-    draw_chillies(600, 200);
-    draw_chillies_unhappy(700, 200);
-    draw_wallnut(800, 200);
-    draw_wallnut_unhappy(900, 200);
-
+    
+    // Draw the plant grid
+    draw_plant_grid();
+    
+    // Place plants using the grid-based system
+    // Row 0
+    draw_plant(PLANT_TYPE_PEASHOOTER, 0, 0);
+    draw_plant(PLANT_TYPE_SUNFLOWER, 1, 0);
+    draw_plant(PLANT_TYPE_SUNFLOWER_UNHAPPY, 2, 0);
+    draw_plant(PLANT_TYPE_FROZEN_PEASHOOTER, 3, 0);
+    draw_plant(PLANT_TYPE_CHILLIES, 4, 0);
+    
+    // Row 1
+    draw_plant(PLANT_TYPE_CHILLIES_UNHAPPY, 0, 1);
+    draw_plant(PLANT_TYPE_WALLNUT, 1, 1);
+    draw_plant(PLANT_TYPE_WALLNUT_UNHAPPY, 2, 1);
+    
+    // Row 2
+    draw_plant(PLANT_TYPE_PEASHOOTER, 0, 2);
+    draw_plant(PLANT_TYPE_CHILLIES, 1, 2);
+    
+    // Row 3 
+    draw_plant(PLANT_TYPE_SUNFLOWER, 0, 3);
+    draw_plant(PLANT_TYPE_FROZEN_PEASHOOTER, 1, 3);
+    
+    // Main loop
     while (1)
     {
         char c = getUart();
-        // if (c == ' ') {
-        //     bullet_set_position(300, 200);
-        // }
-        // update_bullets();
-        // draw_game();
         uart_sendc(c);
     }
 }
