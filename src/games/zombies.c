@@ -14,6 +14,32 @@ const Zombie default_zombie_normal = {
     .is_frozen = 0,
     .active = 1};
 
+const Zombie default_zombie_bucket = {
+    .type = ZOMBIE_BUCKET,
+    .x = 800,
+    .y = 0,
+    .row = 0,
+    .health = 150,
+    .max_health = 150,
+    .speed = 1,
+    .damage = 10,
+    .attack_speed = 8,
+    .is_frozen = 0,
+    .active = 1};
+
+const Zombie default_zombie_helmet = {
+    .type = ZOMBIE_HELMET,
+    .x = 800,
+    .y = 0,
+    .row = 0,
+    .health = 250,
+    .max_health = 250,
+    .speed = 1,
+    .damage = 15,
+    .attack_speed = 8,
+    .is_frozen = 0,
+    .active = 1};
+
 Zombie create_zombie(uint8_t type, uint8_t row)
 {
   Zombie new_zombie;
@@ -22,13 +48,18 @@ Zombie create_zombie(uint8_t type, uint8_t row)
   case ZOMBIE_NORMAL:
     new_zombie = default_zombie_normal;
     break;
-  // Add other types here
+  case ZOMBIE_BUCKET:
+    new_zombie = default_zombie_bucket;
+    break;
+  case ZOMBIE_HELMET:
+    new_zombie = default_zombie_helmet;
+    break;
   default:
     break;
   }
 
   int lane_height = 85;
-  int top_margin = 110; // Pixels from top of screen to first lane
+  int top_margin = 100; // Pixels from top of screen to first lane
 
   new_zombie.row = row;
   new_zombie.x = 700; // Spawn from right
@@ -96,10 +127,10 @@ void update_zombie_position(Zombie *zombie)
     draw_image(ZOMBIE_NORMAL_SPRITE, zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);
     break;
   case ZOMBIE_BUCKET:
-    // draw_image(bucket_zombie, zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);
+    draw_image(ZOMBIE_BUCKET_SPRITE, zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);
     break;
   case ZOMBIE_HELMET:
-    // draw_image(helmet_zombie, zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);
+    draw_image(ZOMBIE_HELMET_SPRITE, zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);
     break;
   default:
     break;
