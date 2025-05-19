@@ -1,4 +1,11 @@
 // ----------------------------------- framebf.h -------------------------------------
+#include "../assets/fonts/fonts.h"
+#include "../assets/backgrounds/garden.h"
+#include "mbox.h"
+#include "uart0.h"
+#include "uart1.h"
+#include "video.h"
+
 #define RED 0xFF0000
 #define SALMON_RED 0xFF6666
 #define GREEN 0x00FF00
@@ -27,3 +34,7 @@ void clear_screen();
 void draw_char(unsigned char ch, int x, int y, unsigned int attr, int scale);
 void draw_string(int x, int y, char *s, unsigned int attr, int scale);
 void restore_background_area(int x, int y, int width, int height);
+// Simulated background functions
+void create_simulated_background(unsigned int *sim_bg, const unsigned int garden[], int garden_width, int garden_height);
+void draw_on_simulated_background(unsigned int *sim_bg, const unsigned int plant[], int plant_x, int plant_y, int plant_width, int plant_height, int garden_width);
+unsigned int get_simulated_pixel(const unsigned int *sim_bg, int x, int y, int garden_width);
