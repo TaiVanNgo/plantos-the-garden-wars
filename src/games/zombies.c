@@ -27,8 +27,8 @@ Zombie create_zombie(uint8_t type, uint8_t row)
     break;
   }
 
-  int lane_height = 96;
-  int top_margin = 80; // Pixels from top of screen to first lane
+  int lane_height = 85;
+  int top_margin = 110; // Pixels from top of screen to first lane
 
   new_zombie.row = row;
   new_zombie.x = 700; // Spawn from right

@@ -7,11 +7,13 @@
 #include "../include/utils.h"
 #include "../include/zombies.h"
 #include "../include/plants.h"
-//#include "background.c"
-//   #define TASK1
-//  #define TASK2_VID
-// #define ZOMBIE_INIT
-#define PLANT_INIT
+#include "../include/game_init.h"
+#include "../assets/backgrounds/background.h"
+
+//    #define TASK1
+// #define TASK2_VID
+#define ZOMBIE_INIT
+// #define PLANT_INIT
 
 void display_team_members(int show_bg)
 {
@@ -128,9 +130,8 @@ void main()
     uart_init();
 
     framebf_init();
-    draw_image(GAME_BACKGROUND, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
-    draw_zombie(100, 100);
-     
+    game_init();
+
     while (1)
     {
         char c = uart_getc();
@@ -143,7 +144,7 @@ void main()
     uart_init();
     framebf_init();
     draw_sunflower(400, 400);
-    
+
     while (1)
     {
         char c = uart_getc();

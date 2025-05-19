@@ -1,6 +1,6 @@
 // ----------------------------------- framebf.h -------------------------------------
 #include "../assets/fonts/fonts.h"
-#include "../assets/backgrounds/background.h"
+#include "../assets/backgrounds/garden.h"
 #include "mbox.h"
 #include "uart0.h"
 #include "uart1.h"

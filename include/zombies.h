@@ -18,7 +18,7 @@ typedef struct
   uint8_t type; // Zombie type (enum ZombieType)
   uint16_t x;   // X position on the grid (pixels)
   uint16_t y;   // Y position on the grid (pixels)
-  uint8_t row;  // Which row (0–4 for 5 lanes)
+  uint8_t row;  // Which row (0–3 for 4 lanes)
 
   uint16_t health;      // Current health
   uint16_t max_health;  // Maximum health

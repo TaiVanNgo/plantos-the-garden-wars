@@ -343,7 +343,7 @@ void restore_background_area(int x, int y, int width, int height)
         int bg_index = screen_y * BACKGROUND_WIDTH + screen_x;
         int fb_index = screen_y * (pitch / 4) + screen_x;
 
-        *((unsigned int *)fb + fb_index) = GAME_BACKGROUND[bg_index];
+        *((unsigned int *)fb + fb_index) = GARDEN[bg_index];
       }
     }
   }
