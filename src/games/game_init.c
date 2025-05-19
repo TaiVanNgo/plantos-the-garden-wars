@@ -2,7 +2,7 @@
 
 void game_init()
 {
-  draw_image(GARDEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
+  draw_image(GARDEN, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
   draw_rect(0, 70, 800, 70, RED, 0);
   draw_rect(0, 184, 800, 272, BLUE, 0);
 
