@@ -5,9 +5,8 @@
 #include "../include/cmd.h"
 #include "../include/video.h"
 #include "../include/utils.h"
+#include "../include/game_init.h"
 #include "../assets/backgrounds/background.h"
-#include "../assets/button/button.h"
-//#include "background.c"
 //   #define TASK1
 //  #define TASK2_VID
 
@@ -127,13 +126,14 @@ void main()
     uart_init();
     framebf_init();
     
-    draw_image(QUIT, 0, 0, 300, 85, 0);
+    game_init();
+    // draw_image(QUIT, 0, 0, 300, 85, 0);
     // display_team_members(1);
     
-    while (1)
-    {
-        char c = uart_getc();
-        uart_sendc(c);
-    }
+    // while (1)
+    // {
+    //     char c = uart_getc();
+    //     uart_sendc(c);
+    // }
 }
 #endif
