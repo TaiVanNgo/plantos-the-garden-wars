@@ -30,11 +30,11 @@ struct bullets {
     int bullet_active;
 };
 
-extern struct bullets bullets[MAX_BULLETS];
+extern struct bullets bullets;
 
 void bullet_set_position(int x, int y);
 void update_bullets(void);
-void fire_bullet(int x, int y);
+void fire_bullet(void);
 void update_all_bullets(void);
 void draw_all_bullets(void);
 
