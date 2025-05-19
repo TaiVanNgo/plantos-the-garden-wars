@@ -65,7 +65,7 @@ void draw_plant_grid(void) {
         draw_line(
             PLANT_GRID_LEFT_MARGIN, 
             PLANT_GRID_TOP_MARGIN + (i * PLANT_ROW_HEIGHT), 
-            BACKGROUND_WIDTH, 
+            GARDEN_WIDTH, 
             PLANT_GRID_TOP_MARGIN + (i * PLANT_ROW_HEIGHT), 
             grid_color
         );
@@ -76,7 +76,7 @@ void draw_plant_grid(void) {
         draw_line(
             0, 
             PLANT_GRID_TOP_MARGIN + i, 
-            BACKGROUND_WIDTH, 
+            GARDEN_WIDTH, 
             PLANT_GRID_TOP_MARGIN + i, 
             margin_color
         );

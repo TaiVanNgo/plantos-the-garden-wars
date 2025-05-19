@@ -1,54 +1,63 @@
 #include "../include/framebf.h"
 #include "../include/uart0.h"
 #include "bullet.h"
-#include "../assets/backgrounds/background.h"
+#include "../assets/backgrounds/garden.h"
+#include "../../include/plants.h"
 
 extern unsigned char *fb; 
 
-struct bullets bullets;
+#define MAX_BULLETS 2
+// #define MAX_BULLETS 6 // Uncomment for 6 bullets
+
+struct bullets bullets[MAX_BULLETS];
 
 // Box dimensions
 #define BOX_SIZE 20
 #define DEFAULT_BULLET_SPEED 1
 #define DEFAULT_COLLISION_DELAY 10 
 
+// Simulated background buffer
+static unsigned int simulated_background[GARDEN_WIDTH * GARDEN_HEIGHT];
 
 #define UI_X 10
 #define UI_Y 10
 #define UI_W 350
 #define UI_H 40
 
-// Buffer to store the background under the bullet
-static unsigned int background_buffer[BOX_SIZE * BOX_SIZE];
+// Buffer to store the background under each bullet
+static unsigned int background_buffer[MAX_BULLETS][BOX_SIZE * BOX_SIZE];
 
 #define GRID_COLS 8
 #define GRID_ROWS 4
 #define CELL_WIDTH  (800 / 8)
 #define CELL_HEIGHT (600 / 4)
 
-void handle_background(int x, int y, int restore) {
+void handle_background(int x, int y, int restore, int bullet_idx) {
     for (int i = 0; i < BOX_SIZE; i++) {
         int bg_y = y + i;
-        if (bg_y < 0 || bg_y >= BACKGROUND_HEIGHT) continue;
+        if (bg_y < 0 || bg_y >= GARDEN_HEIGHT) continue;
         for (int j = 0; j < BOX_SIZE; j++) {
             int bg_x = x + j;
-            if (bg_x < 0 || bg_x >= BACKGROUND_WIDTH) continue;
+            if (bg_x < 0 || bg_x >= GARDEN_WIDTH) continue;
             if (restore) {
                 if (bg_x < PHYSICAL_WIDTH && bg_y < PHYSICAL_HEIGHT)
-                    draw_pixel(bg_x, bg_y, background_buffer[i * BOX_SIZE + j]);
+                    draw_pixel(bg_x, bg_y, background_buffer[bullet_idx][i * BOX_SIZE + j]);
             } else {
-                background_buffer[i * BOX_SIZE + j] = GAME_BACKGROUND[bg_y * BACKGROUND_WIDTH + bg_x];
+                background_buffer[bullet_idx][i * BOX_SIZE + j] = get_simulated_pixel(simulated_background, bg_x, bg_y, GARDEN_WIDTH);
             }
         }
     }
 }
 
-#define save_background(x, y) handle_background((x), (y), 0)
-#define restore_background(x, y) handle_background((x), (y), 1)
+#define save_background(x, y, idx) handle_background((x), (y), 0, (idx))
+#define restore_background(x, y, idx) handle_background((x), (y), 1, (idx))
 
 static void clear_bullet_area() {
-    if (bullets.bullet_active) {
-        restore_background(bullets.prev_bullet_x, bullets.prev_bullet_y);
+    if (bullets[0].bullet_active) {
+        restore_background(bullets[0].prev_bullet_x, bullets[0].prev_bullet_y, 0);
+    }
+    if (bullets[1].bullet_active) {
+        restore_background(bullets[1].prev_bullet_x, bullets[1].prev_bullet_y, 1);
     }
 }
 
@@ -58,25 +67,45 @@ static void clear_score_area() {
 
 static void init_game() {
  
-    bullets.bullet_x = 50;
-    bullets.bullet_y = PHYSICAL_HEIGHT / 2;
-    bullets.prev_bullet_x = bullets.bullet_x;
-    bullets.prev_bullet_y = bullets.bullet_y;
+    bullets[0].bullet_x = 50;
+    bullets[0].bullet_y = PHYSICAL_HEIGHT / 2;
+    bullets[0].prev_bullet_x = bullets[0].bullet_x;
+    bullets[0].prev_bullet_y = bullets[0].bullet_y;
     
 
-    bullets.target_x = PHYSICAL_WIDTH - 100;
-    bullets.target_y = PHYSICAL_HEIGHT / 2;
+    bullets[0].target_x = PHYSICAL_WIDTH - 100;
+    bullets[0].target_y = PHYSICAL_HEIGHT / 2;
     
    
-    bullets.bullet_speed = DEFAULT_BULLET_SPEED;
-    bullets.last_bullet_speed = DEFAULT_BULLET_SPEED;
-    bullets.collision_timer = 0;
-    bullets.collision_delay = DEFAULT_COLLISION_DELAY;
-    bullets.bullet_active = 1;  
+    bullets[0].bullet_speed = DEFAULT_BULLET_SPEED;
+    bullets[0].last_bullet_speed = DEFAULT_BULLET_SPEED;
+    bullets[0].collision_timer = 0;
+    bullets[0].collision_delay = DEFAULT_COLLISION_DELAY;
+    bullets[0].bullet_active = 1;  
     
-    bullets.score = 0;
-    bullets.last_score = -1;
-    bullets.game_over = 0;
+    bullets[0].score = 0;
+    bullets[0].last_score = -1;
+    bullets[0].game_over = 0;
+
+    bullets[1].bullet_x = 50;
+    bullets[1].bullet_y = PHYSICAL_HEIGHT / 2;
+    bullets[1].prev_bullet_x = bullets[1].bullet_x;
+    bullets[1].prev_bullet_y = bullets[1].bullet_y;
+    
+
+    bullets[1].target_x = PHYSICAL_WIDTH - 100;
+    bullets[1].target_y = PHYSICAL_HEIGHT / 2;
+    
+   
+    bullets[1].bullet_speed = DEFAULT_BULLET_SPEED;
+    bullets[1].last_bullet_speed = DEFAULT_BULLET_SPEED;
+    bullets[1].collision_timer = 0;
+    bullets[1].collision_delay = DEFAULT_COLLISION_DELAY;
+    bullets[1].bullet_active = 1;  
+    
+    bullets[1].score = 0;
+    bullets[1].last_score = -1;
+    bullets[1].game_over = 0;
 }
 
 
@@ -136,69 +165,86 @@ static void format_score_speed(char *buf, int score, int speed) {
 static void draw_game() {
 
     clear_bullet_area();
-    if (bullets.bullet_active) {
-        // save_background(bullets.bullet_x, bullets.bullet_y);
-        draw_rect(bullets.bullet_x, bullets.bullet_y, 
-                  bullets.bullet_x + BOX_SIZE, bullets.bullet_y + BOX_SIZE, 
+    if (bullets[0].bullet_active) {
+        // save_background(bullets[0].bullet_x, bullets[0].bullet_y, 0);
+        draw_rect(bullets[0].bullet_x, bullets[0].bullet_y, 
+                  bullets[0].bullet_x + BOX_SIZE, bullets[0].bullet_y + BOX_SIZE, 
+                  BLUE, 1);
+    }
+    if (bullets[1].bullet_active) {
+        // save_background(bullets[1].bullet_x, bullets[1].bullet_y, 1);
+        draw_rect(bullets[1].bullet_x, bullets[1].bullet_y, 
+                  bullets[1].bullet_x + BOX_SIZE, bullets[1].bullet_y + BOX_SIZE, 
                   BLUE, 1);
     }
     
     // Draw target 
-    draw_rect(bullets.target_x, bullets.target_y,
-              bullets.target_x + BOX_SIZE, bullets.target_y + BOX_SIZE,
+    draw_rect(bullets[0].target_x, bullets[0].target_y,
+              bullets[0].target_x + BOX_SIZE, bullets[0].target_y + BOX_SIZE,
+              RED, 1);
+    draw_rect(bullets[1].target_x, bullets[1].target_y,
+              bullets[1].target_x + BOX_SIZE, bullets[1].target_y + BOX_SIZE,
               RED, 1);
     
 
-    if (bullets.score != bullets.last_score || bullets.bullet_speed != bullets.last_bullet_speed) {
+    if (bullets[0].score != bullets[0].last_score || bullets[0].bullet_speed != bullets[0].last_bullet_speed) {
         clear_score_area();
         char info_str[64];
-        format_score_speed(info_str, bullets.score, bullets.bullet_speed);
+        format_score_speed(info_str, bullets[0].score, bullets[0].bullet_speed);
         draw_string(UI_X, UI_Y, info_str, WHITE, 2);
-        bullets.last_score = bullets.score;
-        bullets.last_bullet_speed = bullets.bullet_speed;
+        bullets[0].last_score = bullets[0].score;
+        // bullets[0].i = bullets[0].bullet_speed;
+    }
+    if (bullets[1].score != bullets[1].last_score || bullets[1].bullet_speed != bullets[1].last_bullet_speed) {
+        clear_score_area();
+        char info_str[64];
+        format_score_speed(info_str, bullets[1].score, bullets[1].bullet_speed);
+        draw_string(UI_X, UI_Y, info_str, WHITE, 2);
+        bullets[1].last_score = bullets[1].score;
+        bullets[1].last_bullet_speed = bullets[1].bullet_speed;
     }
 }
 
-static int check_collision() {
-    if (!bullets.bullet_active) {
+static int check_collision(struct bullets *bullet) {
+    if (!bullet->bullet_active) {
         return 0;
     }
     
     // Check if bullet box overlaps with target box
-    if (bullets.bullet_x < bullets.target_x + BOX_SIZE &&
-        bullets.bullet_x + BOX_SIZE > bullets.target_x &&
-        bullets.bullet_y < bullets.target_y + BOX_SIZE &&
-        bullets.bullet_y + BOX_SIZE > bullets.target_y) {
+    if (bullet->bullet_x < bullet->target_x + BOX_SIZE &&
+        bullet->bullet_x + BOX_SIZE > bullet->target_x &&
+        bullet->bullet_y < bullet->target_y + BOX_SIZE &&
+        bullet->bullet_y + BOX_SIZE > bullet->target_y) {
         return 1;
     }
     return 0;
 }
 
 void update_bullets() {
-    if (bullets.bullet_active) {
-        // Save current position as previous
-        bullets.prev_bullet_x = bullets.bullet_x;
-        bullets.prev_bullet_y = bullets.bullet_y;
-        
-        // Move bullet right
-        bullets.bullet_x += bullets.bullet_speed;
-        // Check collision
-        if (check_collision()) {
-            bullets.score++;
-            bullets.bullet_active = 0;
-        }
-        if (bullets.bullet_x > PHYSICAL_WIDTH) {
-            bullets.bullet_active = 0;
+    for (int i = 0; i < MAX_BULLETS; i++) {
+        if (bullets[i].bullet_active) {
+            handle_background(bullets[i].prev_bullet_x, bullets[i].prev_bullet_y, 1, i); // Restore
+            bullets[i].prev_bullet_x = bullets[i].bullet_x;
+            bullets[i].prev_bullet_y = bullets[i].bullet_y;
+            bullets[i].bullet_x += bullets[i].bullet_speed;
+            // Check collision
+            if (check_collision(&bullets[i])) {
+                bullets[i].score++;
+                bullets[i].bullet_active = 0;
+            }
+            off_screen(&bullets[i]);
         }
     }
 }
 
 void bullet_set_position(int x, int y) {
-    bullets.bullet_x = x;
-    bullets.bullet_y = y;
-    bullets.prev_bullet_x = x;
-    bullets.prev_bullet_y = y;
-    bullets.bullet_active = 1;
+    for (int i = 0; i < MAX_BULLETS; i++) {
+        bullets[i].bullet_x = x;
+        bullets[i].bullet_y = y;
+        bullets[i].prev_bullet_x = x;
+        bullets[i].prev_bullet_y = y;
+        bullets[i].bullet_active = 1;
+    }
 }
 
 void check_grid_position() {
@@ -224,76 +270,114 @@ void bullet_set_grid(int row, int col) {
     bullet_set_position(x, y);
 }
 
+void fire_bullet(int x, int y) {
+    for (int i = 0; i < MAX_BULLETS; i++) {
+        if (!bullets[i].bullet_active) {
+            bullets[i].bullet_x = x;
+            bullets[i].bullet_y = y;
+            bullets[i].prev_bullet_x = x;
+            bullets[i].prev_bullet_y = y;
+            bullets[i].bullet_active = 1;
+            handle_background(x, y, 0, i); // Save background
+            break;
+        }
+    }
+}
+
+void update_all_bullets(void) {
+    for (int i = 0; i < MAX_BULLETS; i++) {
+        if (bullets[i].bullet_active) {
+            handle_background(bullets[i].prev_bullet_x, bullets[i].prev_bullet_y, 1, i); // Restore
+            bullets[i].prev_bullet_x = bullets[i].bullet_x;
+            bullets[i].prev_bullet_y = bullets[i].bullet_y;
+            bullets[i].bullet_x += bullets[i].bullet_speed;
+            handle_background(bullets[i].bullet_x, bullets[i].bullet_y, 0, i); // Save
+            if (bullets[i].bullet_x > PHYSICAL_WIDTH) {
+                bullets[i].bullet_active = 0;
+            }
+        }
+    }
+}
+
+void draw_all_bullets(void) {
+    for (int i = 0; i < MAX_BULLETS; i++) {
+        if (bullets[i].bullet_active) {
+            draw_image(bullet_green, bullets[i].bullet_x, bullets[i].bullet_y, BULLET_WIDTH, BULLET_HEIGHT, 0);
+        }
+    }
+}
+
+// Function to draw plant both on screen and in simulated background
+void draw_plant_both(int plant_type, int col, int row, const unsigned int *plant_sprite) {
+    // Draw plant on screen
+    draw_plant(plant_type, col, row);
+    
+    // Add plant to simulated background
+    draw_on_simulated_background(simulated_background, plant_sprite,
+        PLANT_GRID_LEFT_MARGIN + (col * PLANT_COL_WIDTH),
+        PLANT_GRID_TOP_MARGIN + (row * PLANT_ROW_HEIGHT),
+        PLANT_WIDTH, PLANT_HEIGHT, GARDEN_WIDTH);
+}
+
 void bullet_game() {
     framebf_init();
-    bullets.bullet_x = 50;
-    bullets.bullet_y = PHYSICAL_HEIGHT / 2;
-    bullets.prev_bullet_x = bullets.bullet_x;
-    bullets.prev_bullet_y = bullets.bullet_y;
-    bullets.target_x = PHYSICAL_WIDTH - 100;
-    bullets.target_y = PHYSICAL_HEIGHT / 2;
-    bullets.bullet_speed = 2;
-    bullets.bullet_active = 0;
-    bullets.score = 0;
-    bullets.game_over = 0;
     clear_screen();
-    draw_image(GAME_BACKGROUND, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
-    draw_grid();
-    // draw_sunflower(100, 200);
-    // draw_peashooter(200, 200);
-    bullet_set_grid(1, 3); 
-    update_bullets();
-    while (!bullets.game_over) {
+    
+    // Create simulated background with garden
+    create_simulated_background(simulated_background, GARDEN, GARDEN_WIDTH, GARDEN_HEIGHT);
+    
+    // Draw garden background
+    draw_image(GARDEN, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
+    
+    // Draw plant grid
+    draw_plant_grid();
+    
+    // Draw plants using the new combined function
+    draw_plant_both(PLANT_TYPE_SUNFLOWER, 1, 2, sunflower);
+    draw_plant_both(PLANT_TYPE_PEASHOOTER, 2, 1, peashooter);
+    draw_plant_both(PLANT_TYPE_SUNFLOWER, 2, 2, sunflower);
+    for (int i = 0; i < MAX_BULLETS; i++) {
+        bullets[i].bullet_active = 0;
+        bullets[i].bullet_speed = 1;
+    }
+    
+    while (1) {
         char c = getUart();
         if (c == ' ') {
-            if (!bullets.bullet_active) {
-                bullet_set_grid(0, 4);
-            }
+            // Fire bullets from both plants
+            fire_bullet(PLANT_GRID_LEFT_MARGIN + (1 * PLANT_COL_WIDTH), PLANT_GRID_TOP_MARGIN + (1 * PLANT_ROW_HEIGHT));
+            fire_bullet(PLANT_GRID_LEFT_MARGIN + (2 * PLANT_COL_WIDTH), PLANT_GRID_TOP_MARGIN + (2 * PLANT_ROW_HEIGHT));
         } else if (c == 'q') {
-            bullets.game_over = 1;
+            break;
         }
-        clear_bullet_area();
-        draw_grid();
-        // draw_sunflower(100, 200);
-        // draw_peashooter(200, 200);
-        update_bullets();
-        if (bullets.bullet_active) {
-            save_background(bullets.bullet_x, bullets.bullet_y);
-            for (int i = 0; i < BOX_SIZE; i++) {
-                for (int j = 0; j < BOX_SIZE; j++) {
-                    int px = bullets.bullet_x + j;
-                    int py = bullets.bullet_y + i;
-                    if (px < 0 || px >= PHYSICAL_WIDTH || py < 0 || py >= PHYSICAL_HEIGHT)
-                        continue;
-                    draw_pixel(px, py, BLUE);
+        
+        // Update and draw bullets
+        for (int i = 0; i < MAX_BULLETS; i++) {
+            if (bullets[i].bullet_active) {
+                // 1. Restore background at previous position
+                restore_background(bullets[i].prev_bullet_x, bullets[i].prev_bullet_y, i);
+                // 2. Update previous position to current
+                bullets[i].prev_bullet_x = bullets[i].bullet_x;
+                bullets[i].prev_bullet_y = bullets[i].bullet_y;
+                // 3. Update bullet position
+                bullets[i].bullet_x += bullets[i].bullet_speed;
+                // 4. Save background at new position
+                save_background(bullets[i].bullet_x, bullets[i].bullet_y, i);
+                // 5. Draw bullet at new position
+                draw_image(bullet_green, bullets[i].bullet_x, bullets[i].bullet_y, BULLET_WIDTH, BULLET_HEIGHT, 0);
+                if (bullets[i].bullet_x > PHYSICAL_WIDTH) {
+                    bullets[i].bullet_active = 0;
                 }
             }
         }
-        draw_rect(bullets.target_x, bullets.target_y,
-                 bullets.target_x + BOX_SIZE, bullets.target_y + BOX_SIZE,
-                 RED, 1);
-        char score_str[32];
-        int i = 0;
-        score_str[i++] = 'S';
-        score_str[i++] = 'c';
-        score_str[i++] = 'o';
-        score_str[i++] = 'r';
-        score_str[i++] = 'e';
-        score_str[i++] = ':';
-        score_str[i++] = ' ';
-        int score = bullets.score;
-        if (score == 0) {
-            score_str[i++] = '0';
-        } else {
-            while (score > 0) {
-                score_str[i++] = '0' + (score % 10);
-                score /= 10;
-            }
-        }
-        score_str[i] = '\0';
-        draw_string(10, 10, score_str, WHITE, 2);
-        for (volatile int i = 0; i < 400000; i++);
+        // Add a smaller delay to control bullet speed
+        for (volatile int i = 0; i < 100000; i++);
     }
-    
-    uart_puts("Game over\n");
+}
+
+void off_screen(struct bullets *bullet) {
+    if (bullet->bullet_x > PHYSICAL_WIDTH) {
+        handle_background(bullet->prev_bullet_x, bullet->prev_bullet_y, 1, 0);
+        bullet->bullet_active = 0;
+    }
 }

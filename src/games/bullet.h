@@ -10,6 +10,8 @@
 #define UI_Y 10
 #define UI_W 350
 #define UI_H 40
+#define MAX_BULLETS 2
+// #define MAX_BULLETS 6 // Uncomment for 6 bullets
 
 struct bullets {
     int bullet_x;
@@ -28,9 +30,12 @@ struct bullets {
     int bullet_active;
 };
 
-extern struct bullets bullets;
+extern struct bullets bullets[MAX_BULLETS];
 
 void bullet_set_position(int x, int y);
 void update_bullets(void);
+void fire_bullet(int x, int y);
+void update_all_bullets(void);
+void draw_all_bullets(void);
 
 #endif // BULLET_H 
