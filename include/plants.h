@@ -2,6 +2,7 @@
 #define PLANTS_H
 
 #include "../assets/sprites/plants/plants_sprites.h"
+#include "../assets/backgrounds/garden.h"
 #include "framebf.h"
 
 // Define plant types

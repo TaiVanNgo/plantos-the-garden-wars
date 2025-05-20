@@ -1,8 +1,4 @@
-#include "../include/framebf.h"
-#include "../include/uart0.h"
-#include "../include/plants.h"
-#include "bullet.h"
-#include "../assets/backgrounds/garden.h"
+#include "../include/bullet.h"
 
 extern unsigned char *fb; 
 
