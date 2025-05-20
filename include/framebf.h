@@ -39,3 +39,4 @@ void restore_background_area(int x, int y, int width, int height, int draw_main_
 void create_simulated_background(unsigned int *sim_bg, const unsigned int garden[], int garden_width, int garden_height);
 void draw_on_simulated_background(unsigned int *sim_bg, const unsigned int plant[], int plant_x, int plant_y, int plant_width, int plant_height, int garden_width);
 unsigned int get_simulated_pixel(const unsigned int *sim_bg, int x, int y, int garden_width);
+void draw_image_scaled(const unsigned int* image_data, int x, int y, int src_width, int src_height, int dest_width, int dest_height, int transparent);

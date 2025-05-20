@@ -407,3 +407,27 @@ unsigned int get_simulated_pixel(const unsigned int *sim_bg, int x, int y, int g
   }
   return sim_bg[y * garden_width + x];
 }
+
+void draw_image_scaled(const unsigned int* image_data, int x, int y, 
+  int src_width, int src_height, 
+  int dest_width, int dest_height, 
+  int transparent) {
+float x_ratio = ((float)src_width) / dest_width;
+float y_ratio = ((float)src_height) / dest_height;
+
+for (int i = 0; i < dest_height; i++) {
+for (int j = 0; j < dest_width; j++) {
+int px = (int)(j * x_ratio);
+int py = (int)(i * y_ratio);
+int pixel_index = py * src_width + px;
+unsigned int color = image_data[pixel_index];
+
+// Skip transparent pixels if transparent flag is set
+if (transparent && (color >> 24) == 0) {
+continue;
+}
+
+draw_pixel(x + j, y + i, color);
+}
+}
+}
