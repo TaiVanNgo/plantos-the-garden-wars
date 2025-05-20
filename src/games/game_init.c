@@ -59,7 +59,7 @@ void game_start() {
         }
         else if (key == '\n') {
             if (current_selection == 0) {
-                uart_puts("start game ");
+                game_init();
             }
             else if (current_selection == 1) {
                 uart_puts("end game ");
