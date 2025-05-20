@@ -7,7 +7,7 @@
 #include "../include/utils.h"
 #include "../include/zombies.h"
 #include "../include/plants.h"
-#include "../include/game_init.h"
+// #include "../include/game_init.h"
 #include "../assets/backgrounds/background.h"
 #include "../assets/backgrounds/garden.h"
 #include "games/bullet.h"
