@@ -136,14 +136,15 @@ void main()
 
     framebf_init();
     // game_init();
+    
 
     game_start();
 
-    while (1)
-    {
-        char c = uart_getc();
-        uart_sendc(c);
-    }
+        while (1)
+        {
+            char c = uart_getc();
+            uart_dec(c);
+        }
 }
 #elif defined(PLANT_INIT)
 void main()

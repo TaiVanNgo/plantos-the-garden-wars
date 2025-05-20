@@ -25,39 +25,43 @@ void game_start() {
 
     while (1) {
         char key = getUart();
+        if(key == '['){
+            char key2= getUart();
+            if ((key2 == 'A' ) && GAME_START== 0 ) {
+                int previous_selection = current_selection;
         
-        if ((key == 'W' || key == 'w') && GAME_START== 0 ) {
-            int previous_selection = current_selection;
-    
-            // Clear previous button selection visually
-            button_set_state(buttons[current_selection], BUTTON_NORMAL);
-            // restore_background_area(buttons[previous_selection]->x, buttons[previous_selection]->y,
-            //                        buttons[previous_selection]->width, buttons[previous_selection]->height);
-    
-            current_selection--;
-            if (current_selection < 0) {
-                current_selection = 1;
+                // Clear previous button selection visually
+                button_set_state(buttons[current_selection], BUTTON_NORMAL);
+                // restore_background_area(buttons[previous_selection]->x, buttons[previous_selection]->y,
+                //                        buttons[previous_selection]->width, buttons[previous_selection]->height);
+        
+                current_selection--;
+                if (current_selection < 0) {
+                    current_selection = 1;
+                }
+        
+                button_set_state(buttons[current_selection], BUTTON_SELECTED);
+                button_draw_selection(buttons, current_selection, previous_selection);
             }
-    
-            button_set_state(buttons[current_selection], BUTTON_SELECTED);
-            button_draw_selection(buttons, current_selection, previous_selection);
-        }
-        else if ((key == 'S' || key == 's') && GAME_START== 0 ) {
-            int previous_selection = current_selection;
-    
-            button_set_state(buttons[current_selection], BUTTON_NORMAL);
-            // restore_background_area(buttons[previous_selection]->x, buttons[previous_selection]->y,
-            //                        buttons[previous_selection]->width, buttons[previous_selection]->height);
-    
-            current_selection++;
-            if (current_selection > 1) {
-                current_selection = 0;
+            else if ((key2 == 'B' ) && GAME_START== 0 ) {
+                int previous_selection = current_selection;
+                
+                button_set_state(buttons[current_selection], BUTTON_NORMAL);
+                // restore_background_area(buttons[previous_selection]->x, buttons[previous_selection]->y,
+                //                        buttons[previous_selection]->width, buttons[previous_selection]->height);
+        
+                current_selection++;
+                if (current_selection > 1) {
+                    current_selection = 0;
+                }
+        
+                button_set_state(buttons[current_selection], BUTTON_SELECTED);
+                button_draw_selection(buttons, current_selection, previous_selection);
             }
-    
-            button_set_state(buttons[current_selection], BUTTON_SELECTED);
-            button_draw_selection(buttons, current_selection, previous_selection);
         }
-        else if (key == '\n' && GAME_START== 0 ) {
+       
+
+        if (key == '\n' && GAME_START== 0 ) {
             if (current_selection == 0) {
                 GAME_START = 1; 
                 game_init();
