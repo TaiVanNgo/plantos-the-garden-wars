@@ -135,9 +135,9 @@ void main()
     uart_init();
 
     framebf_init();
-    // game_init();
+    game_init();
 
-    game_start();
+    // game_start();
 
     while (1)
     {
@@ -154,7 +154,7 @@ void main()
     // Draw the garden background
     draw_image(GARDEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
 
-    draw_plant_grid();
+    draw_grid();
 
     fill_plant_grid();
 
