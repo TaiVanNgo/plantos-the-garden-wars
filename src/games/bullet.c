@@ -3,13 +3,84 @@
 #include "../include/plants.h"
 #include "bullet.h"
 #include "../assets/backgrounds/garden.h"
+#include "../assets/sprites/plants/plants_sprites.h"
 
 extern unsigned char *fb; 
 
 struct bullets bullets;
 
+// Simple random number generator
+static unsigned int next = 1;
+static int rand(void) {
+    next = next * 1103515245 + 12345;
+    return (unsigned int)(next/65536) % 32768;
+}
+
 // Buffer to store the background under the bullet
 static unsigned int background_buffer[BULLET_WIDTH * BULLET_HEIGHT];
+
+// Simulated background buffer
+static unsigned int sim_bg[GARDEN_WIDTH * GARDEN_HEIGHT];
+
+// Function to draw plants both on screen and in simulated background
+void draw_plants_both(int plant_type, int col, int row) {
+    // Check if the column and row are within valid bounds
+    if (col < 0 || col >= PLANT_GRID_COLS || row < 0 || row >= PLANT_GRID_ROWS) {
+        return; // Invalid position, do nothing
+    }
+    
+    // Calculate pixel coordinates from grid position, centered in cell
+    int horizontal_offset = (PLANT_COL_WIDTH - PLANT_WIDTH) / 2;
+    int vertical_offset = (PLANT_ROW_HEIGHT - PLANT_HEIGHT) / 2;
+    int x = PLANT_GRID_LEFT_MARGIN + (col * PLANT_COL_WIDTH) + horizontal_offset;
+    int y = PLANT_GRID_TOP_MARGIN + (row * PLANT_ROW_HEIGHT) + vertical_offset;
+    
+    const unsigned int* plant_sprite;
+    
+    switch(plant_type) {
+        case PLANT_TYPE_PEASHOOTER:
+            plant_sprite = peashooter;
+            break;
+        case PLANT_TYPE_SUNFLOWER:
+            plant_sprite = sunflower;
+            break;
+        case PLANT_TYPE_SUNFLOWER_UNHAPPY:
+            plant_sprite = sunflower_unhappy;
+            break;
+        case PLANT_TYPE_FROZEN_PEASHOOTER:
+            plant_sprite = frozen_peashooter;
+            break;
+        case PLANT_TYPE_CHILLIES:
+            plant_sprite = chillies;
+            break;
+        case PLANT_TYPE_CHILLIES_UNHAPPY:
+            plant_sprite = chillies_unhappy;
+            break;
+        case PLANT_TYPE_WALLNUT:
+            plant_sprite = wallnut;
+            break;
+        case PLANT_TYPE_WALLNUT_UNHAPPY:
+            plant_sprite = wallnut_unhappy;
+            break;
+        default:
+            return;
+    }
+    
+    // Draw on screen
+    draw_image(plant_sprite, x, y, PLANT_WIDTH, PLANT_HEIGHT, 0);
+    
+    // Draw in simulated background
+    draw_on_simulated_background(sim_bg, plant_sprite, x, y, PLANT_WIDTH, PLANT_HEIGHT, GARDEN_WIDTH);
+}
+
+// Function to draw image both on screen and in simulated background
+void draw_image_both(const unsigned int pixel_data[], int pos_x, int pos_y, int width, int height, int show_transparent) {
+    // Draw on screen
+    draw_image(pixel_data, pos_x, pos_y, width, height, show_transparent);
+    
+    // Draw in simulated background
+    draw_on_simulated_background(sim_bg, pixel_data, pos_x, pos_y, width, height, GARDEN_WIDTH);
+}
 
 void handle_background(int x, int y, int restore) {
     for (int i = 0; i < BULLET_HEIGHT; i++) {
@@ -158,14 +229,40 @@ void bullet_game() {
     // Initialize game state
     init_game();
     
+    // Initialize the simulated background with the garden image
+    for (int i = 0; i < GARDEN_WIDTH * GARDEN_HEIGHT; i++) {
+        sim_bg[i] = GARDEN[i];
+    }
+    
     // Draw the garden background
-    draw_image(GARDEN, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
+    draw_image_both(GARDEN, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
     
     // Draw the plant grid
     draw_plant_grid();
     
-    // Draw the peashooter in a fixed row (row 1)
-    draw_plant(PLANT_TYPE_PEASHOOTER, 0, 1);
+    // Define plant types for random placement
+    int plant_types[] = {
+        PLANT_TYPE_PEASHOOTER,
+        PLANT_TYPE_SUNFLOWER,
+        PLANT_TYPE_FROZEN_PEASHOOTER,
+        PLANT_TYPE_CHILLIES,
+        PLANT_TYPE_WALLNUT
+    };
+    
+    // Place plants randomly in the grid
+    for (int row = 0; row < PLANT_GRID_ROWS; row++) {
+        for (int col = 0; col < PLANT_GRID_COLS; col++) {
+            // 30% chance to place a plant in each cell
+            if (rand() % 100 < 30) {
+                int plant_type = plant_types[rand() % 5]; // Random plant type
+                draw_plants_both(plant_type, col, row);
+            }
+        }
+    }
+    
+    // Place a fixed peashooter in row 1
+    draw_plants_both(PLANT_TYPE_PEASHOOTER, 1, 1);
+    
     while (!bullets.game_over) {
         char c = getUart();
         if (c == ' ') {
@@ -177,11 +274,11 @@ void bullet_game() {
         }
         clear_bullet_area();
         update_bullets();
-        draw_plant(PLANT_TYPE_PEASHOOTER, 0, 1);
+        draw_plants_both(PLANT_TYPE_PEASHOOTER, 1, 1);
         // Draw bullet if active
         if (bullets.bullet_active) {
             save_background(bullets.bullet_x, bullets.bullet_y);
-            draw_image(bullet_green, bullets.bullet_x, bullets.bullet_y, BULLET_WIDTH, BULLET_HEIGHT, 0);
+            draw_image_both(bullet_green, bullets.bullet_x, bullets.bullet_y, BULLET_WIDTH, BULLET_HEIGHT, 0);
         }
         
         // Draw target (simple red rectangle)
