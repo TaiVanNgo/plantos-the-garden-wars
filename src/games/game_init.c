@@ -251,6 +251,11 @@ void game_init()
 {
     // dev_test_zombie();
     draw_image(GARDEN, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
+    Zombie zombie1 = spawn_zombie(1, 0);
+    Zombie zombie2 = spawn_zombie(1, 1);
+
+  
+    
 
     // Plant selection variables
     int selected_row = 0;
@@ -266,8 +271,9 @@ void game_init()
     draw_grid();
     while (1)
     {
-        // update_zombie_position(&zombie1);
-        // update_zombie_position(&zombie2);
+
+        update_zombie_position(&zombie1);
+        update_zombie_position(&zombie2);
         // update_zombie_position(&zombie3);
         // update_zombie_position(&zombie4);
         int x = 0;

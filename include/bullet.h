@@ -6,7 +6,7 @@
 #include "../include/uart0.h"
 #include "../include/plants.h"
 #include "../assets/backgrounds/garden.h"
-
+#include "../include/zombies.h"
 #define BOX_SIZE 20
 #define DEFAULT_BULLET_SPEED 5
 #define DEFAULT_COLLISION_DELAY 10

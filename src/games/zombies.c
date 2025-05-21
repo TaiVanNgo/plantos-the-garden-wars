@@ -154,7 +154,7 @@ void dev_test_zombie()
   // Game loop running at 10FPS
   while (1)
   {
-    set_wait_timer(1, 100); // Round up to 17ms for simplicity
+    // set_wait_timer(1, 100); // Round up to 17ms for simplicity
 
     update_zombie_position(&zombie1);
 
@@ -204,6 +204,6 @@ void dev_test_zombie()
     cnt++;
 
     // Wait until the 100ms timer expires
-    set_wait_timer(0, 0); // Second parameter is ignored in wait mode
+    // set_wait_timer(0, 0); // Second parameter is ignored in wait mode
   }
 }
