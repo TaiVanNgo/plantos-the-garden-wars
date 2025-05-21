@@ -1,4 +1,4 @@
-#include "../include/garden.h"
+#include "../include/grid.h"
 
 // Convert grid position to pixel coordinates
 void grid_to_pixel(uint8_t col, uint8_t row, int *x, int *y) {

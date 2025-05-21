@@ -303,7 +303,10 @@ void draw_selection(int row, int col) {
 
 
 void game_init() {
-    Zombie zombie= spawn_zombie(1,1);
+    Zombie zombie1= spawn_zombie(1,1);
+    Zombie zombie2= spawn_zombie(2,2);
+    Zombie zombie3= spawn_zombie(3,3);
+    Zombie zombie4= spawn_zombie(1,4);
 
     draw_image(GARDEN, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
     
@@ -318,9 +321,12 @@ void game_init() {
     // draw_selection(selected_row, selected_col);
     // draw_rect(CARD_START_X  ,CARD_START_Y , CARD_START_X +60, CARD_START_Y+75, 0xfF00ff, 0);
     // draw_plant(,selected_col, selected_row);
-    
+    draw_grid();
     while (1) {
-        update_zombie_position(&zombie);
+        // update_zombie_position(&zombie1);
+        // update_zombie_position(&zombie2);
+        // update_zombie_position(&zombie3);
+        // update_zombie_position(&zombie4);
         int x=0;
     int y=0;
         char key = getUart();
