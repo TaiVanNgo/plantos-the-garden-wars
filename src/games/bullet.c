@@ -8,11 +8,25 @@
 
 extern unsigned char *fb; 
 
-struct bullets bullets;
+#define MAX_BULLETS 25 // 5 rows * 5 bullets per row
 
-// TEST: Auto-fire timing variables
-static unsigned int last_fire_time[5] = {0, 0, 0, 0, 0};
-static const unsigned int fire_intervals[5] = {1000, 1500, 2000, 2500, 3000}; // Different intervals for each row
+typedef struct {
+    int x, y;
+    int prev_x, prev_y;
+    int row;
+    int active;
+} Bullet;
+
+static Bullet bullets[MAX_BULLETS];
+static unsigned long last_fire_time[5] = {0, 0, 0, 0, 0};
+static const unsigned int fire_interval_ms = 2000; // 2 seconds
+// Add static game state variables
+static int target_x;
+static int target_y;
+static int bullet_speed;
+static int score;
+static int last_score;
+static int game_over;
 
 // Simple random number generator
 static unsigned int next = 1;
@@ -22,10 +36,17 @@ static int rand(void) {
 }
 
 // Buffer to store the background under the bullets
-static unsigned int background_buffer[5][BULLET_WIDTH * BULLET_HEIGHT];
+static unsigned int background_buffer[MAX_BULLETS][BULLET_WIDTH * BULLET_HEIGHT];
 
 // Simulated background buffer
 static unsigned int sim_bg[GARDEN_WIDTH * GARDEN_HEIGHT];
+
+// Place peashooters and initialize their bullet positions and states
+void place_plants() {
+    for (int row = 0; row < 5; row++) {
+        draw_plants_both(PLANT_TYPE_PEASHOOTER, 1, row);
+    }
+}
 
 // Function to draw plants both on screen and in simulated background
 void draw_plants_both(int plant_type, int col, int row) {
@@ -84,7 +105,7 @@ void draw_image_both(const unsigned int pixel_data[], int pos_x, int pos_y, int 
     draw_image(pixel_data, pos_x, pos_y, width, height, show_transparent);
     
     // Draw in simulated background
-    draw_on_simulated_background(sim_bg, pixel_data, pos_x, pos_y, width, height, GARDEN_WIDTH);
+    draw_on_simulated_background(sim_bg, pixel_data, pos_x, pos_y, width,  GARDEN_WIDTH, GARDEN_WIDTH);
 }
 
 void handle_background(int x, int y, int restore, int bullet_index) {
@@ -98,7 +119,7 @@ void handle_background(int x, int y, int restore, int bullet_index) {
                 if (bg_x < PHYSICAL_WIDTH && bg_y < PHYSICAL_HEIGHT)
                     draw_pixel(bg_x, bg_y, background_buffer[bullet_index][i * BULLET_WIDTH + j]);
             } else {
-                background_buffer[bullet_index][i * BULLET_WIDTH + j] = GARDEN[bg_y * GARDEN_WIDTH + bg_x];
+                background_buffer[bullet_index][i * BULLET_WIDTH + j] = sim_bg[bg_y * GARDEN_WIDTH + bg_x];
             }
         }
     }
@@ -108,9 +129,9 @@ void handle_background(int x, int y, int restore, int bullet_index) {
 #define restore_background(x, y, index) handle_background((x), (y), 1, (index))
 
 static void clear_bullet_area() {
-    for (int i = 0; i < 5; i++) {
-        if (bullets.bullet_active[i]) {
-            restore_background(bullets.bullet_x[i], bullets.bullet_y[i], i);
+    for (int i = 0; i < MAX_BULLETS; i++) {
+        if (bullets[i].active) {
+            restore_background(bullets[i].prev_x, bullets[i].prev_y, i);
         }
     }
 }
@@ -120,28 +141,16 @@ static void clear_score_area() {
 }
 
 static void init_game() {
-    // Initialize all bullets
-    for (int i = 0; i < 5; i++) {
-        // Calculate position for each row
-        int shooter_x = PLANT_GRID_LEFT_MARGIN + ((PLANT_COL_WIDTH - PLANT_WIDTH) / 2);
-        int shooter_y = PLANT_GRID_TOP_MARGIN + (i * PLANT_ROW_HEIGHT) + 
-                      ((PLANT_ROW_HEIGHT - PLANT_HEIGHT) / 2);
-        
-        bullets.bullet_x[i] = shooter_x + PLANT_WIDTH;
-        bullets.bullet_y[i] = shooter_y + (PLANT_HEIGHT / 2) - (BULLET_HEIGHT / 2);
-        bullets.prev_bullet_x[i] = bullets.bullet_x[i];
-        bullets.prev_bullet_y[i] = bullets.bullet_y[i];
-        bullets.bullet_active[i] = 0;
+    for (int i = 0; i < MAX_BULLETS; i++) {
+        bullets[i].active = 0;
     }
-    
     // Target position on the right side of the screen
-    bullets.target_x = PHYSICAL_WIDTH - 100;
-    bullets.target_y = PLANT_GRID_TOP_MARGIN + PLANT_ROW_HEIGHT;
-    
-    bullets.bullet_speed = 3;
-    bullets.score = 0;
-    bullets.last_score = -1;
-    bullets.game_over = 0;
+    target_x = PHYSICAL_WIDTH - 100;
+    target_y = PLANT_GRID_TOP_MARGIN + PLANT_ROW_HEIGHT;
+    bullet_speed = 3;
+    score = 0;
+    last_score = -1;
+    game_over = 0;
 }
 
 static void format_score(char *buf, int score) {
@@ -174,40 +183,43 @@ static void format_score(char *buf, int score) {
     buf[i] = '\0';
 }
 
-static int check_collision(int bullet_index) {
-    if (!bullets.bullet_active[bullet_index]) {
-        return 0;
+void fire_bullet_for_row(int row) {
+    // Find an inactive bullet slot
+    for (int i = 0; i < MAX_BULLETS; i++) {
+        if (!bullets[i].active) {
+            int shooter_x = PLANT_GRID_LEFT_MARGIN + ((PLANT_COL_WIDTH - PLANT_WIDTH) / 2);
+            int shooter_y = PLANT_GRID_TOP_MARGIN + (row * PLANT_ROW_HEIGHT) +
+                            ((PLANT_ROW_HEIGHT - PLANT_HEIGHT) / 2);
+            bullets[i].x = shooter_x + PLANT_WIDTH;
+            bullets[i].y = shooter_y + (PLANT_HEIGHT / 2) - (BULLET_HEIGHT / 2);
+            bullets[i].prev_x = bullets[i].x;
+            bullets[i].prev_y = bullets[i].y;
+            bullets[i].row = row;
+            bullets[i].active = 1;
+            save_background(bullets[i].x, bullets[i].y, i);
+            break;
+        }
     }
-    
-    int target_width = 40;
-    int target_height = 70;
-    
-    if (bullets.bullet_x[bullet_index] < bullets.target_x + target_width &&
-        bullets.bullet_x[bullet_index] + BULLET_WIDTH > bullets.target_x &&
-        bullets.bullet_y[bullet_index] < bullets.target_y + target_height &&
-        bullets.bullet_y[bullet_index] + BULLET_HEIGHT > bullets.target_y) {
-        return 1;
-    }
-    return 0;
 }
 
 void update_bullets() {
-    for (int i = 0; i < 5; i++) {
-        if (bullets.bullet_active[i]) {
-            // Save current position as previous
-            bullets.prev_bullet_x[i] = bullets.bullet_x[i];
-            bullets.prev_bullet_y[i] = bullets.bullet_y[i];
-            
-            // Move bullet right
-            bullets.bullet_x[i] += bullets.bullet_speed;
-            
+    for (int i = 0; i < MAX_BULLETS; i++) {
+        if (bullets[i].active) {
+            bullets[i].prev_x = bullets[i].x;
+            bullets[i].prev_y = bullets[i].y;
+            bullets[i].x += bullet_speed;
             // Check collision
-            if (check_collision(i)) {
-                bullets.score++;
-                bullets.bullet_active[i] = 0;
+            int target_width = 40;
+            int target_height = 70;
+            if (bullets[i].x < target_x + target_width &&
+                bullets[i].x + BULLET_WIDTH > target_x &&
+                bullets[i].y < target_y + target_height &&
+                bullets[i].y + BULLET_HEIGHT > target_y) {
+                bullets[i].active = 0;
+                score++;
             }
-            if (bullets.bullet_x[i] > PHYSICAL_WIDTH) {
-                bullets.bullet_active[i] = 0;
+            if (bullets[i].x > PHYSICAL_WIDTH) {
+                bullets[i].active = 0;
             }
         }
     }
@@ -215,85 +227,51 @@ void update_bullets() {
 
 void bullet_game() {
     framebf_init();
-    
-    // Initialize game state
     init_game();
-    
-    // Initialize the simulated background with the garden image
     for (int i = 0; i < GARDEN_WIDTH * GARDEN_HEIGHT; i++) {
         sim_bg[i] = GARDEN[i];
     }
-    
-    // Draw the garden background
     draw_image_both(GARDEN, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
-    
-    // Draw the plant grid
     draw_plant_grid();
-    
-    // Place peashooters in each row
-    for (int row = 0; row < 5; row++) {
-        draw_plants_both(PLANT_TYPE_PEASHOOTER, 1, row);
-    }
-    
-    // Set initial timer for game loop (16ms = ~60 FPS)
+    place_plants();
     set_wait_timer(1, 16);
-    
-    while (!bullets.game_over) {
+    unsigned long freq;
+    asm volatile("mrs %0, cntfrq_el0" : "=r"(freq));
+    unsigned long start_counter;
+    asm volatile("mrs %0, cntpct_el0" : "=r"(start_counter));
+    unsigned long start_ms = start_counter * 1000 / freq;
+    for (int i = 0; i < 5; i++) {
+        last_fire_time[i] = start_ms - (i * 400); // Staggered start
+    }
+    while (!game_over) {
         char c = getUart();
         if (c == 'q') {
-            bullets.game_over = 1;
+            game_over = 1;
         }
-        
-        // TEST: Auto-fire logic
-        unsigned int current_time = 0;
-        asm volatile("mrs %0, cntpct_el0" : "=r"(current_time));
-        
-        for (int i = 0; i < 5; i++) {
-            if (current_time - last_fire_time[i] >= fire_intervals[i]) {
-                if (!bullets.bullet_active[i]) {
-                    // Calculate peashooter position for this row
-                    int shooter_x = PLANT_GRID_LEFT_MARGIN + ((PLANT_COL_WIDTH - PLANT_WIDTH) / 2);
-                    int shooter_y = PLANT_GRID_TOP_MARGIN + (i * PLANT_ROW_HEIGHT) + 
-                                  ((PLANT_ROW_HEIGHT - PLANT_HEIGHT) / 2);
-                    
-                    bullets.bullet_x[i] = shooter_x + PLANT_WIDTH;
-                    bullets.bullet_y[i] = shooter_y + (PLANT_HEIGHT / 2) - (BULLET_HEIGHT / 2);
-                    bullets.prev_bullet_x[i] = bullets.bullet_x[i];
-                    bullets.prev_bullet_y[i] = bullets.bullet_y[i];
-                    bullets.bullet_active[i] = 1;
-                    
-                    save_background(bullets.bullet_x[i], bullets.bullet_y[i], i);
-                    last_fire_time[i] = current_time;
-                }
+        unsigned long current_counter;
+        asm volatile("mrs %0, cntpct_el0" : "=r"(current_counter));
+        unsigned long current_time_ms = current_counter * 1000 / freq;
+        for (int row = 0; row < 5; row++) {
+            if ((current_time_ms - last_fire_time[row]) >= fire_interval_ms) {
+                fire_bullet_for_row(row);
+                last_fire_time[row] = current_time_ms;
             }
         }
-        
         clear_bullet_area();
         update_bullets();
-        
-       
-        for (int i = 0; i < 5; i++) {
-            if (bullets.bullet_active[i]) {
-                save_background(bullets.bullet_x[i], bullets.bullet_y[i], i);
-                draw_image_both(bullet_green, bullets.bullet_x[i], bullets.bullet_y[i], BULLET_WIDTH, BULLET_HEIGHT, 0);
+        for (int i = 0; i < MAX_BULLETS; i++) {
+            if (bullets[i].active) {
+                save_background(bullets[i].x, bullets[i].y, i);
+                draw_image(bullet_green, bullets[i].x, bullets[i].y, BULLET_WIDTH, BULLET_HEIGHT, 0);
             }
         }
-        
-        // Draw target (simple red rectangle)
-        draw_rect(bullets.target_x, bullets.target_y, 
-                 bullets.target_x + 40, bullets.target_y + 70,
-                 RED, 1);
-        
-        // Display score
+        draw_rect(target_x, target_y, target_x + 40, target_y + 70, RED, 1);
         char score_str[32];
-        format_score(score_str, bullets.score);
+        format_score(score_str, score);
         clear_score_area();
         draw_string(10, 10, score_str, WHITE, 2);
-        
-        // Wait for timer to expire and set next timer
         set_wait_timer(0, 0);
         set_wait_timer(1, 16);
     }
-    
     uart_puts("Game over\n");
 }

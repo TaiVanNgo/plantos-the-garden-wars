@@ -13,24 +13,24 @@
 #define MAX_BULLETS 5
 // #define MAX_BULLETS 6 // Uncomment for 6 bullets
 
-struct bullets {
-    int bullet_x[MAX_BULLETS];
-    int bullet_y[MAX_BULLETS];
-    int prev_bullet_x[MAX_BULLETS];
-    int prev_bullet_y[MAX_BULLETS];
-    int target_x;
-    int target_y;
-    int score;
-    int last_score;
-    int game_over;
-    int bullet_speed;
-    int last_bullet_speed;
-    int collision_timer;
-    int collision_delay;
-    int bullet_active[MAX_BULLETS];
-};
-
-extern struct bullets bullets;
+// Remove old struct bullets and extern declaration
+// struct bullets {
+//     int bullet_x[MAX_BULLETS];
+//     int bullet_y[MAX_BULLETS];
+//     int prev_bullet_x[MAX_BULLETS];
+//     int prev_bullet_y[MAX_BULLETS];
+//     int target_x;
+//     int target_y;
+//     int score;
+//     int last_score;
+//     int game_over;
+//     int bullet_speed;
+//     int last_bullet_speed;
+//     int collision_timer;
+//     int collision_delay;
+//     int bullet_active[MAX_BULLETS];
+// };
+// extern struct bullets bullets;
 
 void bullet_set_position(int x, int y);
 void update_bullets(void);
