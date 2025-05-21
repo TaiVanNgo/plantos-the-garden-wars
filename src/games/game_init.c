@@ -311,24 +311,42 @@ void game_init() {
     selected_card = -1;     // No card selected initially
     static int offset= 20;
     // Draw initial selection (on first card)
-
+    int current_selection = -1;
     // draw_selection(selected_row, selected_col);
     // draw_rect(CARD_START_X  ,CARD_START_Y , CARD_START_X +60, CARD_START_Y+75, 0xfF00ff, 0);
-    draw_plant(1,selected_col, selected_row);
+    // draw_plant(,selected_col, selected_row);
     while (1) {
         char key = getUart();
+        switch (key) {
+            case '0': current_selection = 0; break;
+            case '1': current_selection = 1; break;
+            case '2': current_selection = 2; break;
+            case '3': current_selection = 3; break;
+            case '4': current_selection = 4; break;
+            case '5': current_selection = 5; break;
+            case '6': current_selection = 6; break;
+            default:
+                break;
+        }
+        if (current_selection != -1) {
+
+        }
         
+
         if (key == '[') {
             char key2 = getUart();
             if (key2 == 'A') { // Up arrow
                 // CARD_START_Y+= 90;
-                if(selected_row <= 1){
-                    selected_row=1;
+                if(selected_row <= 0){
+                    selected_row=0;
                 }else{
                     selected_row--;
                 }
                 
-                draw_plant(1,selected_col, selected_row);
+                if(current_selection!= -1){
+                    draw_plant(current_selection,selected_col, selected_row);
+                }
+               
 
             }
             else if (key2 == 'B') { 
@@ -337,15 +355,19 @@ void game_init() {
                 }else{
                     selected_row++;
                 }
-                draw_plant(1,selected_col, selected_row);
+                if(current_selection!= -1){
+                    draw_plant(current_selection,selected_col, selected_row);
+                }
             }
-            else if (key2 == 'C') { // Right arrow
+            else if (key2 == 'C') { 
                 if(selected_col >= 9){
                     selected_col=9;
                 }else{
                     selected_col++;
                 }
-                draw_plant(1,selected_col, selected_row);
+                if(current_selection!= -1){
+                    draw_plant(current_selection,selected_col, selected_row);
+                }
             }
             else if (key2 == 'D') { // Left arrow
                 if(selected_col <= 0){
@@ -353,7 +375,9 @@ void game_init() {
                 }else{
                     selected_col--;
                 }
-                draw_plant(1,selected_col, selected_row);
+                if(current_selection!= -1){
+                    draw_plant(current_selection,selected_col, selected_row);
+                }
             }
         }
         
