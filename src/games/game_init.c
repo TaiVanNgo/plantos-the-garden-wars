@@ -303,6 +303,8 @@ void draw_selection(int row, int col) {
 
 
 void game_init() {
+    Zombie zombie= spawn_zombie(1,1);
+
     draw_image(GARDEN, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
     
     // Plant selection variables
@@ -318,6 +320,7 @@ void game_init() {
     // draw_plant(,selected_col, selected_row);
     
     while (1) {
+        update_zombie_position(&zombie);
         int x=0;
     int y=0;
         char key = getUart();
@@ -349,7 +352,7 @@ void game_init() {
                 }
                 
                 if(current_selection!= -1){
-                    restore_background_area(x, y, PLANT_WIDTH,PLANT_HEIGHT,0);
+                    restore_background_area(x, y, GRID_CELL_WIDTH,GRID_CELL_HEIGHT,0);
                     
                     draw_plant(current_selection,selected_col, selected_row);
                 }
@@ -364,7 +367,7 @@ void game_init() {
                     selected_row++;
                 }
                 if(current_selection!= -1){
-                    restore_background_area(x, y, PLANT_WIDTH,PLANT_HEIGHT,0);
+                    restore_background_area(x, y, GRID_CELL_WIDTH,GRID_CELL_HEIGHT,0);
                     // grid_to_pixel(selected_col,selected_row, &x, &y );
                     draw_plant(current_selection,selected_col, selected_row);
                 }
@@ -377,7 +380,7 @@ void game_init() {
                     selected_col++;
                 }
                 if(current_selection!= -1){
-                    restore_background_area(x, y, PLANT_WIDTH,PLANT_HEIGHT,0);
+                    restore_background_area(x, y, GRID_CELL_WIDTH,GRID_CELL_HEIGHT,0);
                     // grid_to_pixel(selected_col,selected_row, x, y );
                     draw_plant(current_selection,selected_col, selected_row);
                 }
@@ -390,7 +393,7 @@ void game_init() {
                     selected_col--;
                 }
                 if(current_selection!= -1){
-                    restore_background_area(x, y, PLANT_WIDTH,PLANT_HEIGHT,0);
+                    restore_background_area(x, y, GRID_CELL_WIDTH,GRID_CELL_HEIGHT,0);
                     // grid_to_pixel(selected_col,selected_row, x, y );
                     draw_plant(current_selection,selected_col, selected_row);
                 }
@@ -403,7 +406,7 @@ void game_init() {
             uart_puts("\n");
         }
         
-        if (key == '\n') { // Enter key
+        if (key == '\n') {
             if (selection_mode == 0) {
                 // Select this plant card
                 selected_card = selected_col;
@@ -442,6 +445,7 @@ void game_init() {
             selected_col = 0;
             draw_selection(selected_row, selected_col);
         }
+        delay_ms(100);
     }
 }
 
