@@ -82,34 +82,28 @@ void draw_grid(void) {
     
     // Draw vertical grid lines
     for (int i = 0; i <= GRID_COLS; i++) {
-        draw_line(
+        draw_vline(
             GRID_LEFT_MARGIN + (i * GRID_COL_WIDTH),
             GRID_TOP_MARGIN,
-            GRID_LEFT_MARGIN + (i * GRID_COL_WIDTH),
             GRID_TOP_MARGIN + (GRID_ROWS * GRID_ROW_HEIGHT),
             grid_color
         );
     }
     
     // Top margin indicator (horizontal line)
-    for (int i = 0; i < 3; i++) {
         draw_line(
             0, 
-            GRID_TOP_MARGIN + i, 
+            GRID_TOP_MARGIN, 
             GARDEN_WIDTH, 
-            GRID_TOP_MARGIN + i, 
+            GRID_TOP_MARGIN, 
             margin_color
         );
-    }
     
     // Left margin indicator (vertical line)
-    for (int i = 0; i < 3; i++) {
-        draw_line(
-            GRID_LEFT_MARGIN + i,
+        draw_vline(
+            GRID_LEFT_MARGIN,
             GRID_TOP_MARGIN,
-            GRID_LEFT_MARGIN + i,
             GRID_TOP_MARGIN + (GRID_ROWS * GRID_ROW_HEIGHT),
             margin_color
         );
-    }
 }
