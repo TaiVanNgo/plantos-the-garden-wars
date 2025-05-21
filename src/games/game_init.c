@@ -9,17 +9,17 @@
 #include "../assets/selection/selection.h"
 #include "../assets/button/button.h"
 #include "../../include/game_init.h"
-// Grid positions for the play field
-#define GRID_START_X 90     // Left edge of the first grid cell
-#define GRID_START_Y 178    // Top edge of the first grid cell
-#define GRID_CELL_WIDTH 80  // Width of each grid cell
-#define GRID_CELL_HEIGHT 85 // Height of each grid cell
-#define GRID_ROWS 5         // Number of rows in the grid
-#define GRID_COLS 9         // Number of columns in the grid
+#include "../include/plants.h"
+#define GRID_START_X 90     
+#define GRID_START_Y 178   
+#define GRID_CELL_WIDTH 80  
+#define GRID_CELL_HEIGHT 85 
+#define GRID_ROWS 4       
+#define GRID_COLS 9        
 
 // Card positions for plant selection
-#define CARD_START_X 110    // Left edge of first card
-#define CARD_START_Y 155    // Top edge of cards
+int CARD_START_X =50;    // Left edge of first card
+int CARD_START_Y =178;    // Top edge of cards
 #define CARD_WIDTH 50       // Width of each card
 #define CARD_HEIGHT 70      // Height of each card
 #define CARD_COUNT 8        // Number of plant cards
@@ -27,8 +27,10 @@
 // Tracks whether we're in card selection mode or grid placement mode
 int selection_mode = 0;     // 0 = card selection, 1 = grid placement
 int selected_card = -1; 
-int selected_row = 0;
-int selected_col = 0;
+int selected_row = 1;
+int selected_col = 1;
+
+
 void game_start() {
     draw_image(MAIN_SCREEN, 0, 0,  BACKGROUND_WIDTH,BACKGROUND_HEIGHT, 0);
 
@@ -252,7 +254,7 @@ void draw_selection(int row, int col) {
     static int prev_row = -1;
     static int prev_col = -1;
     static int prev_mode = -1;
-    
+   
     // If we have a previous selection, restore that area
     if (prev_row != -1 && prev_col != -1) {
         if (prev_mode == 0) {
@@ -307,50 +309,51 @@ void game_init() {
     int selected_col = 0;
     selection_mode = 0;     // Start in card selection mode
     selected_card = -1;     // No card selected initially
-    
+    static int offset= 20;
     // Draw initial selection (on first card)
-    selected_col = 0;
-    draw_selection(selected_row, selected_col);
-    
+
+    // draw_selection(selected_row, selected_col);
+    // draw_rect(CARD_START_X  ,CARD_START_Y , CARD_START_X +60, CARD_START_Y+75, 0xfF00ff, 0);
+    draw_plant(1,selected_col, selected_row);
     while (1) {
         char key = getUart();
         
         if (key == '[') {
             char key2 = getUart();
-            
             if (key2 == 'A') { // Up arrow
-                if (selection_mode == 1 && selected_row > 0) {
+                // CARD_START_Y+= 90;
+                if(selected_row <= 1){
+                    selected_row=1;
+                }else{
                     selected_row--;
-                    draw_selection(selected_row, selected_col);
-                } else if (selection_mode == 0) {
-                    // In card selection, up does nothing
                 }
+                
+                draw_plant(1,selected_col, selected_row);
+
             }
-            else if (key2 == 'B') { // Down arrow
-                if (selection_mode == 1 && selected_row < GRID_ROWS - 1) {
+            else if (key2 == 'B') { 
+                if(selected_row >= 4){
+                    selected_row=4;
+                }else{
                     selected_row++;
-                    draw_selection(selected_row, selected_col);
-                } else if (selection_mode == 0) {
-                    // Switch to grid placement mode
-                    selection_mode = 1;
-                    selected_row = 0;
-                    draw_selection(selected_row, selected_col);
                 }
+                draw_plant(1,selected_col, selected_row);
             }
             else if (key2 == 'C') { // Right arrow
-                if (selection_mode == 0 && selected_col < CARD_COUNT - 1) {
+                if(selected_col >= 9){
+                    selected_col=9;
+                }else{
                     selected_col++;
-                    draw_selection(selected_row, selected_col);
-                } else if (selection_mode == 1 && selected_col < GRID_COLS - 1) {
-                    selected_col++;
-                    draw_selection(selected_row, selected_col);
                 }
+                draw_plant(1,selected_col, selected_row);
             }
             else if (key2 == 'D') { // Left arrow
-                if (selected_col > 0) {
+                if(selected_col <= 0){
+                    selected_col=1;
+                }else{
                     selected_col--;
-                    draw_selection(selected_row, selected_col);
                 }
+                draw_plant(1,selected_col, selected_row);
             }
         }
         

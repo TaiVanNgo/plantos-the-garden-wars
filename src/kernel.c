@@ -8,16 +8,16 @@
 #include "../include/zombies.h"
 #include "../include/plants.h"
 #include "../include/bullet.h"
-#include "../include/game_init.h"
+// #include "../include/game_init.h"
 #include "../assets/backgrounds/background.h"
 #include "../assets/backgrounds/garden.h"
 
 // #include "background.c"
 //    #define TASK1
 //   #define TASK2_VID
-//  #define ZOMBIE_INIT
+ #define ZOMBIE_INIT
 // #define PLANT_INIT
-  #define TASK3_BULLET
+//   #define TASK3_BULLET
 
 // void display_team_members(int show_bg)
 // {
@@ -136,10 +136,11 @@ void main()
 
     framebf_init();
 
-    game_init();
+    // game_init();
+    // draw_grid();
 
 
-    // game_start();
+    game_start();
 
         while (1)
         {

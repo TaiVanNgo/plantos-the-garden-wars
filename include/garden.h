@@ -8,8 +8,8 @@
 #define GARDEN_HEIGHT             600
 
 #define GRID_LEFT_MARGIN          45
-#define GRID_TOP_MARGIN           180
-#define GRID_COL_WIDTH            78
+#define GRID_TOP_MARGIN           180// top margin 
+#define GRID_COL_WIDTH            78 // column width
 #define GRID_ROW_HEIGHT           85
 #define GRID_ROWS                 4
 #define GRID_COLS                 9
