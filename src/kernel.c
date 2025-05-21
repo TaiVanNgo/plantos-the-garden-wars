@@ -19,6 +19,7 @@
 // #define PLANT_INIT
 //   #define TASK3_BULLET
 
+
 // void display_team_members(int show_bg)
 // {
 //     // if show background
@@ -178,7 +179,7 @@ void main()
     // Run the bullet game
     bullet_game();
 
-    // start_game();
+   // start_game();
 
 
     // After game ends, run CLI

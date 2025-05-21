@@ -1,21 +1,14 @@
+#include "../../include/game_init.h"
 #include "../include/uart0.h"
 #include "../include/uart1.h"
-// #include "../include/mbox.h"
 #include "../include/framebf.h"
-// #include "../include/cmd.h"
-// #include "../include/video.h"
-// #include "../include/utils.h"
 #include "../assets/backgrounds/background.h"
 #include "../assets/selection/selection.h"
 #include "../assets/button/button.h"
 #include "../../include/game_init.h"
 #include "../include/plants.h"
-#define GRID_START_X 90     
-#define GRID_START_Y 178   
-#define GRID_CELL_WIDTH 80  
-#define GRID_CELL_HEIGHT 85 
-#define GRID_ROWS 4       
-#define GRID_COLS 9        
+#include "../include/grid.h"
+
 
 // Card positions for plant selection
 int CARD_START_X =50;    // Left edge of first card
@@ -31,22 +24,52 @@ int selected_row = 1;
 int selected_col = 1;
 
 
-void game_start() {
-    draw_image(MAIN_SCREEN, 0, 0,  BACKGROUND_WIDTH,BACKGROUND_HEIGHT, 0);
+void game_main()
+{
+    GameState game;
+    game.state = GAME_MENU;
+    game.score = 0;
+    game.round = 1;
+    while (1)
+    {
+        switch (game.state)
+        {
+        case GAME_MENU:
+            game_start(); // Show menu, handle input
+            // If start selected:
+            game.state = GAME_PLAYING;
+            break;
+        case GAME_PLAYING:
+            game_init(); // Or your main game logic
+            break;
+        case GAME_PAUSED:
+            // Handle pause menu
+            break;
+        case GAME_OVER:
+            // Show game over screen, handle restart/exit
+            break;
+        }
+    }
+}
+
+void game_start()
+{
+    draw_image(MAIN_SCREEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
 
     Button startButton;
     Button endButton;
     button_init(&startButton, 240, 300, 300, 85, START);
     button_init(&endButton, 240, 400, 300, 85, QUIT);
 
-    Button* buttons[2] = { &startButton, &endButton };
+    Button *buttons[2] = {&startButton, &endButton};
     int current_selection = 0;
-    int previous_selection= current_selection;
+    int previous_selection = current_selection;
     // Initially set the first button selected
     button_set_state(buttons[current_selection], BUTTON_SELECTED);
-    button_draw_selection(buttons, current_selection,previous_selection);
+    button_draw_selection(buttons, current_selection, previous_selection);
 
-    while (1) {
+    while (1)
+    {
         char key = getUart();
         if(key == '['){
             char key2= getUart();
@@ -90,13 +113,12 @@ void game_start() {
                 GAME_START = 1; 
                 game_init();
             }
-            else if (current_selection == 1) {
+            else if (current_selection == 1)
+            {
                 uart_puts("end game ");
-                // break;  
+                // break;
             }
         }
-    
-
     }
 }
 
@@ -264,9 +286,9 @@ void draw_selection(int row, int col) {
             restore_background_area(x - 4, y - 4, CARD_WIDTH + 8, CARD_HEIGHT + 8, 0);
         } else {
             // Restore grid cell area
-            int x = GRID_START_X + prev_col * GRID_CELL_WIDTH;
-            int y = GRID_START_Y + prev_row * GRID_CELL_HEIGHT;
-            restore_background_area(x - 4, y - 4, GRID_CELL_WIDTH + 8, GRID_CELL_HEIGHT + 8, 1);
+            int x = GRID_LEFT_MARGIN + prev_col * GRID_COL_WIDTH;
+            int y = GRID_TOP_MARGIN + prev_row * GRID_ROW_HEIGHT;
+            restore_background_area(x - 4, y - 4, GRID_COL_WIDTH + 8, GRID_ROW_HEIGHT + 8, 0);
         }
     }
     
@@ -280,11 +302,11 @@ void draw_selection(int row, int col) {
         draw_rect(x - 3, y - 3, CARD_WIDTH + 6, CARD_HEIGHT + 6, 0xFFFF00, 0);
     } else {
         // Draw selection on grid for placement
-        int x = GRID_START_X + col * GRID_CELL_WIDTH;
-        int y = GRID_START_Y + row * GRID_CELL_HEIGHT;
+        int x = GRID_LEFT_MARGIN + col * GRID_COL_WIDTH;
+        int y = GRID_TOP_MARGIN + row * GRID_ROW_HEIGHT;
         
         // Draw a white semi-transparent rectangle to show valid placement
-        draw_rect(x, y, GRID_CELL_WIDTH, GRID_CELL_HEIGHT, 0x80FFFFFF, 0);
+        draw_rect(x, y, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0x80FFFFFF, 0);
         
         // If we have a selected card, show the plant preview
         if (selected_card >= 0) {
@@ -358,7 +380,7 @@ void game_init() {
                 }
                 
                 if(current_selection!= -1){
-                    restore_background_area(x, y, GRID_CELL_WIDTH,GRID_CELL_HEIGHT,0);
+                    restore_background_area(x, y, GRID_COL_WIDTH,GRID_ROW_HEIGHT,0);
                     
                     draw_plant(current_selection,selected_col, selected_row);
                 }
@@ -373,7 +395,7 @@ void game_init() {
                     selected_row++;
                 }
                 if(current_selection!= -1){
-                    restore_background_area(x, y, GRID_CELL_WIDTH,GRID_CELL_HEIGHT,0);
+                    restore_background_area(x, y, GRID_COL_WIDTH,GRID_ROW_HEIGHT,0);
                     // grid_to_pixel(selected_col,selected_row, &x, &y );
                     draw_plant(current_selection,selected_col, selected_row);
                 }
@@ -386,7 +408,7 @@ void game_init() {
                     selected_col++;
                 }
                 if(current_selection!= -1){
-                    restore_background_area(x, y, GRID_CELL_WIDTH,GRID_CELL_HEIGHT,0);
+                    restore_background_area(x, y, GRID_COL_WIDTH,GRID_ROW_HEIGHT,0);
                     // grid_to_pixel(selected_col,selected_row, x, y );
                     draw_plant(current_selection,selected_col, selected_row);
                 }
@@ -399,7 +421,7 @@ void game_init() {
                     selected_col--;
                 }
                 if(current_selection!= -1){
-                    restore_background_area(x, y, GRID_CELL_WIDTH,GRID_CELL_HEIGHT,0);
+                    restore_background_area(x, y, GRID_COL_WIDTH,GRID_ROW_HEIGHT,0);
                     // grid_to_pixel(selected_col,selected_row, x, y );
                     draw_plant(current_selection,selected_col, selected_row);
                 }
