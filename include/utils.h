@@ -23,3 +23,4 @@ int str_to_int(const char *str);
 void int_to_str(int num, char *str);
 void wait_msec(unsigned int msVal);
 void set_wait_timer(int set, unsigned int msVal);
+void *memset(void *s, int c, unsigned long n);

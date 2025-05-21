@@ -66,7 +66,7 @@ void main()
     // game_init();
     // draw_grid();
 
-    game_start();
+    game_main();
 
     while (1)
     {

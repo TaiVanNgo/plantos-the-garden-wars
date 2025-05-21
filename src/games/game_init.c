@@ -1,13 +1,4 @@
 #include "../../include/game_init.h"
-#include "../include/uart0.h"
-#include "../include/uart1.h"
-#include "../include/framebf.h"
-#include "../assets/backgrounds/background.h"
-#include "../assets/selection/selection.h"
-#include "../assets/button/button.h"
-#include "../../include/game_init.h"
-#include "../include/plants.h"
-#include "../include/grid.h"
 
 // Card positions for plant selection
 int CARD_START_X = 50;  // Left edge of first card
@@ -27,18 +18,17 @@ void game_main()
     GameState game;
     game.state = GAME_MENU;
     game.score = 0;
-    game.round = 1;
+    game.level = 1;
     while (1)
     {
         switch (game.state)
         {
         case GAME_MENU:
-            game_start(); // Show menu, handle input
-            // If start selected:
-            game.state = GAME_PLAYING;
+            game.state = game_menu();
             break;
         case GAME_PLAYING:
-            game_init(); // Or your main game logic
+            start_level(&game, LEVEL_EASY_ENUM);
+            // start_level();
             break;
         case GAME_PAUSED:
             // Handle pause menu
@@ -50,7 +40,7 @@ void game_main()
     }
 }
 
-void game_start()
+GAME_STATE game_menu()
 {
     draw_image(MAIN_SCREEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
 
@@ -74,13 +64,9 @@ void game_start()
             char key2 = getUart();
             if ((key2 == 'A') && GAME_START == 0)
             {
+                // 'up arrow' button
                 int previous_selection = current_selection;
-
-                // Clear previous button selection visually
                 button_set_state(buttons[current_selection], BUTTON_NORMAL);
-                // restore_background_area(buttons[previous_selection]->x, buttons[previous_selection]->y,
-                //                        buttons[previous_selection]->width, buttons[previous_selection]->height);
-
                 current_selection--;
                 if (current_selection < 0)
                 {
@@ -92,11 +78,9 @@ void game_start()
             }
             else if ((key2 == 'B') && GAME_START == 0)
             {
+                // 'down arrow' button
                 int previous_selection = current_selection;
-
                 button_set_state(buttons[current_selection], BUTTON_NORMAL);
-                // restore_background_area(buttons[previous_selection]->x, buttons[previous_selection]->y,
-                //                        buttons[previous_selection]->width, buttons[previous_selection]->height);
 
                 current_selection++;
                 if (current_selection > 1)
@@ -115,12 +99,12 @@ void game_start()
             {
                 clear_screen();
                 GAME_START = 1;
-                game_init();
+                return GAME_PLAYING;
             }
             else if (current_selection == 1)
             {
-                uart_puts("end game ");
-                // break;
+                uart_puts("Quit Game ");
+                return GAME_QUIT;
             }
         }
     }
@@ -249,15 +233,11 @@ void draw_selection(int row, int col)
 
 void game_init()
 {
-    // dev_test_zombie();
-    draw_image(GARDEN, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
-
     // Plant selection variables
     int selected_row = 0;
     int selected_col = 0;
     selection_mode = 0; // Start in card selection mode
     selected_card = -1; // No card selected initially
-    static int offset = 20;
     // Draw initial selection (on first card)
     int current_selection = -1;
     // draw_selection(selected_row, selected_col);
@@ -430,4 +410,92 @@ void game_init()
         }
         delay_ms(100);
     }
+}
+
+void start_level(GameState *game, LEVEL_DIFFICULTY difficulty)
+{
+    Level current_level;
+    switch (difficulty)
+    {
+    case LEVEL_EASY_ENUM:
+        current_level = LEVEL_EASY;
+        break;
+    case LEVEL_INTERMEDIATE_ENUM:
+        current_level = LEVEL_INTERMEDIATE;
+        break;
+    case LEVEL_HARD_ENUM:
+        // current_level = LEVEL_HARD;
+        break;
+    default:
+        break;
+    }
+
+    int zombies_spawned = 0;
+    int zombies_killed = 0;
+    int frame_counter = 0;
+
+    Zombie active_zombies[MAX_ZOMBIES_PER_LEVEL];
+    // memset(active_zombies, 0, sizeof(active_zombies));
+
+    uart_puts("\nLevel ");
+    uart_puts(difficulty == LEVEL_EASY_ENUM ? "Easy " : difficulty == LEVEL_INTERMEDIATE_ENUM ? "Intermediate "
+                                                                                              : "Hard ");
+    uart_puts("Start\n");
+
+    draw_image(GARDEN, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
+
+    // play until all the zombies died
+    while (zombies_killed < current_level.zombie_count)
+    {
+        /* GET USER INPUT */
+
+        if (zombies_spawned < current_level.zombie_count && frame_counter >= current_level.spawn_times[zombies_spawned])
+        {
+            // spawn the next zombie if the
+            active_zombies[zombies_spawned] = spawn_zombie(
+                current_level.zombie_types[zombies_spawned],
+                current_level.zombie_rows[zombies_spawned]);
+
+            zombies_spawned++;
+        }
+
+        for (int i = 0; i < zombies_spawned; i++)
+        {
+            // Skip dead zombie
+            if (active_zombies[i].active == 0)
+                continue;
+
+            update_zombie_position(&active_zombies[i]);
+            if (active_zombies[i].x <= 50)
+            {
+                game->state = GAME_OVER;
+                return;
+            }
+
+            // Check if zombie was killed by plants
+            if (active_zombies[i].health <= 0)
+            {
+                active_zombies[i].active = 0;
+                zombies_killed++;
+                game->score += ZOMBIE_KILL_REWARD;
+            }
+
+            // Check collisions (Dev later)
+            // check_plant_zombie_collisions(&active_zombies[i]);
+        }
+
+        // Update all active plants (DEV LATER)
+        // update_plants();
+
+        // Update sun production and collection (DEV LATER)
+        // update_sun_resources();
+
+        // Display level information (DEV LATER, USING UART)
+        // char info[50];
+        // uartputs(info, "Level: %d  Score: %d  Lives: %d", game->level, game->score, game->lives);
+        frame_counter++;
+    }
+
+    // all zombies were killed, user won the level
+    game->state = GAME_VICTORY;
 }
