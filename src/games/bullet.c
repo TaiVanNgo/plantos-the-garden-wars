@@ -1,6 +1,7 @@
 #include "../include/framebf.h"
 #include "../include/uart0.h"
 #include "../include/plants.h"
+#include "../include/utils.h"
 #include "bullet.h"
 #include "../assets/backgrounds/garden.h"
 #include "../assets/sprites/plants/plants_sprites.h"
@@ -8,6 +9,10 @@
 extern unsigned char *fb; 
 
 struct bullets bullets;
+
+// TEST: Auto-fire timing variables
+static unsigned int last_fire_time[5] = {0, 0, 0, 0, 0};
+static const unsigned int fire_intervals[5] = {1000, 1500, 2000, 2500, 3000}; // Different intervals for each row
 
 // Simple random number generator
 static unsigned int next = 1;
@@ -208,26 +213,6 @@ void update_bullets() {
     }
 }
 
-void fire_bullet() {
-    // Fire all bullets
-    for (int i = 0; i < 5; i++) {
-        if (!bullets.bullet_active[i]) {
-            // Calculate peashooter position for this row
-            int shooter_x = PLANT_GRID_LEFT_MARGIN + ((PLANT_COL_WIDTH - PLANT_WIDTH) / 2);
-            int shooter_y = PLANT_GRID_TOP_MARGIN + (i * PLANT_ROW_HEIGHT) + 
-                          ((PLANT_ROW_HEIGHT - PLANT_HEIGHT) / 2);
-            
-            bullets.bullet_x[i] = shooter_x + PLANT_WIDTH;
-            bullets.bullet_y[i] = shooter_y + (PLANT_HEIGHT / 2) - (BULLET_HEIGHT / 2);
-            bullets.prev_bullet_x[i] = bullets.bullet_x[i];
-            bullets.prev_bullet_y[i] = bullets.bullet_y[i];
-            bullets.bullet_active[i] = 1;
-            
-            save_background(bullets.bullet_x[i], bullets.bullet_y[i], i);
-        }
-    }
-}
-
 void bullet_game() {
     framebf_init();
     
@@ -250,18 +235,43 @@ void bullet_game() {
         draw_plants_both(PLANT_TYPE_PEASHOOTER, 1, row);
     }
     
+    // Set initial timer for game loop (16ms = ~60 FPS)
+    set_wait_timer(1, 16);
+    
     while (!bullets.game_over) {
         char c = getUart();
-        if (c == ' ') {
-            fire_bullet();
-        } else if (c == 'q') {
+        if (c == 'q') {
             bullets.game_over = 1;
+        }
+        
+        // TEST: Auto-fire logic
+        unsigned int current_time = 0;
+        asm volatile("mrs %0, cntpct_el0" : "=r"(current_time));
+        
+        for (int i = 0; i < 5; i++) {
+            if (current_time - last_fire_time[i] >= fire_intervals[i]) {
+                if (!bullets.bullet_active[i]) {
+                    // Calculate peashooter position for this row
+                    int shooter_x = PLANT_GRID_LEFT_MARGIN + ((PLANT_COL_WIDTH - PLANT_WIDTH) / 2);
+                    int shooter_y = PLANT_GRID_TOP_MARGIN + (i * PLANT_ROW_HEIGHT) + 
+                                  ((PLANT_ROW_HEIGHT - PLANT_HEIGHT) / 2);
+                    
+                    bullets.bullet_x[i] = shooter_x + PLANT_WIDTH;
+                    bullets.bullet_y[i] = shooter_y + (PLANT_HEIGHT / 2) - (BULLET_HEIGHT / 2);
+                    bullets.prev_bullet_x[i] = bullets.bullet_x[i];
+                    bullets.prev_bullet_y[i] = bullets.bullet_y[i];
+                    bullets.bullet_active[i] = 1;
+                    
+                    save_background(bullets.bullet_x[i], bullets.bullet_y[i], i);
+                    last_fire_time[i] = current_time;
+                }
+            }
         }
         
         clear_bullet_area();
         update_bullets();
         
-        // Draw all active bullets
+       
         for (int i = 0; i < 5; i++) {
             if (bullets.bullet_active[i]) {
                 save_background(bullets.bullet_x[i], bullets.bullet_y[i], i);
@@ -280,8 +290,9 @@ void bullet_game() {
         clear_score_area();
         draw_string(10, 10, score_str, WHITE, 2);
         
-        // Small delay to control game speed
-        for (volatile int i = 0; i < 400000; i++);
+        // Wait for timer to expire and set next timer
+        set_wait_timer(0, 0);
+        set_wait_timer(1, 16);
     }
     
     uart_puts("Game over\n");
