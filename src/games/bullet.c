@@ -1,11 +1,4 @@
-#include "../include/framebf.h"
-#include "../include/uart0.h"
-#include "../include/plants.h"
-#include "../include/utils.h"
-#include "bullet.h"
-#include "../assets/backgrounds/garden.h"
-#include "../assets/sprites/plants/plants_sprites.h"
-
+#include "../include/bullet.h"
 extern unsigned char *fb; 
 
 #define MAX_BULLETS 25 // 5 rows * 5 bullets per row
@@ -51,15 +44,15 @@ void place_plants() {
 // Function to draw plants both on screen and in simulated background
 void draw_plants_both(int plant_type, int col, int row) {
     // Check if the column and row are within valid bounds
-    if (col < 0 || col >= PLANT_GRID_COLS || row < 0 || row >= PLANT_GRID_ROWS) {
+    if (col < 0 || col >= GRID_COLS || row < 0 || row >= GRID_ROWS) {
         return; // Invalid position, do nothing
     }
     
     // Calculate pixel coordinates from grid position, centered in cell
-    int horizontal_offset = (PLANT_COL_WIDTH - PLANT_WIDTH) / 2;
-    int vertical_offset = (PLANT_ROW_HEIGHT - PLANT_HEIGHT) / 2;
-    int x = PLANT_GRID_LEFT_MARGIN + (col * PLANT_COL_WIDTH) + horizontal_offset;
-    int y = PLANT_GRID_TOP_MARGIN + (row * PLANT_ROW_HEIGHT) + vertical_offset;
+    int horizontal_offset = (GRID_COL_WIDTH - PLANT_WIDTH) / 2;
+    int vertical_offset = (GRID_ROW_HEIGHT - PLANT_HEIGHT) / 2;
+    int x = GRID_LEFT_MARGIN + (col * GRID_COL_WIDTH) + horizontal_offset;
+    int y = GRID_TOP_MARGIN + (row * GRID_ROW_HEIGHT) + vertical_offset;
     
     const unsigned int* plant_sprite;
     
@@ -146,7 +139,7 @@ static void init_game() {
     }
     // Target position on the right side of the screen
     target_x = PHYSICAL_WIDTH - 100;
-    target_y = PLANT_GRID_TOP_MARGIN + PLANT_ROW_HEIGHT;
+    target_y = GRID_TOP_MARGIN + GRID_ROW_HEIGHT;
     bullet_speed = 3;
     score = 0;
     last_score = -1;
@@ -187,9 +180,9 @@ void fire_bullet_for_row(int row) {
     // Find an inactive bullet slot
     for (int i = 0; i < MAX_BULLETS; i++) {
         if (!bullets[i].active) {
-            int shooter_x = PLANT_GRID_LEFT_MARGIN + ((PLANT_COL_WIDTH - PLANT_WIDTH) / 2);
-            int shooter_y = PLANT_GRID_TOP_MARGIN + (row * PLANT_ROW_HEIGHT) +
-                            ((PLANT_ROW_HEIGHT - PLANT_HEIGHT) / 2);
+            int shooter_x = GRID_LEFT_MARGIN + ((GRID_COL_WIDTH - PLANT_WIDTH) / 2);
+            int shooter_y = GRID_TOP_MARGIN + (row * GRID_ROW_HEIGHT) +
+                            ((GRID_ROW_HEIGHT - PLANT_HEIGHT) / 2);
             bullets[i].x = shooter_x + PLANT_WIDTH;
             bullets[i].y = shooter_y + (PLANT_HEIGHT / 2) - (BULLET_HEIGHT / 2);
             bullets[i].prev_x = bullets[i].x;
@@ -232,7 +225,7 @@ void bullet_game() {
         sim_bg[i] = GARDEN[i];
     }
     draw_image_both(GARDEN, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
-    draw_plant_grid();
+    draw_grid();
     place_plants();
     set_wait_timer(1, 16);
     unsigned long freq;
