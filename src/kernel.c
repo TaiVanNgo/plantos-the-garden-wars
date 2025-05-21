@@ -8,16 +8,17 @@
 #include "../include/zombies.h"
 #include "../include/plants.h"
 #include "../include/bullet.h"
-#include "../include/game_init.h"
+// #include "../include/game_init.h"
 #include "../assets/backgrounds/background.h"
 #include "../assets/backgrounds/garden.h"
 
 // #include "background.c"
 //    #define TASK1
 //   #define TASK2_VID
-// #define ZOMBIE_INIT
+ #define ZOMBIE_INIT
 // #define PLANT_INIT
-   #define TASK3_BULLET
+//   #define TASK3_BULLET
+
 
 // void display_team_members(int show_bg)
 // {
@@ -135,15 +136,18 @@ void main()
     uart_init();
 
     framebf_init();
-    game_init();
 
-    // game_start();
+    // game_init();
+    // draw_grid();
 
-    while (1)
-    {
-        char c = uart_getc();
-        uart_sendc(c);
-    }
+
+    game_start();
+
+        while (1)
+        {
+            char c = uart_getc();
+            uart_dec(c);
+        }
 }
 #elif defined(PLANT_INIT)
 void main()
