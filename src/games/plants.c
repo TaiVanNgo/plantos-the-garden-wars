@@ -1,5 +1,5 @@
 #include "../../include/plants.h"
-#include "../../include/garden.h"
+#include "../../include/grid.h"
 #include "gpio.h"
 
 // Default Sunflower

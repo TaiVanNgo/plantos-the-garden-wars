@@ -4,7 +4,7 @@
 #include "../assets/sprites/plants/plants_sprites.h"
 #include "../assets/backgrounds/garden.h"
 #include "framebf.h"
-#include "garden.h"
+#include "grid.h"
 
 // Define plant types
 #define PLANT_TYPE_PEASHOOTER         0
