@@ -14,14 +14,10 @@
 
 // #include "background.c"
 //    #define TASK1
-  #define TASK2_VID
-// #define ZOMBIE_INIT
+//   #define TASK2_VID
+#define ZOMBIE_INIT
 // #define PLANT_INIT
 //    #define TASK3_BULLET
-
-
-
-
 
 #ifdef TASK1
 void main()
@@ -70,14 +66,13 @@ void main()
     // game_init();
     // draw_grid();
 
-
     game_start();
 
-        while (1)
-        {
-            char c = uart_getc();
-            uart_dec(c);
-        }
+    while (1)
+    {
+        char c = uart_getc();
+        uart_dec(c);
+    }
 }
 #elif defined(PLANT_INIT)
 void main()
@@ -109,8 +104,7 @@ void main()
     // Run the bullet game
     bullet_game();
 
-   // start_game();
-
+    // start_game();
 
     // After game ends, run CLI
     while (1)
@@ -126,12 +120,12 @@ void main()
 
     uart_init();
     framebf_init();
-    
+
     game_init();
-    
+
     // draw_image(QUIT, 0, 0, 300, 85, 0);
     // display_team_members(1);
-    
+
     // while (1)
     // {
     //     char c = uart_getc();

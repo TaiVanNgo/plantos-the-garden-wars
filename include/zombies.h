@@ -3,7 +3,10 @@
 
 #include "gpio.h"
 #include "framebf.h"
+#include "grid.h"
 #include "../assets/sprites/zombies/zombie_sprite.h"
+
+#define START_X_POS 700
 
 // Zombie Type enum
 enum ZombieType
@@ -35,4 +38,8 @@ Zombie spawn_zombie(uint8_t type, uint8_t row);  // Draw zombie on screen
 int move_zombie(Zombie *zombie);                 // Returns 1 if reached edge, 0 otherwise
 void update_zombie_position(Zombie *zombie);
 
+/*//////////////////////////////////////////////////////////////
+                              DEV_ONLY
+//////////////////////////////////////////////////////////////*/
+void dev_test_zombie();
 #endif

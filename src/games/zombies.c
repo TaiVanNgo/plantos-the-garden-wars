@@ -58,12 +58,9 @@ Zombie create_zombie(uint8_t type, uint8_t row)
     break;
   }
 
-  int lane_height = 85;
-  int top_margin = 100; // Pixels from top of screen to first lane
-
   new_zombie.row = row;
-  new_zombie.x = 700; // Spawn from right
-  new_zombie.y = top_margin + (row * lane_height);
+  new_zombie.x = START_X_POS; // Spawn right of the screen
+  new_zombie.y = GRID_TOP_MARGIN + (row * GRID_ROW_HEIGHT);
   new_zombie.active = 1;
   return new_zombie;
 }
@@ -134,5 +131,79 @@ void update_zombie_position(Zombie *zombie)
     break;
   default:
     break;
+  }
+}
+
+/*//////////////////////////////////////////////////////////////
+                              DEV_ONLY
+//////////////////////////////////////////////////////////////*/
+void dev_test_zombie()
+{
+  draw_image(GARDEN, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
+  char c = getUart();
+
+  Zombie zombie1 = spawn_zombie(1, 0);
+  Zombie zombie2, zombie3, zombie4, zombie5;
+  int zombie2_spawned = 0;
+  int zombie3_spawned = 0;
+  int zombie4_spawned = 0;
+  int zombie5_spawned = 0;
+
+  int cnt = 0;
+
+  // Game loop running at 10FPS
+  while (1)
+  {
+    set_wait_timer(1, 100); // Round up to 17ms for simplicity
+
+    update_zombie_position(&zombie1);
+
+    if (cnt >= 50 && !zombie2_spawned)
+    {
+      zombie2 = spawn_zombie(2, 1);
+      zombie2_spawned = 1;
+    }
+
+    if (cnt >= 100 && !zombie3_spawned)
+    {
+      zombie3 = spawn_zombie(3, 2);
+      zombie3_spawned = 1;
+    }
+
+    if (cnt >= 150 && !zombie4_spawned)
+    {
+      zombie4 = spawn_zombie(1, 3);
+      zombie4_spawned = 1;
+    }
+
+    if (cnt >= 200 && !zombie5_spawned)
+    {
+      zombie5 = spawn_zombie(2, 1);
+      zombie5_spawned = 1;
+    }
+
+    if (zombie2_spawned)
+    {
+      update_zombie_position(&zombie2);
+    }
+
+    if (zombie3_spawned)
+    {
+      update_zombie_position(&zombie3);
+    }
+
+    if (zombie4_spawned)
+    {
+      update_zombie_position(&zombie4);
+    }
+
+    if (zombie5_spawned)
+    {
+      update_zombie_position(&zombie5);
+    }
+    cnt++;
+
+    // Wait until the 100ms timer expires
+    set_wait_timer(0, 0); // Second parameter is ignored in wait mode
   }
 }
