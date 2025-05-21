@@ -177,7 +177,6 @@ static void format_score(char *buf, int score) {
 }
 
 void fire_bullet_for_row(int row) {
-    // Find an inactive bullet slot
     for (int i = 0; i < MAX_BULLETS; i++) {
         if (!bullets[i].active) {
             int shooter_x = GRID_LEFT_MARGIN + ((GRID_COL_WIDTH - PLANT_WIDTH) / 2);
