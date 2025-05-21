@@ -301,6 +301,7 @@ void draw_selection(int row, int col) {
     prev_mode = selection_mode;
 }
 
+
 void game_init() {
     draw_image(GARDEN, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
     
@@ -315,7 +316,10 @@ void game_init() {
     // draw_selection(selected_row, selected_col);
     // draw_rect(CARD_START_X  ,CARD_START_Y , CARD_START_X +60, CARD_START_Y+75, 0xfF00ff, 0);
     // draw_plant(,selected_col, selected_row);
+    
     while (1) {
+        int x=0;
+    int y=0;
         char key = getUart();
         switch (key) {
             case '0': current_selection = 0; break;
@@ -329,6 +333,7 @@ void game_init() {
                 break;
         }
         if (current_selection != -1) {
+            grid_to_pixel(selected_col,selected_row, &x,&y );
 
         }
         
@@ -344,8 +349,11 @@ void game_init() {
                 }
                 
                 if(current_selection!= -1){
+                    restore_background_area(x, y, PLANT_WIDTH,PLANT_HEIGHT,0);
+                    
                     draw_plant(current_selection,selected_col, selected_row);
                 }
+              
                
 
             }
@@ -356,8 +364,11 @@ void game_init() {
                     selected_row++;
                 }
                 if(current_selection!= -1){
+                    restore_background_area(x, y, PLANT_WIDTH,PLANT_HEIGHT,0);
+                    // grid_to_pixel(selected_col,selected_row, &x, &y );
                     draw_plant(current_selection,selected_col, selected_row);
                 }
+               
             }
             else if (key2 == 'C') { 
                 if(selected_col >= 9){
@@ -366,8 +377,11 @@ void game_init() {
                     selected_col++;
                 }
                 if(current_selection!= -1){
+                    restore_background_area(x, y, PLANT_WIDTH,PLANT_HEIGHT,0);
+                    // grid_to_pixel(selected_col,selected_row, x, y );
                     draw_plant(current_selection,selected_col, selected_row);
                 }
+
             }
             else if (key2 == 'D') { // Left arrow
                 if(selected_col <= 0){
@@ -376,9 +390,17 @@ void game_init() {
                     selected_col--;
                 }
                 if(current_selection!= -1){
+                    restore_background_area(x, y, PLANT_WIDTH,PLANT_HEIGHT,0);
+                    // grid_to_pixel(selected_col,selected_row, x, y );
                     draw_plant(current_selection,selected_col, selected_row);
                 }
+
             }
+            uart_puts("\n X:");
+            uart_dec(x);
+            uart_puts("\n Y :");
+            uart_dec(y);
+            uart_puts("\n");
         }
         
         if (key == '\n') { // Enter key
@@ -422,3 +444,5 @@ void game_init() {
         }
     }
 }
+
+
