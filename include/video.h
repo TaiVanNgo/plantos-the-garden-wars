@@ -57,5 +57,5 @@ void video_init(Video *video);
 void play_video(Video *video, int pos_x, int pos_y, int max_frames);
 void render_next_frame(Video *video, int pos_x, int pos_y);
 void wipe_transition();
-
+void video_init(Video *video);
 #endif // VIDEO_H
