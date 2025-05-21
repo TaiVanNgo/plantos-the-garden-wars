@@ -83,6 +83,26 @@ void draw_plant_grid(void) {
             margin_color
         );
     } 
+
+    // Draw vertical grid lines
+    for (int i = 0; i <= PLANT_GRID_COLS; i++) {
+        draw_vline(
+            PLANT_GRID_LEFT_MARGIN + (i * PLANT_COL_WIDTH),
+            PLANT_GRID_TOP_MARGIN,
+            PLANT_GRID_TOP_MARGIN + (PLANT_GRID_ROWS * PLANT_ROW_HEIGHT),
+            grid_color
+        );
+    }
+
+    // Left margin (vertical line)
+    for (int i = 0; i < 3; i++) {
+        draw_vline(
+            PLANT_GRID_LEFT_MARGIN + i,
+            PLANT_GRID_TOP_MARGIN,
+            PLANT_GRID_TOP_MARGIN + (PLANT_GRID_ROWS * PLANT_ROW_HEIGHT),
+            margin_color
+        );
+    }
 }
 
 // Fill the plant grid for testing purposes
