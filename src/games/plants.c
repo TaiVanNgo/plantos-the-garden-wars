@@ -152,6 +152,7 @@ void draw_plant(int plant_type, int col, int row) {
     draw_image(plant_sprite, x, y, PLANT_WIDTH, PLANT_HEIGHT, 0);
 }
 
+
 // Fill the plant grid for testing purposes
 void fill_plant_grid(void) {
     int plant_types[] = {

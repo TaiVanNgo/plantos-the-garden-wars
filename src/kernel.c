@@ -15,9 +15,9 @@
 // #include "background.c"
 //    #define TASK1
 //   #define TASK2_VID
-//  #define ZOMBIE_INIT
+// #define ZOMBIE_INIT
 // #define PLANT_INIT
-  #define TASK3_BULLET
+   #define TASK3_BULLET
 
 // void display_team_members(int show_bg)
 // {
@@ -175,7 +175,7 @@ void main()
     // Run the bullet game
     bullet_game();
 
-    // start_game();
+   // start_game();
 
 
     // After game ends, run CLI
