@@ -1,8 +1,4 @@
-#include "../include/framebf.h"
-#include "../include/uart0.h"
-#include "../include/plants.h"
-#include "bullet.h"
-#include "../assets/backgrounds/garden.h"
+#include "../include/bullet.h"
 
 extern unsigned char *fb; 
 
@@ -44,9 +40,9 @@ static void clear_score_area() {
 static void init_game() {
     
     // Position the peashooter in the first column
-    int shooter_x = PLANT_GRID_LEFT_MARGIN + ((PLANT_COL_WIDTH - PLANT_WIDTH) / 2);
-    int shooter_y = PLANT_GRID_TOP_MARGIN + PLANT_ROW_HEIGHT + 
-                  ((PLANT_ROW_HEIGHT - PLANT_HEIGHT) / 2);
+    int shooter_x = GRID_LEFT_MARGIN + ((GRID_COL_WIDTH - PLANT_WIDTH) / 2);
+    int shooter_y = GRID_TOP_MARGIN + GRID_ROW_HEIGHT + 
+                  ((GRID_ROW_HEIGHT - PLANT_HEIGHT) / 2);
     
     // Initial bullet position (at the shooter's "mouth")
     bullets.bullet_x = shooter_x + PLANT_WIDTH;
@@ -137,9 +133,9 @@ void update_bullets() {
 void fire_bullet() {
     if (!bullets.bullet_active) {
         // Calculate peashooter position
-        int shooter_x = PLANT_GRID_LEFT_MARGIN + ((PLANT_COL_WIDTH - PLANT_WIDTH) / 2);
-        int shooter_y = PLANT_GRID_TOP_MARGIN + PLANT_ROW_HEIGHT + 
-                      ((PLANT_ROW_HEIGHT - PLANT_HEIGHT) / 2);
+        int shooter_x = GRID_LEFT_MARGIN + ((GRID_COL_WIDTH - PLANT_WIDTH) / 2);
+        int shooter_y = GRID_TOP_MARGIN + GRID_ROW_HEIGHT + 
+                      ((GRID_ROW_HEIGHT - PLANT_HEIGHT) / 2);
         
         // Set bullet position to start at the right side of the peashooter
         bullets.bullet_x = shooter_x + PLANT_WIDTH;
@@ -160,9 +156,6 @@ void bullet_game() {
     
     // Draw the garden background
     draw_image(GARDEN, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
-    
-    // Draw the plant grid
-    draw_plant_grid();
     
     // Draw the peashooter in a fixed row (row 1)
     draw_plant(PLANT_TYPE_PEASHOOTER, 0, 1);

@@ -2,6 +2,10 @@
 #define BULLET_H
 
 #include "../include/framebf.h"
+#include "../include/framebf.h"
+#include "../include/uart0.h"
+#include "../include/plants.h"
+#include "../assets/backgrounds/garden.h"
 
 #define BOX_SIZE 20
 #define DEFAULT_BULLET_SPEED 5
