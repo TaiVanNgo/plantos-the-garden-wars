@@ -39,7 +39,6 @@ typedef struct
     uint8_t attack_damage; // Damage dealt to zombies
     uint8_t cost;          // Resource cost to plant
     uint8_t attack_speed;  // Attacks per time unit
-    uint8_t attack_range;  // Range of attack in grid units
 } Plant;
 
 void draw_plant(int plant_type, int col, int row);

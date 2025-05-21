@@ -12,7 +12,6 @@ const Plant default_sunflower = {
     .attack_damage = 0, // Sunflowers don't attack
     .cost = 50,
     .attack_speed = 0, // Sunflowers don't attack
-    .attack_range = 0, // Sunflowers don't attack
 };
 
 // Default Peashooter
@@ -25,7 +24,6 @@ const Plant default_peashooter = {
     .attack_damage = 20,
     .cost = 100,
     .attack_speed = 5, // Fires 5 peas per time unit
-    .attack_range = 5, // Can attack zombies in the same row up to 5 tiles away
 };
 
 // Default Frozen Peashooter
@@ -38,7 +36,6 @@ const Plant default_frozen_peashooter = {
     .attack_damage = 15, // Slightly less damage than regular peashooter
     .cost = 175,         // More expensive due to freezing ability
     .attack_speed = 4,   // Fires 4 peas per time unit
-    .attack_range = 5,   // Can attack zombies in the same row up to 5 tiles away
 };
 
 // Default Walnut
@@ -51,7 +48,6 @@ const Plant default_walnut = {
     .attack_damage = 0, // Walnuts don't attack
     .cost = 50,
     .attack_speed = 0, // Walnuts don't attack
-    .attack_range = 0, // Walnuts don't attack
 };
 
 // Default Chillies
@@ -64,7 +60,6 @@ const Plant default_chillies = {
     .attack_damage = 150, // High damage as it's an explosive plant
     .cost = 125,
     .attack_speed = 1, // One-time use, explodes once
-    .attack_range = 2, // Affects an area of 2 tiles in all directions
 };
 
 // Function to create a new plant of the specified type
