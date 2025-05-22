@@ -1,14 +1,11 @@
 #include "../../include/game_init.h"
 
-// Card positions for plant selection
-int CARD_START_X = 50;  // Left edge of first card
-int CARD_START_Y = 178; // Top edge of cards
-
 // Tracks whether we're in card selection mode or grid placement mode
 int selection_mode = 0; // 0 = card selection, 1 = grid placement
 int selected_card = -1;
 int selected_row = 1;
 int selected_col = 1;
+int current_selection = -1;
 
 GameState game = {.state = GAME_MENU, .score = 0, .level = LEVEL_EASY_ENUM};
 
@@ -110,51 +107,6 @@ void game_menu()
         }
     }
 }
-
-// void game_init() {
-
-//     draw_image(GARDEN, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
-
-//     int selected_row = 0;
-//     int selected_col = 0;
-
-//     // Draw initial selection
-//     draw_selection(selected_row, selected_col);
-//     uart_puts("em ga oi");
-//     while (1) {
-//         char key = getUart();
-//         if(key == '['){
-//             char key2= getUart();
-//             if ((key2 == 'A' )  ) {
-//                 uart_puts("em ga oi");
-//                 if (selected_row > 0){
-//                     selected_row++;
-//                 }
-//             }
-//             else if ((key2 == 'B' )  ) {
-//                 uart_puts("em ga oi");
-//                 if (selected_row > 0){
-//                     selected_row--;
-//                 }
-//             }else if((key2 == 'C')){
-//                 uart_puts("em ga oi");
-//                 if (selected_col > 0){
-//                     selected_col++;
-//                 }
-//             }else if((key2 == 'D')){
-//                 uart_puts("em ga oi");
-//                 if (selected_col > 0){
-//                     selected_col--;
-//                 }
-//             }
-//         }
-
-//         if (key == '\n'  ) {
-
-//         }
-
-//     }
-// }
 
 // void draw_selection(int row, int col) {
 //     // Clear previous selection (optional)
@@ -270,165 +222,11 @@ void start_level()
     {
         set_wait_timer(1, 50);
         /*====== USER LOGIC START ====== */
-
-        /* rename `x` `y` -> it's misleading*/
-        int x = 0;
-        int y = 0;
-        char key = getUart();
-        switch (key)
+        if (uart_isReadByteReady())
         {
-        case '0':
-            current_selection = 0;
-            break;
-        case '1':
-            current_selection = 1;
-            break;
-        case '2':
-            current_selection = 2;
-            break;
-        case '3':
-            current_selection = 3;
-            break;
-        case '4':
-            current_selection = 4;
-            break;
-        case '5':
-            current_selection = 5;
-            break;
-        case '6':
-            current_selection = 6;
-            break;
-        default:
-            break;
-        }
-        if (current_selection != -1)
-        {
-            grid_to_pixel(selected_col, selected_row, &x, &y);
-        }
-        if (key == '[')
-        {
-            char key2 = getUart();
-            if (key2 == 'A')
-            { // Up arrow
-                // CARD_START_Y+= 90;
-                if (selected_row <= 0)
-                {
-                    selected_row = 0;
-                }
-                else
-                {
-                    selected_row--;
-                }
-
-                if (current_selection != -1)
-                {
-                    restore_background_area(x, y, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0);
-
-                    draw_plant(current_selection, selected_col, selected_row);
-                }
-            }
-            else if (key2 == 'B')
-            {
-                if (selected_row >= 4)
-                {
-                    selected_row = 4;
-                }
-                else
-                {
-                    selected_row++;
-                }
-                if (current_selection != -1)
-                {
-                    restore_background_area(x, y, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0);
-                    // grid_to_pixel(selected_col,selected_row, &x, &y );
-                    draw_plant(current_selection, selected_col, selected_row);
-                }
-            }
-            else if (key2 == 'C')
-            {
-                if (selected_col >= 9)
-                {
-                    selected_col = 9;
-                }
-                else
-                {
-                    selected_col++;
-                }
-                if (current_selection != -1)
-                {
-                    restore_background_area(x, y, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0);
-                    // grid_to_pixel(selected_col,selected_row, x, y );
-                    draw_plant(current_selection, selected_col, selected_row);
-                }
-            }
-            else if (key2 == 'D')
-            { // Left arrow
-                if (selected_col <= 0)
-                {
-                    selected_col = 1;
-                }
-                else
-                {
-                    selected_col--;
-                }
-                if (current_selection != -1)
-                {
-                    restore_background_area(x, y, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0);
-                    // grid_to_pixel(selected_col,selected_row, x, y );
-                    draw_plant(current_selection, selected_col, selected_row);
-                }
-            }
-            uart_puts("\n X:");
-            uart_dec(x);
-            uart_puts("\n Y :");
-            uart_dec(y);
-            uart_puts("\n");
+            handle_user_input(&frame_counter);
         }
 
-        if (key == '\n')
-        {
-            if (selection_mode == 0)
-            {
-                // Select this plant card
-                selected_card = selected_col;
-
-                // Switch to grid placement mode
-                selection_mode = 1;
-                selected_row = 0;
-                selected_col = 0;
-                draw_selection(selected_row, selected_col);
-
-                // uart_puts("Selected plant: ");
-                // uart_putc('0' + selected_card);
-                // uart_puts("\n");
-            }
-            else
-            {
-                // Place the plant at the selected grid position
-                // place_plant(selected_card, selected_row, selected_col);
-
-                // Return to card selection mode
-                selection_mode = 0;
-                selected_card = -1;
-                selected_col = 0;
-                draw_selection(selected_row, selected_col);
-
-                // uart_puts("Placed plant at row ");
-                // uart_putc('0' + selected_row);
-                // uart_puts(", col ");
-                // uart_putc('0' + selected_col);
-                // uart_puts("\n");
-            }
-        }
-
-        if (key == '0')
-        { // Deselect (cancel)
-            // Return to card selection mode
-            selection_mode = 0;
-            selected_card = -1;
-            selected_col = 0;
-            draw_selection(selected_row, selected_col);
-        }
         /*====== USER LOGIC END ====== */
 
         /*====== ZOMBIE LOGIC START ====== */
@@ -541,5 +339,135 @@ void start_level()
 
         frame_counter++;
         set_wait_timer(0, 0);
+    }
+}
+
+// Handle user input and return whether input was processed
+int handle_user_input(int *frame_counter)
+{
+    char key = getUart();
+
+    // Number keys for plant selection
+    if (key >= '0' && key <= '6')
+    {
+        int selection = key - '0';
+        handle_plant_selection(selection);
+        return 1;
+    }
+
+    // Arrow keys
+    if (key == '[')
+    {
+        handle_arrow_keys();
+        return 1;
+    }
+
+    // Enter key (confirm selection/placement)
+    if (key == '\n')
+    {
+        handle_enter_key();
+        return 1;
+    }
+
+    return 0; // Key wasn't handled
+}
+
+// Handle plant selection with number keys
+void handle_plant_selection(int selection)
+{
+    int x_card = 0, y_card = 0;
+    current_selection = selection;
+
+    if (current_selection != -1)
+    {
+        grid_to_pixel(selected_col, selected_row, &x_card, &y_card);
+        restore_background_area(x_card, y_card, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0);
+        draw_plant(current_selection, selected_col, selected_row);
+    }
+}
+
+// Handle arrow key navigation
+void handle_arrow_keys()
+{
+    int x_card = 0, y_card = 0;
+    char key2 = getUart();
+
+    // Get current position for potential restoration
+    grid_to_pixel(selected_col, selected_row, &x_card, &y_card);
+
+    // Process direction
+    switch (key2)
+    {
+    case 'A': // Up arrow
+        if (selected_row > 0)
+        {
+            selected_row--;
+        }
+        break;
+
+    case 'B': // Down arrow
+        if (selected_row < 4)
+        {
+            selected_row++;
+        }
+        break;
+
+    case 'C': // Right arrow
+        if (selected_col < 9)
+        {
+            selected_col++;
+        }
+        break;
+
+    case 'D': // Left arrow
+        if (selected_col > 0)
+        {
+            selected_col--;
+        }
+        break;
+
+    default:
+        return; // Unrecognized key, exit
+    }
+
+    // Update display if a plant is selected
+    if (current_selection != -1)
+    {
+        restore_background_area(x_card, y_card, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0);
+        draw_plant(current_selection, selected_col, selected_row);
+    }
+
+    // Debug output
+    uart_puts("Card Position (");
+    uart_dec(x_card);
+    uart_puts(", ");
+    uart_dec(y_card);
+    uart_puts(")\n");
+}
+
+// Handle Enter key press
+void handle_enter_key()
+{
+    if (selection_mode == 0)
+    {
+        // Select this plant card
+        selected_card = selected_col;
+
+        // Switch to grid placement mode
+        selection_mode = 1;
+        selected_row = 0;
+        selected_col = 0;
+        draw_selection(selected_row, selected_col);
+    }
+    else
+    {
+        // Place the plant at the selected grid position
+        // place_plant(selected_card, selected_row, selected_col);
+
+        // Return to card selection mode
+        selection_mode = 0;
+        selected_card = -1;
+        selected_col = 0;
+        draw_selection(selected_row, selected_col);
     }
 }
