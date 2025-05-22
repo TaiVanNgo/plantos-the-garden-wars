@@ -20,23 +20,27 @@ void game_main()
         switch (game.state)
         {
         case GAME_MENU:
-            game.state = game_menu();
+            game_menu();
             break;
         case GAME_PLAYING:
             start_level();
-            // start_level();
             break;
         case GAME_PAUSED:
             // Handle pause menu
             break;
         case GAME_OVER:
-            // Show game over screen, handle restart/exit
+            // draw loose screen
+            draw_image(LOSE_SCREEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
+            break;
+        case GAME_QUIT:
+            break;
+        default:
             break;
         }
     }
 }
 
-GAME_STATE game_menu()
+void game_menu()
 {
     draw_image(MAIN_SCREEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
 
@@ -94,12 +98,14 @@ GAME_STATE game_menu()
             if (current_selection == 0)
             {
                 clear_screen();
-                return GAME_PLAYING;
+                game.state = GAME_PLAYING;
+                return;
             }
             else if (current_selection == 1)
             {
                 uart_puts("Quit Game ");
-                return GAME_QUIT;
+                game.state = GAME_QUIT;
+                return;
             }
         }
     }
@@ -233,7 +239,7 @@ void game_init()
     Zombie zombie1 = spawn_zombie(1, 0);
     Zombie zombie2 = spawn_zombie(1, 1);
 
-      // Plant selection variables
+    // Plant selection variables
     int selected_row = 0;
     int selected_col = 0;
     selection_mode = 0; // Start in card selection mode
@@ -440,7 +446,7 @@ void start_level()
     int frame_counter = 0;
     while (1)
     {
-        set_wait_timer(1, 50);
+        set_wait_timer(1, 17);
 
         for (int i = 0; i < 10; i++)
         {

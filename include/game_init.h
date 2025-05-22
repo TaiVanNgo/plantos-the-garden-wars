@@ -81,8 +81,7 @@ const Level LEVEL_HARD = {
 };
 
 void game_init();
-GAME_STATE game_menu();
-// void start_level(GameState *game, LEVEL_DIFFICULTY difficulty);
+void game_menu();
 void start_level();
 
 #endif
