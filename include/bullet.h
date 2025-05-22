@@ -7,6 +7,7 @@
 #include "../include/plants.h"
 #include "../assets/backgrounds/garden.h"
 #include "../include/zombies.h"
+#include "../include/plants.h"
 #define BOX_SIZE 20
 #define DEFAULT_BULLET_SPEED 5
 #define DEFAULT_COLLISION_DELAY 10
@@ -36,10 +37,25 @@
 // };
 // extern struct bullets bullets;
 
-void bullet_set_position(int x, int y);
-void update_bullets(void);
-void fire_bullet(void);
-void update_all_bullets(void);
-void draw_all_bullets(void);
+#define MAX_BULLETS 25 // 5 rows * 5 bullets per row
+#define MAX_PLANTS 10
+
+// --- Data Structures ---
+typedef struct {
+    int x, y;
+    int prev_x, prev_y;
+    int row;
+    int active;
+    int plant_type;
+} Bullet;
+
+typedef struct {
+    int col, row;
+    unsigned long last_fire_time;
+} PlantInstance;
+
+
+void check_bullet_zombie_collisions(Zombie *zombie);
+void apply_bullet_damage(Bullet *bullet, Zombie *zombie);
 
 #endif // BULLET_H 

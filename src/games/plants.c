@@ -170,3 +170,16 @@ void fill_plant_grid(void) {
         }
     }
 }
+
+int get_plant_damage(int plant_type) {
+    switch (plant_type) {
+        case PLANT_TYPE_PEASHOOTER:
+            return default_peashooter.attack_damage;
+        case PLANT_TYPE_FROZEN_PEASHOOTER:
+            return default_frozen_peashooter.attack_damage;
+        case PLANT_TYPE_CHILLIES:
+            return default_chillies.attack_damage;
+        default:
+            return 0;
+    }
+}
