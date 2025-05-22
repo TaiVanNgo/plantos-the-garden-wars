@@ -147,16 +147,18 @@ void update_zombie_position(Zombie *zombie)
   }
 }
 
-void update_zombie_in_global_array(Zombie *zombie) {
-    // Removed row check and global array update logic
-    // This function now does nothing, allowing multiple zombies to be spawned without interference
-}
+// void update_zombie_in_global_array(Zombie *zombie)
+// {
+//   // Removed row check and global array update logic
+//   // This function now does nothing, allowing multiple zombies to be spawned without interference
+// }
 
-// Add new function to check if any zombie is on a given row
-int is_zombie_on_row(int row) {
-  // This function is no longer valid with the new implementation
-  return 0;
-}
+// // Add new function to check if any zombie is on a given row
+// int is_zombie_on_row(int row)
+// {
+//   // This function is no longer valid with the new implementation
+//   return 0;
+// }
 
 /*//////////////////////////////////////////////////////////////
                               DEV_ONLY
