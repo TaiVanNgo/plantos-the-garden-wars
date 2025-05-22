@@ -1,10 +1,11 @@
-#include "../../include/game_init.h"
+#include "../include/game_init.h"
 
 SelectionState select_state = {
     .mode = 0, .selected_card = -1, .row = 0, .col = 0, .current_plant = -1};
 
 GameState game = {.state = GAME_MENU, .score = 0, .level = LEVEL_HARD_ENUM};
 
+Plant plant_grid[GRID_ROWS][GRID_COLS];
 void game_main()
 {
 
@@ -31,6 +32,18 @@ void game_main()
             break;
         }
     }
+}
+
+int check_occupied()
+{   
+
+    if (plant_grid[select_state.row][select_state.col].type != 255)
+    {
+        uart_puts("Cell already occupied!\n");
+        return 0;
+    }
+
+    return 1;
 }
 
 void game_menu()
@@ -167,7 +180,14 @@ void draw_selection(int row, int col)
 void start_level()
 {
     // draw background first
-    draw_image(GARDEN, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
+    for (int i = 0; i < GRID_ROWS; i++) {
+        for (int j = 0; j < GRID_COLS; j++) {
+            plant_grid[i][j].type = -1; 
+        }
+    }
+    
+    create_simulated_background(simulated_background, GARDEN, GARDEN_WIDTH, GARDEN_HEIGHT);
+    draw_image(simulated_background, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
     draw_grid();
 
     /* Plant Setting*/
@@ -189,8 +209,8 @@ void start_level()
     bullet_system_init(start_ms, 1000); // Initialize with 1 second fire interval
 
     // Spawn a peashooter in the first row
-    Spawn_peashooter(1, 0, start_ms);
-    Spawn_peashooter(2, 0, start_ms);
+    // Spawn_peashooter(1, 0, start_ms);
+    // Spawn_peashooter(2, 0, start_ms);
 
     /* Zombie settings */
     // Define individual zombies instead of an array
@@ -234,13 +254,13 @@ void start_level()
         {
             if (frame_counter == spawn_times[i] && !zombie_spawned[i])
             {
-                uart_puts("Spawning zombie ");
-                uart_dec(i + 1);
-                uart_puts(" of type ");
-                uart_dec(zombie_types[i]);
-                uart_puts(" at row ");
-                uart_dec(zombie_rows[i]);
-                uart_puts("\n");
+                // uart_puts("Spawning zombie ");
+                // uart_dec(i + 1);
+                // uart_puts(" of type ");
+                // uart_dec(zombie_types[i]);
+                // uart_puts(" at row ");
+                // uart_dec(zombie_rows[i]);
+                // uart_puts("\n");
 
                 // Use temporary variable to hold the spawned zombie
                 Zombie temp_zombie = spawn_zombie(zombie_types[i], zombie_rows[i]);
@@ -293,13 +313,13 @@ void start_level()
             // Print zombie position in per 30 frame counts
             if (frame_counter % 30 == 0)
             {
-                uart_puts("Updating zombie ");
-                uart_dec(i + 1);
-                uart_puts(" at position x=");
-                uart_dec(zombie_pointers[i]->x);
-                uart_puts(", y=");
-                uart_dec(zombie_pointers[i]->y);
-                uart_puts("\n");
+                // uart_puts("Updating zombie ");
+                // uart_dec(i + 1);
+                // uart_puts(" at position x=");
+                // uart_dec(zombie_pointers[i]->x);
+                // uart_puts(", y=");
+                // uart_dec(zombie_pointers[i]->y);
+                // uart_puts("\n");
             }
 
             update_zombie_position(zombie_pointers[i]);
@@ -359,8 +379,11 @@ int handle_user_input(int *frame_counter)
     }
 
     // Arrow keys
-    if (key == '[')
+    if (key == '[' && select_state.current_plant != -1)
     {
+        uart_puts("selected _ plant\n");
+        uart_dec(select_state.current_plant);
+        uart_puts("\n");
         handle_arrow_keys();
         return 1;
     }
@@ -449,32 +472,39 @@ void handle_arrow_keys()
     uart_puts(")\n");
 }
 
-// Handle Enter key press
 void handle_enter_key()
 {
+    if(!check_occupied()){
+        return;
+    }
     if (select_state.mode == 0)
     {
-        // Select this plant card
-        select_state.selected_card = select_state.col;
 
-        // Switch to grid placement mode
+        place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
+        Plant new_plant = create_plant(select_state.current_plant, select_state.col, select_state.row);
+        // uart_puts("hehe ");
+        // uart_dec(new_plant.type);
+        plant_grid[select_state.row][select_state.col] = new_plant;
+        select_state.selected_card = -1;
+        select_state.current_plant = -1;
         select_state.mode = 1;
         select_state.row = 0;
         select_state.col = 0;
-        draw_selection(select_state.row, select_state.col);
     }
     else
     {
-        // Place the plant at the selected grid position
-        // place_plant(selected_card, selected_row, selected_col);
-
-        // Return to card selection mode
+        // Place plant and reset selection state
+        place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
+        Plant new_plant = create_plant(select_state.current_plant, select_state.col, select_state.row);
+        plant_grid[select_state.row][select_state.col] = new_plant;
         select_state.mode = 0;
         select_state.selected_card = -1;
+        select_state.current_plant = -1;
+        select_state.row = 0;
         select_state.col = 0;
-        draw_selection(select_state.row, select_state.col);
     }
 }
+
 
 void set_zombie_types_level(int level, int zombie_types[10])
 {

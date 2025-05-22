@@ -25,6 +25,8 @@
 #define CARD_START_X 50;  // Left edge of first card
 #define CARD_START_Y 178; // Top edge of cards
 
+extern Plant plant_grid[GRID_ROWS][GRID_COLS];
+
 // Enum for game states
 typedef enum
 {
@@ -68,6 +70,8 @@ typedef struct
   int spawn_times[MAX_ZOMBIES_PER_LEVEL];  // spawn time for each zombie
 } Level;
 
+
+
 const Level LEVEL_EASY = {
     .zombie_count = 5,
     .zombie_types = {ZOMBIE_NORMAL, ZOMBIE_NORMAL, ZOMBIE_NORMAL, ZOMBIE_BUCKET, ZOMBIE_HELMET},
@@ -96,6 +100,7 @@ void game_menu();
 void draw_selection(int row, int col);
 void start_level();
 int handle_user_input(int *frame_counter);
+int check_occupied();
 void handle_plant_selection(int plant_type);
 void handle_arrow_keys();
 void handle_enter_key();

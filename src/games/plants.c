@@ -183,3 +183,56 @@ int get_plant_damage(int plant_type) {
             return 0;
     }
 }
+
+void place_plant_on_background(int plant_type, int grid_col, int grid_row, unsigned int *sim_bg)
+{
+    const unsigned int *plant;
+
+    switch (plant_type)
+    {
+    case PLANT_TYPE_PEASHOOTER:
+        plant = peashooter;
+        break;
+    case PLANT_TYPE_SUNFLOWER:
+        plant = sunflower;
+        break;
+    case PLANT_TYPE_SUNFLOWER_UNHAPPY:
+        plant = sunflower_unhappy;
+        break;
+    case PLANT_TYPE_FROZEN_PEASHOOTER:
+        plant = frozen_peashooter;
+        break;
+    case PLANT_TYPE_CHILLIES:
+        plant = chillies;
+        break;
+    case PLANT_TYPE_CHILLIES_UNHAPPY:
+        plant = chillies_unhappy;
+        break;
+    case PLANT_TYPE_WALLNUT:
+        plant = wallnut;
+        break;
+    case PLANT_TYPE_WALLNUT_UNHAPPY:
+        plant = wallnut_unhappy;
+        break;
+    default:
+        uart_puts("Invalid plant type!\n");
+        return;
+    }
+
+    int x, y;
+    grid_to_pixel(grid_col, grid_row, &x, &y);
+
+    draw_on_simulated_background(
+        sim_bg,   
+        plant,
+        x,
+        y,
+        PLANT_WIDTH,
+        PLANT_HEIGHT,
+        GARDEN_WIDTH
+    );
+
+    // draw_image(GARDEN, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
+}
+
+

@@ -1,7 +1,6 @@
 // ----------------------------------- framebf.c
 // -------------------------------------
 #include "../include/framebf.h"
-
 // Use RGBA32 (32 bits for each pixel)
 #define COLOR_DEPTH 32
 
@@ -15,6 +14,7 @@ unsigned int width, height, pitch;
  * (declare as pointer of unsigned char to access each byte) */
 unsigned char *fb;
 
+unsigned int simulated_background[GARDEN_WIDTH * GARDEN_HEIGHT];
 /**
  * Set screen resolution to 800x600
  */
@@ -363,7 +363,7 @@ void restore_background_area(int x, int y, int width, int height, int draw_main_
         if( draw_main_screen){
           *((unsigned int *)fb + fb_index) = MAIN_SCREEN[bg_index];
         }else{
-          *((unsigned int *)fb + fb_index) = GARDEN[bg_index];
+          *((unsigned int *)fb + fb_index) = simulated_background[bg_index];
         }
         
       }
