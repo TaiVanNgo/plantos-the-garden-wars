@@ -328,3 +328,13 @@ void set_wait_timer(int set, unsigned int msVal)
         } while (r < expiredTime);
     }
 }
+
+void *memset(void *s, int c, unsigned long n)
+{
+    unsigned char *p = s;
+    while (n--)
+    {
+        *p++ = (unsigned char)c;
+    }
+    return s;
+}

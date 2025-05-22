@@ -1,20 +1,8 @@
 #include "../../include/game_init.h"
-#include "../include/uart0.h"
-#include "../include/uart1.h"
-#include "../include/framebf.h"
-#include "../assets/backgrounds/background.h"
-#include "../assets/selection/selection.h"
-#include "../assets/button/button.h"
-#include "../../include/game_init.h"
-#include "../include/plants.h"
-#include "../include/grid.h"
 
 // Card positions for plant selection
 int CARD_START_X = 50;  // Left edge of first card
 int CARD_START_Y = 178; // Top edge of cards
-#define CARD_WIDTH 50   // Width of each card
-#define CARD_HEIGHT 70  // Height of each card
-#define CARD_COUNT 8    // Number of plant cards
 
 // Tracks whether we're in card selection mode or grid placement mode
 int selection_mode = 0; // 0 = card selection, 1 = grid placement
@@ -22,23 +10,21 @@ int selected_card = -1;
 int selected_row = 1;
 int selected_col = 1;
 
+GameState game = {.state = GAME_MENU, .score = 0, .level = LEVEL_EASY_ENUM};
+
 void game_main()
 {
-    GameState game;
-    game.state = GAME_MENU;
-    game.score = 0;
-    game.round = 1;
+
     while (1)
     {
         switch (game.state)
         {
         case GAME_MENU:
-            game_start(); // Show menu, handle input
-            // If start selected:
-            game.state = GAME_PLAYING;
+            game.state = game_menu();
             break;
         case GAME_PLAYING:
-            game_init(); // Or your main game logic
+            start_level();
+            // start_level();
             break;
         case GAME_PAUSED:
             // Handle pause menu
@@ -50,7 +36,7 @@ void game_main()
     }
 }
 
-void game_start()
+GAME_STATE game_menu()
 {
     draw_image(MAIN_SCREEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
 
@@ -72,15 +58,11 @@ void game_start()
         if (key == '[')
         {
             char key2 = getUart();
-            if ((key2 == 'A') && GAME_START == 0)
+            if ((key2 == 'A'))
             {
+                // 'up arrow' button
                 int previous_selection = current_selection;
-
-                // Clear previous button selection visually
                 button_set_state(buttons[current_selection], BUTTON_NORMAL);
-                // restore_background_area(buttons[previous_selection]->x, buttons[previous_selection]->y,
-                //                        buttons[previous_selection]->width, buttons[previous_selection]->height);
-
                 current_selection--;
                 if (current_selection < 0)
                 {
@@ -90,13 +72,11 @@ void game_start()
                 button_set_state(buttons[current_selection], BUTTON_SELECTED);
                 button_draw_selection(buttons, current_selection, previous_selection);
             }
-            else if ((key2 == 'B') && GAME_START == 0)
+            else if ((key2 == 'B'))
             {
+                // 'down arrow' button
                 int previous_selection = current_selection;
-
                 button_set_state(buttons[current_selection], BUTTON_NORMAL);
-                // restore_background_area(buttons[previous_selection]->x, buttons[previous_selection]->y,
-                //                        buttons[previous_selection]->width, buttons[previous_selection]->height);
 
                 current_selection++;
                 if (current_selection > 1)
@@ -109,18 +89,17 @@ void game_start()
             }
         }
 
-        if (key == '\n' && GAME_START == 0)
+        if (key == '\n')
         {
             if (current_selection == 0)
             {
                 clear_screen();
-                GAME_START = 1;
-                game_init();
+                return GAME_PLAYING;
             }
             else if (current_selection == 1)
             {
-                uart_puts("end game ");
-                // break;
+                uart_puts("Quit Game ");
+                return GAME_QUIT;
             }
         }
     }
@@ -164,7 +143,7 @@ void game_start()
 //             }
 //         }
 
-//         if (key == '\n' && GAME_START== 0 ) {
+//         if (key == '\n'  ) {
 
 //         }
 
@@ -254,15 +233,11 @@ void game_init()
     Zombie zombie1 = spawn_zombie(1, 0);
     Zombie zombie2 = spawn_zombie(1, 1);
 
-  
-    
-
-    // Plant selection variables
+      // Plant selection variables
     int selected_row = 0;
     int selected_col = 0;
     selection_mode = 0; // Start in card selection mode
     selected_card = -1; // No card selected initially
-    static int offset = 20;
     // Draw initial selection (on first card)
     int current_selection = -1;
     // draw_selection(selected_row, selected_col);
@@ -435,5 +410,144 @@ void game_init()
             draw_selection(selected_row, selected_col);
         }
         delay_ms(100);
+    }
+}
+
+void start_level()
+{
+    // draw background first
+    draw_image(GARDEN, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
+    draw_grid();
+
+    // Define individual zombies instead of an array
+    Zombie zombie1, zombie2, zombie3, zombie4, zombie5;
+    Zombie zombie6, zombie7, zombie8, zombie9, zombie10;
+
+    // Pointer array for zombies
+    Zombie *zombie_pointers[10] = {
+        &zombie1, &zombie2, &zombie3, &zombie4, &zombie5,
+        &zombie6, &zombie7, &zombie8, &zombie9, &zombie10};
+
+    int zombie_spawned[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    int spawn_times[10] = {0, 100, 300, 450, 600, 750, 900, 1050, 1200, 1350};
+    int zombie_types[10] = {
+        ZOMBIE_NORMAL, ZOMBIE_NORMAL, ZOMBIE_NORMAL, ZOMBIE_NORMAL, ZOMBIE_NORMAL,
+        ZOMBIE_NORMAL, ZOMBIE_NORMAL, ZOMBIE_NORMAL, ZOMBIE_BUCKET, ZOMBIE_HELMET};
+
+    int zombie_rows[10] = {0, 1, 2, 3, 0, 1, 2, 3, 2, 1};
+
+    int zombies_killed = 0;
+    int frame_counter = 0;
+    while (1)
+    {
+        set_wait_timer(1, 50);
+
+        for (int i = 0; i < 10; i++)
+        {
+            if (frame_counter == spawn_times[i] && !zombie_spawned[i])
+            {
+                uart_puts("Spawning zombie ");
+                uart_dec(i + 1);
+                uart_puts(" of type ");
+                uart_dec(zombie_types[i]);
+                uart_puts(" at row ");
+                uart_dec(zombie_rows[i]);
+                uart_puts("\n");
+
+                // Use temporary variable to hold the spawned zombie
+                Zombie temp_zombie = spawn_zombie(zombie_types[i], zombie_rows[i]);
+
+                // Then copy to the appropriate zombie
+                switch (i)
+                {
+                case 0:
+                    zombie1 = temp_zombie;
+                    break;
+                case 1:
+                    zombie2 = temp_zombie;
+                    break;
+                case 2:
+                    zombie3 = temp_zombie;
+                    break;
+                case 3:
+                    zombie4 = temp_zombie;
+                    break;
+                case 4:
+                    zombie5 = temp_zombie;
+                    break;
+                case 5:
+                    zombie6 = temp_zombie;
+                    break;
+                case 6:
+                    zombie7 = temp_zombie;
+                    break;
+                case 7:
+                    zombie8 = temp_zombie;
+                    break;
+                case 8:
+                    zombie9 = temp_zombie;
+                    break;
+                case 9:
+                    zombie10 = temp_zombie;
+                    break;
+                }
+
+                zombie_spawned[i] = 1;
+            }
+        }
+
+        // Update all zombies using pointers
+        for (int i = 0; i < 10; i++)
+        {
+            if (!zombie_spawned[i] || !zombie_pointers[i]->active)
+                continue;
+
+            // Print zombie position in per 30 frame counts
+            if (frame_counter % 30 == 0)
+            {
+                uart_puts("Updating zombie ");
+                uart_dec(i + 1);
+                uart_puts(" at position x=");
+                uart_dec(zombie_pointers[i]->x);
+                uart_puts(", y=");
+                uart_dec(zombie_pointers[i]->y);
+                uart_puts("\n");
+            }
+
+            update_zombie_position(zombie_pointers[i]);
+
+            // Check for game over
+            if (zombie_pointers[i]->x <= 50)
+            {
+                game.state = GAME_OVER;
+                uart_puts("Game Over - Zombie reached house\n");
+                return;
+            }
+
+            // Check if killed
+            if (zombie_pointers[i]->health <= 0)
+            {
+                zombie_pointers[i]->active = 0;
+                zombies_killed++;
+                game.score += ZOMBIE_KILL_REWARD;
+
+                uart_puts("Kill Zombie + ");
+                uart_dec(ZOMBIE_KILL_REWARD);
+                uart_puts(" ,Total Score: ");
+                uart_dec(game.score);
+                uart_puts("\n");
+            }
+
+            // Check for level completion
+            if (zombies_killed >= 10)
+            {
+                delay_ms(2000);
+
+                game.state = GAME_VICTORY;
+                return;
+            }
+        }
+        frame_counter++;
+        set_wait_timer(0, 0);
     }
 }

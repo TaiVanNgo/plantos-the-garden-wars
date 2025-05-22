@@ -119,7 +119,8 @@ int uart_init_with_baudrate(int baudrate)
 	Integer part register UART0_IBRD  = integer part of Divider
 	Fraction part register UART0_FBRD = (Fractional part * 64) + 0.5 */
 
-	if (set_uart_baudrate(baudrate) != 0) {
+	if (set_uart_baudrate(baudrate) != 0)
+	{
 		return -1;
 	}
 
@@ -237,20 +238,20 @@ void uart_dec(int num)
 // Function to display 2-digit hex representation for MAC address
 void uart_mac_hex(unsigned char num)
 {
-    // Get highest 4-bit nibble
-    char digit = (num >> 4) & 0xF;
-    
-    // Convert to ASCII code
-    // 0-9 => '0'-'9', 10-15 => 'A'-'F'
-    digit += (digit > 9) ? (-10 + 'A') : '0';
-    uart_sendc(digit);
-    
-    // Get lowest 4-bit nibble
-    digit = num & 0xF;
-    
-    // Convert to ASCII code
-    digit += (digit > 9) ? (-10 + 'A') : '0';
-    uart_sendc(digit);
+	// Get highest 4-bit nibble
+	char digit = (num >> 4) & 0xF;
+
+	// Convert to ASCII code
+	// 0-9 => '0'-'9', 10-15 => 'A'-'F'
+	digit += (digit > 9) ? (-10 + 'A') : '0';
+	uart_sendc(digit);
+
+	// Get lowest 4-bit nibble
+	digit = num & 0xF;
+
+	// Convert to ASCII code
+	digit += (digit > 9) ? (-10 + 'A') : '0';
+	uart_sendc(digit);
 }
 
 unsigned int uart_isReadByteReady()
@@ -279,79 +280,28 @@ void uart_toggle_rts_cts() {
     }
 }
 
-// Function to wait for CTS to be clear before sending
-void uart_wait_for_cts() {
-    while (UART0_FR & UART0_FR_CTS) {
-        asm volatile("nop");
-    }
-}
-
-// Function to check if RTS is asserted
-int uart_is_rts_asserted() {
-    return !(UART0_FR & UART0_FR_RTS);
-}
-
-// Function to send a character with RTS/CTS handshaking
-void uart_sendc_with_handshake(char c) {
-    // Wait for CTS to be clear before sending
-    uart_wait_for_cts();
-    
-    // Wait until transmitter is not full
-    while (UART0_FR & UART0_FR_TXFF) {
-        asm volatile("nop");
-    }
-    
-    // Write data byte to the data register
-    UART0_DR = c;
-}
-
-// Function to receive a character with RTS/CTS handshaking
-char uart_getc_with_handshake() {
-    char c = 0;
-    
-    // Wait until Receiver is not empty
-    while (UART0_FR & UART0_FR_RXFE) {
-        asm volatile("nop");
-    }
-    
-    // Read the data
-    c = (unsigned char)(UART0_DR);
-    
-    // Convert carriage return to newline
-    return (c == '\r' ? '\n' : c);
-}
-
-// Function to send a string with RTS/CTS handshaking
-void uart_puts_with_handshake(const char *s) {
-    while (*s) {
-        if (*s == '\n') {
-            uart_sendc_with_handshake('\r');
-        }
-        uart_sendc_with_handshake(*s++);
-    }
-}
 
 int set_uart_baudrate(int baudrate)
 {
-    // Check if baudrate is valid
-    if (baudrate <= 0)
-        return -1; // Invalid baudrate
-    
-    // UART clock frequency (48MHz)
-    const unsigned int UART_CLOCK = 48000000;
-    
-    // Calculate divider using formula: Divider = UART_CLOCK/(16 * Baud)
-    float divider = (float)UART_CLOCK / (16.0f * baudrate);
-    
-    // Calculate integer and fractional parts
-    // UART0_IBRD = integer part of Divider
-    // UART0_FBRD = (Fractional part * 64) + 0.5
-    unsigned int ibrd = (unsigned int)divider;
-    unsigned int fbrd = (unsigned int)((divider - ibrd) * 64.0f + 0.5f);
-    
-    // Assign calculated values to registers
-    UART0_IBRD = ibrd;
-    UART0_FBRD = fbrd;
-    
-    return 0; // Success
+	// Check if baudrate is valid
+	if (baudrate <= 0)
+		return -1; // Invalid baudrate
+
+	// UART clock frequency (48MHz)
+	const unsigned int UART_CLOCK = 48000000;
+
+	// Calculate divider using formula: Divider = UART_CLOCK/(16 * Baud)
+	float divider = (float)UART_CLOCK / (16.0f * baudrate);
+
+	// Calculate integer and fractional parts
+	// UART0_IBRD = integer part of Divider
+	// UART0_FBRD = (Fractional part * 64) + 0.5
+	unsigned int ibrd = (unsigned int)divider;
+	unsigned int fbrd = (unsigned int)((divider - ibrd) * 64.0f + 0.5f);
+
+	// Assign calculated values to registers
+	UART0_IBRD = ibrd;
+	UART0_FBRD = fbrd;
+
+	return 0; // Success
 }

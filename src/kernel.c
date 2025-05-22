@@ -15,7 +15,7 @@
 // #include "background.c"
    #define TASK1
 //   #define TASK2_VID
-//#define ZOMBIE_INIT
+#define ZOMBIE_INIT
 // #define PLANT_INIT
  //#define TASK3_BULLET
 
@@ -70,14 +70,8 @@ void main()
 void main()
 {
     uart_init();
-
     framebf_init();
-
-    // game_init();
-    // draw_grid();
-game_init();
-    // game_start();
-    // dev_test_zombie();
+    game_main();
 
     while (1)
     {
