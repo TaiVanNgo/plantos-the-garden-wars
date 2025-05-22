@@ -72,7 +72,22 @@ Zombie create_zombie(uint8_t type, uint8_t row)
 Zombie spawn_zombie(uint8_t type, uint8_t row)
 {
   Zombie new_zombie = create_zombie(type, row);
-  draw_image(ZOMBIE_NORMAL_SPRITE, new_zombie.x, new_zombie.y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);
+  switch (type)
+  {
+
+  case ZOMBIE_NORMAL:
+    draw_image(ZOMBIE_NORMAL_SPRITE, new_zombie.x, new_zombie.y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);
+    break;
+  case ZOMBIE_BUCKET:
+    draw_image(ZOMBIE_BUCKET_SPRITE, new_zombie.x, new_zombie.y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);
+    break;
+  case ZOMBIE_HELMET:
+    draw_image(ZOMBIE_HELMET_SPRITE, new_zombie.x, new_zombie.y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);
+    break;
+  default:
+    // Fallback to normal zombie if type is unknown    draw_image(ZOMBIE_NORMAL_SPRITE, new_zombie.x, new_zombie.y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);
+    break;
+  }
   if (zombie_count < 20) {
     zombies[zombie_count++] = new_zombie;
   }

@@ -22,14 +22,15 @@
 
 /* FR = Flags Register */
 #define UART0_FR (*(volatile unsigned int *)(UART0_BASE + 0x18))
-#define UART0_FR_TXFE (1 << 7) /* TXFE = Transmit FIFO empty */
-#define UART0_FR_RXFF (1 << 6) /* RXFF = Receive FIFO full   */
-#define UART0_FR_TXFF (1 << 5) /* TXFF = Transmit FIFO full */
-#define UART0_FR_RXFE (1 << 4) /* RXFE = Receive FIFO empty */
-#define UART0_FR_BUSY (1 << 3) /* BUSY = UART is busy transmitting */
+#define UART0_FR_TXFE 0x80
+#define UART0_FR_RXFF 0x40
+#define UART0_FR_TXFF 0x20
+#define UART0_FR_RXFE 0x10
+#define UART0_FR_BUSY 0x08
 															 /*  2 = DCD  = Unsupported */
 															 /*  1 = DSR  = Unsupported */
-#define UART0_FR_CTS (1 << 0)	 /* CTS  = inverted version of nUARTCTS value */
+#define UART0_FR_CTS  0x01
+#define UART0_FR_RTS  0x02
 
 /* ILPR = Infrared, disabled on BC2835 */
 #define UART0_ILPR (*(volatile unsigned int *)(UART0_BASE + 0x20))

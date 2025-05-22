@@ -250,8 +250,10 @@ void cli()
         if (index > 0) {
             index--;
             cli_buffer[index] = '\0';
-            clear_line();
-            display_prompt(cli_buffer);
+            // Send backspace, space, and backspace to clear the character
+            uart_sendc('\b');
+            uart_sendc(' ');
+            uart_sendc('\b');
         }
         return;
     }
@@ -269,8 +271,6 @@ void cli()
     
     // When newline is received, process the command
     if (c == '\n' || c == '\r') {
-        uart_puts("\nGot command: ");
-        uart_puts(cli_buffer);
         uart_puts("\n");
         
         // Only add non-empty commands to history
@@ -303,7 +303,7 @@ void cli()
         index = 0;
         cli_buffer[0] = '\0';
         history_pos = history_count;
-        clear_line();
+        uart_puts(PROMPT);
         return;
     }
 }
