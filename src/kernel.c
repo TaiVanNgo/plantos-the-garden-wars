@@ -13,27 +13,37 @@
 #include "../assets/backgrounds/garden.h"
 
 // #include "background.c"
-//    #define TASK1
+   #define TASK1
 //   #define TASK2_VID
 #define ZOMBIE_INIT
 // #define PLANT_INIT
-// #define TASK3_BULLET
+ //#define TASK3_BULLET
 
 #ifdef TASK1
 void main()
 {
-    // Set up the serial console
+    // Initialize UART for CLI
     uart_init();
-    uart_puts("Starting Bullet Game...\n");
-
-    // Run the bullet game
-    bullet_game();
-
-    // After game ends, run CLI
-    while (1)
-    {
-        char c = uart_getc();
-        uart_sendc(c);
+    
+    // Display welcome message
+    os_welcome();
+    
+    // Initialize framebuffer
+    framebf_init();
+    
+    // Initialize game components
+    // game_init();
+    
+    // Display initial prompt
+    uart_puts(PROMPT);
+    
+    // Main loop - handle both CLI and game input
+    while (1) {
+        // Process CLI commands
+        cli();
+        
+        // Small delay to prevent CPU hogging
+        delay(10);
     }
 }
 #elif defined(TASK2_VID)
