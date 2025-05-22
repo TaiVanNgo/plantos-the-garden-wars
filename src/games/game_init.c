@@ -328,6 +328,9 @@ int handle_user_input(int *frame_counter)
         return 1;
     }
 
+    if(key == 'P' || key == 'p'){
+        handle_remove_plant();
+    }
     // Enter key (confirm selection/placement)
     if (key == '\n')
     {
@@ -339,7 +342,9 @@ int handle_user_input(int *frame_counter)
 }
 
 void handle_remove_plant(){
-    
+    select_state.selected_card= 9;
+    select_state.mode=2;
+    handle_plant_selection(9);
 }
 // Handle plant selection with number keys
 void handle_plant_selection(int plant_type)
@@ -348,10 +353,17 @@ void handle_plant_selection(int plant_type)
     int x_card = 0, y_card = 0;
     select_state.current_plant = plant_type;
 
+    if(select_state.mode == 2){
+        grid_to_pixel(select_state.col, select_state.row, &x_card, &y_card);
+        restore_background_area(x_card, y_card, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0,0);
+        draw_plant(select_state.current_plant, select_state.col, select_state.row);
+        return;
+    }
+    
     if (select_state.current_plant != -1)
     {
         grid_to_pixel(select_state.col, select_state.row, &x_card, &y_card);
-        restore_background_area(x_card, y_card, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0);
+        restore_background_area(x_card, y_card, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0,0);
         draw_plant(select_state.current_plant, select_state.col, select_state.row);
     }
 }
@@ -403,7 +415,7 @@ void handle_arrow_keys()
     // Update display if a plant is selected
     if (select_state.current_plant != -1)
     {
-        restore_background_area(x_card, y_card, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0);
+        restore_background_area(x_card, y_card, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0,0);
         draw_plant(select_state.current_plant, select_state.col, select_state.row);
     }
 
@@ -417,6 +429,19 @@ void handle_arrow_keys()
 
 void handle_enter_key()
 {
+   
+    if(select_state.mode == 2){
+        int x,y;
+        plant_grid[select_state.row][select_state.col].type = 255;
+        clear_plant_from_background(select_state.col, select_state.row);
+        select_state.mode = 1;
+        select_state.selected_card = -1;
+        select_state.current_plant = -1;
+        select_state.row = 0;
+        select_state.col = 0;
+        return;
+    }
+
     if(!check_occupied()){
         return;
     }
@@ -425,8 +450,6 @@ void handle_enter_key()
 
         place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
         Plant new_plant = create_plant(select_state.current_plant, select_state.col, select_state.row);
-        // uart_puts("hehe ");
-        // uart_dec(new_plant.type);
         plant_grid[select_state.row][select_state.col] = new_plant;
         select_state.selected_card = -1;
         select_state.current_plant = -1;
@@ -434,9 +457,8 @@ void handle_enter_key()
         select_state.row = 0;
         select_state.col = 0;
     }
-    else
+    else if (select_state.mode == 1)
     {
-        // Place plant and reset selection state
         place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
         Plant new_plant = create_plant(select_state.current_plant, select_state.col, select_state.row);
         plant_grid[select_state.row][select_state.col] = new_plant;
