@@ -167,6 +167,85 @@ static void clear_bullet_area() {
     }
 }
 
+// Function to draw plants on both main screen and simulated background
+void draw_plants_both(int plant_type, int col, int row) {
+    if (!is_valid_grid_position(col, row)) {
+        return;
+    }
+    
+    // Calculate pixel coordinates from grid position, centered in cell
+    int x, y;
+    grid_to_pixel(col, row, &x, &y);
+    
+    // Get offsets to center the plant in the cell
+    int offset_x, offset_y;
+    calculate_grid_center_offset(PLANT_WIDTH, PLANT_HEIGHT, &offset_x, &offset_y);
+    
+    // Apply the offsets
+    x += offset_x;
+    y += offset_y;
+    
+    const unsigned int* plant_sprite;
+    
+    switch(plant_type) {
+        case PLANT_TYPE_PEASHOOTER:
+            plant_sprite = peashooter;
+            break;
+        case PLANT_TYPE_SUNFLOWER:
+            plant_sprite = sunflower;
+            break;
+        case PLANT_TYPE_SUNFLOWER_UNHAPPY:
+            plant_sprite = sunflower_unhappy;
+            break;
+        case PLANT_TYPE_FROZEN_PEASHOOTER:
+            plant_sprite = frozen_peashooter;
+            break;
+        case PLANT_TYPE_CHILLIES:
+            plant_sprite = chillies;
+            break;
+        case PLANT_TYPE_CHILLIES_UNHAPPY:
+            plant_sprite = chillies_unhappy;
+            break;
+        case PLANT_TYPE_WALLNUT:
+            plant_sprite = wallnut;
+            break;
+        case PLANT_TYPE_WALLNUT_UNHAPPY:
+            plant_sprite = wallnut_unhappy;
+            break;
+        default:
+            return;
+    }
+    
+    // Draw on both main screen and simulated background
+    draw_image_both(plant_sprite, x, y, PLANT_WIDTH, PLANT_HEIGHT, 0);
+}
+
+// Function to draw image on both main screen and simulated background
+void draw_image_both(const unsigned int pixel_data[], int pos_x, int pos_y, int width, int height, int show_transparent) {
+    // Draw on main screen
+    draw_image(pixel_data, pos_x, pos_y, width, height, show_transparent);
+    
+    // Draw on simulated background
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            int pixel_index = y * width + x;
+            int screen_x = pos_x + x;
+            int screen_y = pos_y + y;
+            
+            // Skip transparent pixels if show_transparent is 0
+            if (pixel_data[pixel_index] == 0 && !show_transparent) {
+                continue;
+            }
+            
+            // Only update if within bounds
+            if (screen_x >= 0 && screen_x < GARDEN_WIDTH && 
+                screen_y >= 0 && screen_y < GARDEN_HEIGHT) {
+                sim_bg[screen_y * GARDEN_WIDTH + screen_x] = pixel_data[pixel_index];
+            }
+        }
+    }
+}
+
 // --- Main Game Loop ---
 void bullet_game() {
     framebf_init();
