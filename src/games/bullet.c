@@ -24,7 +24,7 @@ typedef struct {
 static Bullet bullets[MAX_BULLETS];
 static PlantInstance plants[MAX_PLANTS];
 static int plant_count = 0;
-static unsigned int bullet_fire_interval = 4000; // ms, default 4 seconds
+static unsigned int bullet_fire_interval = 1000; // ms, default 1 second
 static unsigned int bullet_move_interval = 30;   // ms
 static unsigned long last_bullet_move_time = 0;
 static int target_x, target_y;
@@ -155,7 +155,7 @@ void bullet_draw(void) {
 void Spawn_peashooter(int col, int row, unsigned long current_time_ms) {
     draw_plants_both(PLANT_TYPE_PEASHOOTER, col, row);
     if (plant_count == 0) {
-        bullet_system_init(current_time_ms, 4000); // 4 seconds default
+        bullet_system_init(current_time_ms, 1000); // 1 seconds default
     }
     bullet_spawn_plant(col, row, current_time_ms);
 }
@@ -362,21 +362,24 @@ void bullet_game() {
             game_over = 1;
         }
 
-        // Update current time
-        unsigned long current_counter;
-        asm volatile("mrs %0, cntpct_el0" : "=r"(current_counter));
-        unsigned long current_time_ms = current_counter * 1000 / freq;
+    // Update current time
+    unsigned long current_counter;
+    asm volatile("mrs %0, cntpct_el0" : "=r"(current_counter));
+    unsigned long current_time_ms = current_counter * 1000 / freq;
 
-        // Update bullets and draw them
+    // Update zombie position if enough time has passed
+    if ((current_time_ms - last_zombie_frame_time) >= zombie_frame_interval) {
+        update_zombie_position(&test_zombie);
+        last_zombie_frame_time = current_time_ms;
+    }
+
+    // Only update bullets if the zombie is alive
+    if (test_zombie.active) {
         bullet_update(current_time_ms);
         bullet_draw();
+    }
 
-        check_bullet_zombie_collisions(&test_zombie);
-        // Update zombie position if enough time has passed
-        if ((current_time_ms - last_zombie_frame_time) >= zombie_frame_interval) {
-            update_zombie_position(&test_zombie);
-            last_zombie_frame_time = current_time_ms;
-        }
+    check_bullet_zombie_collisions(&test_zombie);
 
         // Wait for the frame to end
         set_wait_timer(0, 0);
