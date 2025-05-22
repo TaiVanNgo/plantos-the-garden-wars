@@ -87,10 +87,29 @@ static int bullet_should_fire(unsigned long last_fire_time, unsigned long curren
     return (current_time - last_fire_time) >= interval;
 }
 
+// Helper function to check if there is a living zombie on a row
+static int is_living_zombie_on_row(int row) {
+    extern Zombie zombies[];
+    extern int zombie_count;
+    for (int i = 0; i < zombie_count; i++) {
+        if (zombies[i].active && zombies[i].row == row && zombies[i].health > 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 // Update bullet firing and movement
 void bullet_update(unsigned long current_time_ms) {
+    // Cease fire on rows with no living zombies
     for (int i = 0; i < plant_count; i++) {
-        if (is_zombie_on_row(plants[i].row) && bullet_should_fire(plants[i].last_fire_time, current_time_ms, bullet_fire_interval)) {
+        int row = plants[i].row;
+        if (!is_living_zombie_on_row(row)) {
+            cease_fire(row);
+        }
+    }
+    for (int i = 0; i < plant_count; i++) {
+        if (is_living_zombie_on_row(plants[i].row) && bullet_should_fire(plants[i].last_fire_time, current_time_ms, bullet_fire_interval)) {
             uart_puts("Ready to fire bullet\n");
             fire_bullet_for_plant(plants[i].col, plants[i].row);
             plants[i].last_fire_time = current_time_ms;
@@ -235,6 +254,7 @@ void draw_image_both(const unsigned int pixel_data[], int pos_x, int pos_y, int 
 
 
 void check_bullet_zombie_collisions(Zombie *zombie) {
+    if (!zombie->active) return;
     for (int i = 0; i < MAX_BULLETS; i++) {
         if (bullets[i].active) {
             // Simple bounding box collision
@@ -249,21 +269,22 @@ void check_bullet_zombie_collisions(Zombie *zombie) {
 }
 
 void apply_bullet_damage(Bullet *bullet, Zombie *zombie) {
+    if (!zombie->active) return;
     int dmg = get_plant_damage(bullet->plant_type);
     zombie->health -= dmg;
+    if (zombie->health <= 0) {
+        zombie->health = 0; // Clamp to zero
+        if (zombie->active) {
+            zombie->active = 0;
+            restore_background_area(zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);
+            uart_puts("Zombie removed\n");
+        }
+    }
     bullet->active = 0;
-
     // Print zombie health
     uart_puts("Zombie health: ");
     uart_dec(zombie->health);
     uart_puts("\n");
-
-    // Deactivate zombie if health is zero or less
-    if (zombie->health <= 0) {
-        zombie->active = 0;
-        restore_background_area(zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);
-        uart_puts("Zombie removed\n");
-    }
 }
 
 // Restore the background under a bullet
@@ -284,6 +305,15 @@ static void restore_background(int x, int y, int index) {
 static void clear_bullet_area() {
     for (int i = 0; i < MAX_BULLETS; i++) {
         restore_background(bullets[i].prev_x, bullets[i].prev_y, i);
+    }
+}
+
+// Cease fire on a given row: deactivate all bullets on that row
+void cease_fire(int row) {
+    for (int i = 0; i < MAX_BULLETS; i++) {
+        if (bullets[i].active && bullets[i].row == row) {
+            bullets[i].active = 0;
+        }
     }
 }
 
