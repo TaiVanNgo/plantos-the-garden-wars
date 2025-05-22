@@ -7,18 +7,18 @@
 #include "grid.h"
 
 // Define plant types
-#define PLANT_TYPE_SUNFLOWER          1
-#define PLANT_TYPE_PEASHOOTER         2
-#define PLANT_TYPE_FROZEN_PEASHOOTER  3
-#define PLANT_TYPE_WALLNUT            4
-#define PLANT_TYPE_CHILLIES           5
-#define PLANT_TYPE_SUNFLOWER_UNHAPPY  6
-#define PLANT_TYPE_CHILLIES_UNHAPPY   7
-#define PLANT_TYPE_WALLNUT_UNHAPPY    8
-#define SHOVEL                        9
+#define PLANT_TYPE_SUNFLOWER 1
+#define PLANT_TYPE_PEASHOOTER 2
+#define PLANT_TYPE_FROZEN_PEASHOOTER 3
+#define PLANT_TYPE_WALLNUT 4
+#define PLANT_TYPE_CHILLIES 5
+#define PLANT_TYPE_SUNFLOWER_UNHAPPY 6
+#define PLANT_TYPE_CHILLIES_UNHAPPY 7
+#define PLANT_TYPE_WALLNUT_UNHAPPY 8
+#define SHOVEL 9
 // Plant dimensions
-#define PLANT_WIDTH              70   // Default plant sprite width
-#define PLANT_HEIGHT             70   // Default plant sprite height
+#define PLANT_WIDTH 70  // Default plant sprite width
+#define PLANT_HEIGHT 70 // Default plant sprite height
 
 enum PlantType
 {
@@ -41,9 +41,12 @@ typedef struct
     uint8_t attack_speed;  // Attacks per time unit
 } Plant;
 
+extern Plant plant_grid[GRID_ROWS][GRID_COLS];
+
 void draw_plant(int plant_type, int col, int row);
 Plant create_plant(uint8_t type, uint8_t col, uint8_t row);
 void fill_plant_grid(void);
 int get_plant_damage(int plant_type);
 void place_plant_on_background(int plant_type, int grid_col, int grid_row, unsigned int *sim_bg);
-#endif 
+
+#endif

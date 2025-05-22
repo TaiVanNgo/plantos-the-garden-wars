@@ -6,6 +6,7 @@ SelectionState select_state = {
 GameState game = {.state = GAME_MENU, .score = 0, .level = LEVEL_HARD_ENUM};
 
 Plant plant_grid[GRID_ROWS][GRID_COLS];
+
 void game_main()
 {
 
@@ -35,7 +36,7 @@ void game_main()
 }
 
 int check_occupied()
-{   
+{
 
     if (plant_grid[select_state.row][select_state.col].type != 255)
     {
@@ -120,12 +121,14 @@ void game_menu()
 void start_level()
 {
     // draw background first
-    for (int i = 0; i < GRID_ROWS; i++) {
-        for (int j = 0; j < GRID_COLS; j++) {
-            plant_grid[i][j].type = -1; 
+    for (int i = 0; i < GRID_ROWS; i++)
+    {
+        for (int j = 0; j < GRID_COLS; j++)
+        {
+            plant_grid[i][j].type = -1;
         }
     }
-    
+
     create_simulated_background(simulated_background, GARDEN, GARDEN_WIDTH, GARDEN_HEIGHT);
     draw_image(simulated_background, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
     draw_grid();
@@ -250,16 +253,16 @@ void start_level()
             if (!zombie_spawned[i] || !zombie_pointers[i]->active)
                 continue;
 
-            // Print zombie position in per 30 frame counts
-            if (frame_counter % 30 == 0)
+            // Print zombie position in per 100 frame counts
+            if (frame_counter % 100 == 0)
             {
-                // uart_puts("Updating zombie ");
-                // uart_dec(i + 1);
-                // uart_puts(" at position x=");
-                // uart_dec(zombie_pointers[i]->x);
-                // uart_puts(", y=");
-                // uart_dec(zombie_pointers[i]->y);
-                // uart_puts("\n");
+                uart_puts("[Zombie] Updating zombie ");
+                uart_dec(i + 1);
+                uart_puts(" at position x=");
+                uart_dec(zombie_pointers[i]->x);
+                uart_puts(", y=");
+                uart_dec(zombie_pointers[i]->y);
+                uart_puts("\n");
             }
 
             update_zombie_position(zombie_pointers[i]);
@@ -271,7 +274,7 @@ void start_level()
             if (zombie_pointers[i]->x <= 50)
             {
                 game.state = GAME_OVER;
-                uart_puts("Game Over - Zombie reached house\n");
+                uart_puts("[Game State] Game Over - Zombie reached house\n");
                 return;
             }
 
@@ -282,7 +285,7 @@ void start_level()
                 zombies_killed++;
                 game.score += ZOMBIE_KILL_REWARD;
 
-                uart_puts("Kill Zombie + ");
+                uart_puts("[Plant] Kill Zombie + ");
                 uart_dec(ZOMBIE_KILL_REWARD);
                 uart_puts(" ,Total Score: ");
                 uart_dec(game.score);
@@ -328,7 +331,8 @@ int handle_user_input(int *frame_counter)
         return 1;
     }
 
-    if(key == 'P' || key == 'p'){
+    if (key == 'P' || key == 'p')
+    {
         handle_remove_plant();
     }
     // Enter key (confirm selection/placement)
@@ -341,9 +345,10 @@ int handle_user_input(int *frame_counter)
     return 0; // Key wasn't handled
 }
 
-void handle_remove_plant(){
-    select_state.selected_card= 9;
-    select_state.mode=2;
+void handle_remove_plant()
+{
+    select_state.selected_card = 9;
+    select_state.mode = 2;
     handle_plant_selection(9);
 }
 // Handle plant selection with number keys
@@ -353,17 +358,18 @@ void handle_plant_selection(int plant_type)
     int x_card = 0, y_card = 0;
     select_state.current_plant = plant_type;
 
-    if(select_state.mode == 2){
+    if (select_state.mode == 2)
+    {
         grid_to_pixel(select_state.col, select_state.row, &x_card, &y_card);
-        restore_background_area(x_card, y_card, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0,0);
+        restore_background_area(x_card, y_card, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0, 0);
         draw_plant(select_state.current_plant, select_state.col, select_state.row);
         return;
     }
-    
+
     if (select_state.current_plant != -1)
     {
         grid_to_pixel(select_state.col, select_state.row, &x_card, &y_card);
-        restore_background_area(x_card, y_card, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0,0);
+        restore_background_area(x_card, y_card, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0, 0);
         draw_plant(select_state.current_plant, select_state.col, select_state.row);
     }
 }
@@ -415,7 +421,7 @@ void handle_arrow_keys()
     // Update display if a plant is selected
     if (select_state.current_plant != -1)
     {
-        restore_background_area(x_card, y_card, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0,0);
+        restore_background_area(x_card, y_card, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0, 0);
         draw_plant(select_state.current_plant, select_state.col, select_state.row);
     }
 
@@ -429,9 +435,10 @@ void handle_arrow_keys()
 
 void handle_enter_key()
 {
-   
-    if(select_state.mode == 2){
-        int x,y;
+
+    if (select_state.mode == 2)
+    {
+        int x, y;
         plant_grid[select_state.row][select_state.col].type = 255;
         clear_plant_from_background(select_state.col, select_state.row);
         select_state.mode = 1;
@@ -442,7 +449,8 @@ void handle_enter_key()
         return;
     }
 
-    if(!check_occupied()){
+    if (!check_occupied())
+    {
         return;
     }
     if (select_state.mode == 0)
@@ -468,7 +476,6 @@ void handle_enter_key()
         select_state.col = 0;
     }
 }
-
 
 void set_zombie_types_level(int level, int zombie_types[10])
 {

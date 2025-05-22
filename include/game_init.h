@@ -70,8 +70,6 @@ typedef struct
   int spawn_times[MAX_ZOMBIES_PER_LEVEL];  // spawn time for each zombie
 } Level;
 
-
-
 const Level LEVEL_EASY = {
     .zombie_count = 5,
     .zombie_types = {ZOMBIE_NORMAL, ZOMBIE_NORMAL, ZOMBIE_NORMAL, ZOMBIE_BUCKET, ZOMBIE_HELMET},
