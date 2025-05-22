@@ -3,7 +3,7 @@
 SelectionState select_state = {
     .mode = 0, .selected_card = -1, .row = 0, .col = 0, .current_plant = -1};
 
-GameState game = {.state = GAME_MENU, .score = 0, .level = LEVEL_INTERMEDIATE_ENUM};
+GameState game = {.state = GAME_MENU, .score = 0, .level = LEVEL_HARD_ENUM};
 
 void game_main()
 {
@@ -208,7 +208,6 @@ void start_level()
         {
             handle_user_input(&frame_counter);
         }
-
         /*====== USER LOGIC END ====== */
 
         /*====== ZOMBIE LOGIC START ====== */
