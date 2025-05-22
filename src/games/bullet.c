@@ -73,7 +73,6 @@ static void fire_bullet_for_plant(int col, int row) {
             bullets[i].prev_y = bullets[i].y;
             bullets[i].row = row;
             bullets[i].active = 1;
-            //uart_puts("Set plant_type to PEASHOOTER\n");
             wait_msec(1);
             bullets[i].plant_type = PLANT_TYPE_PEASHOOTER;
             
@@ -235,42 +234,37 @@ void draw_image_both(const unsigned int pixel_data[], int pos_x, int pos_y, int 
 }
 
 
-// void check_bullet_zombie_collisions(Zombie *zombie) {
-//     for (int i = 0; i < MAX_BULLETS; i++) {
-//         if (bullets[i].active) {
-//             // Simple bounding box collision
-//             if (bullets[i].x < zombie->x + ZOMBIE_WIDTH &&
-//                 bullets[i].x + BULLET_WIDTH > zombie->x &&
-//                 bullets[i].y < zombie->y + ZOMBIE_HEIGHT &&
-//                 bullets[i].y + BULLET_HEIGHT > zombie->y) {
-//                 apply_bullet_damage(&bullets[i], zombie);
-//             }
-//         }
-//     }
-// }
+void check_bullet_zombie_collisions(Zombie *zombie) {
+    for (int i = 0; i < MAX_BULLETS; i++) {
+        if (bullets[i].active) {
+            // Simple bounding box collision
+            if (bullets[i].x < zombie->x + ZOMBIE_WIDTH &&
+                bullets[i].x + BULLET_WIDTH > zombie->x &&
+                bullets[i].y < zombie->y + ZOMBIE_HEIGHT &&
+                bullets[i].y + BULLET_HEIGHT > zombie->y) {
+                apply_bullet_damage(&bullets[i], zombie);
+            }
+        }
+    }
+}
 
-// void apply_bullet_damage(Bullet *bullet, Zombie *zombie) {
-//     int dmg = get_plant_damage(bullet->plant_type);
-//     zombie->health -= dmg;
-//     bullet->active = 0;
+void apply_bullet_damage(Bullet *bullet, Zombie *zombie) {
+    int dmg = get_plant_damage(bullet->plant_type);
+    zombie->health -= dmg;
+    bullet->active = 0;
 
-//     // Print zombie health
-//     uart_puts("Zombie health: ");
-//     char buf[16];
-//     int h = zombie->health;
-//     int idx = 0;
-//     if (h == 0) {
-//         buf[idx++] = '0';
-//     } else {
-//         if (h < 0) { buf[idx++] = '-'; h = -h; }
-//         int digits[10], d = 0;
-//         while (h > 0) { digits[d++] = h % 10; h /= 10; }
-//         for (int j = d-1; j >= 0; j--) buf[idx++] = '0' + digits[j];
-//     }
-//     buf[idx] = '\0';
-//     uart_puts(buf);
-//     uart_puts("\n");
-// }
+    // Print zombie health
+    uart_puts("Zombie health: ");
+    uart_dec(zombie->health);
+    uart_puts("\n");
+
+    // Deactivate zombie if health is zero or less
+    if (zombie->health <= 0) {
+        zombie->active = 0;
+        restore_background_area(zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);
+        uart_puts("Zombie removed\n");
+    }
+}
 
 // Restore the background under a bullet
 static void restore_background(int x, int y, int index) {
@@ -347,6 +341,7 @@ void bullet_game() {
         bullet_update(current_time_ms);
         bullet_draw();
 
+        check_bullet_zombie_collisions(&test_zombie);
         // Update zombie position if enough time has passed
         if ((current_time_ms - last_zombie_frame_time) >= zombie_frame_interval) {
             update_zombie_position(&test_zombie);
