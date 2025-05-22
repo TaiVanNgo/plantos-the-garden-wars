@@ -25,6 +25,7 @@
 #define CARD_START_X 50;  // Left edge of first card
 #define CARD_START_Y 178; // Top edge of cards
 
+extern int plant_grid[GRID_ROWS][GRID_COLS];  
 // Enum for game states
 typedef enum
 {
@@ -98,6 +99,7 @@ void game_menu();
 void draw_selection(int row, int col);
 void start_level();
 int handle_user_input(int *frame_counter);
+int check_occupied();
 void handle_plant_selection(int plant_type);
 void handle_arrow_keys();
 void handle_enter_key();
