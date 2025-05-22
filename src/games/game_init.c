@@ -3,7 +3,7 @@
 SelectionState select_state = {
     .mode = 0, .selected_card = -1, .row = 0, .col = 0, .current_plant = -1};
 
-GameState game = {.state = GAME_MENU, .score = 0, .level = LEVEL_EASY_ENUM};
+GameState game = {.state = GAME_MENU, .score = 0, .level = LEVEL_INTERMEDIATE_ENUM};
 
 void game_main()
 {
@@ -192,9 +192,9 @@ void start_level()
 
     int zombie_spawned[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     int spawn_times[10] = {0, 100, 300, 450, 600, 750, 900, 1050, 1200, 1350};
-    int zombie_types[10] = {
-        ZOMBIE_NORMAL, ZOMBIE_NORMAL, ZOMBIE_NORMAL, ZOMBIE_NORMAL, ZOMBIE_NORMAL,
-        ZOMBIE_NORMAL, ZOMBIE_NORMAL, ZOMBIE_NORMAL, ZOMBIE_BUCKET, ZOMBIE_HELMET};
+
+    int zombie_types[10];
+    set_zombie_types_level(game.level, zombie_types);
 
     int zombie_rows[10] = {0, 1, 2, 3, 0, 1, 2, 3, 2, 1};
 
@@ -452,5 +452,45 @@ void handle_enter_key()
         select_state.selected_card = -1;
         select_state.col = 0;
         draw_selection(select_state.row, select_state.col);
+    }
+}
+
+void set_zombie_types_level(int level, int zombie_types[10])
+{
+    if (level == LEVEL_EASY_ENUM)
+    {
+        for (int i = 0; i < 8; i++)
+        {
+            zombie_types[i] = ZOMBIE_NORMAL;
+        }
+
+        zombie_types[8] = ZOMBIE_BUCKET;
+        zombie_types[9] = ZOMBIE_HELMET;
+    }
+    else if (level == LEVEL_INTERMEDIATE_ENUM)
+    {
+        // Intermediate level - 3 normal + 5 bucket + 2 helmet
+        for (int i = 0; i < 3; i++)
+        {
+            zombie_types[i] = ZOMBIE_NORMAL;
+        }
+        for (int i = 3; i < 8; i++)
+        {
+            zombie_types[i] = ZOMBIE_BUCKET;
+        }
+        zombie_types[8] = ZOMBIE_HELMET;
+        zombie_types[9] = ZOMBIE_HELMET;
+    }
+    else
+    {
+        // Hard level - mix of bucket and helmet zombies
+        for (int i = 0; i < 5; i++)
+        {
+            zombie_types[i] = ZOMBIE_BUCKET;
+        }
+        for (int i = 5; i < 10; i++)
+        {
+            zombie_types[i] = ZOMBIE_HELMET;
+        }
     }
 }
