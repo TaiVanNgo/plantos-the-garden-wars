@@ -409,46 +409,34 @@ void game_init()
 
 void start_level()
 {
-    switch (game.level)
-    {
-    case LEVEL_EASY_ENUM:
-        start_level_easy();
-        break;
-    case LEVEL_INTERMEDIATE_ENUM:
-        // start_level_intermediate();
-        break;
-    case LEVEL_HARD_ENUM:
-        // start_level_hard();
-        break;
-    default:
-        start_level_easy(); // Default for easy level
-        break;
-    }
-}
-
-void start_level_easy()
-{
-    // Draw background
+    // draw background first
     draw_image(GARDEN, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
     draw_grid();
 
     // Define individual zombies instead of an array
     Zombie zombie1, zombie2, zombie3, zombie4, zombie5;
+    Zombie zombie6, zombie7, zombie8, zombie9, zombie10;
 
-    Zombie *zombie_pointers[5] = {&zombie1, &zombie2, &zombie3, &zombie4, &zombie5};
-    int zombie_spawned[5] = {0, 0, 0, 0, 0};
-    int spawn_times[5] = {0, 300, 600, 900, 1200};
-    int zombie_types[5] = {ZOMBIE_NORMAL, ZOMBIE_NORMAL, ZOMBIE_NORMAL, ZOMBIE_BUCKET, ZOMBIE_HELMET};
-    int zombie_rows[5] = {0, 1, 2, 3, 1};
+    // Pointer array for zombies
+    Zombie *zombie_pointers[10] = {
+        &zombie1, &zombie2, &zombie3, &zombie4, &zombie5,
+        &zombie6, &zombie7, &zombie8, &zombie9, &zombie10};
+
+    int zombie_spawned[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    int spawn_times[10] = {0, 100, 300, 450, 600, 750, 900, 1050, 1200, 1350};
+    int zombie_types[10] = {
+        ZOMBIE_NORMAL, ZOMBIE_NORMAL, ZOMBIE_NORMAL, ZOMBIE_NORMAL, ZOMBIE_NORMAL,
+        ZOMBIE_NORMAL, ZOMBIE_NORMAL, ZOMBIE_NORMAL, ZOMBIE_BUCKET, ZOMBIE_HELMET};
+
+    int zombie_rows[10] = {0, 1, 2, 3, 0, 1, 2, 3, 2, 1};
 
     int zombies_killed = 0;
     int frame_counter = 0;
-
     while (1)
     {
         set_wait_timer(1, 50);
 
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < 10; i++)
         {
             if (frame_counter == spawn_times[i] && !zombie_spawned[i])
             {
@@ -481,6 +469,21 @@ void start_level_easy()
                 case 4:
                     zombie5 = temp_zombie;
                     break;
+                case 5:
+                    zombie6 = temp_zombie;
+                    break;
+                case 6:
+                    zombie7 = temp_zombie;
+                    break;
+                case 7:
+                    zombie8 = temp_zombie;
+                    break;
+                case 8:
+                    zombie9 = temp_zombie;
+                    break;
+                case 9:
+                    zombie10 = temp_zombie;
+                    break;
                 }
 
                 zombie_spawned[i] = 1;
@@ -488,12 +491,12 @@ void start_level_easy()
         }
 
         // Update all zombies using pointers
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < 10; i++)
         {
             if (!zombie_spawned[i] || !zombie_pointers[i]->active)
                 continue;
 
-            // Only print debug info occasionally
+            // Print zombie position in per 30 frame counts
             if (frame_counter % 30 == 0)
             {
                 uart_puts("Updating zombie ");
@@ -530,9 +533,8 @@ void start_level_easy()
             }
 
             // Check for level completion
-            if (zombies_killed >= 5)
+            if (zombies_killed >= 10)
             {
-                draw_string(350, 300, "LEVEL COMPLETE!", GREEN, 2);
                 delay_ms(2000);
 
                 game.state = GAME_VICTORY;
