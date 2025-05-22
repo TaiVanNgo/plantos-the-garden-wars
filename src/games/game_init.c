@@ -236,13 +236,13 @@ void start_level()
         {
             if (frame_counter == spawn_times[i] && !zombie_spawned[i])
             {
-                uart_puts("Spawning zombie ");
-                uart_dec(i + 1);
-                uart_puts(" of type ");
-                uart_dec(zombie_types[i]);
-                uart_puts(" at row ");
-                uart_dec(zombie_rows[i]);
-                uart_puts("\n");
+                // uart_puts("Spawning zombie ");
+                // uart_dec(i + 1);
+                // uart_puts(" of type ");
+                // uart_dec(zombie_types[i]);
+                // uart_puts(" at row ");
+                // uart_dec(zombie_rows[i]);
+                // uart_puts("\n");
 
                 // Use temporary variable to hold the spawned zombie
                 Zombie temp_zombie = spawn_zombie(zombie_types[i], zombie_rows[i]);
@@ -295,13 +295,13 @@ void start_level()
             // Print zombie position in per 30 frame counts
             if (frame_counter % 30 == 0)
             {
-                uart_puts("Updating zombie ");
-                uart_dec(i + 1);
-                uart_puts(" at position x=");
-                uart_dec(zombie_pointers[i]->x);
-                uart_puts(", y=");
-                uart_dec(zombie_pointers[i]->y);
-                uart_puts("\n");
+                // uart_puts("Updating zombie ");
+                // uart_dec(i + 1);
+                // uart_puts(" at position x=");
+                // uart_dec(zombie_pointers[i]->x);
+                // uart_puts(", y=");
+                // uart_dec(zombie_pointers[i]->y);
+                // uart_puts("\n");
             }
 
             update_zombie_position(zombie_pointers[i]);
@@ -361,14 +361,17 @@ int handle_user_input(int *frame_counter)
     }
 
     // Arrow keys
-    if (key == '[')
+    if (key == '[' && select_state.current_plant != -1)
     {
+        uart_puts("selected _ plant\n");
+        uart_dec(select_state.current_plant);
+        uart_puts("\n");
         handle_arrow_keys();
         return 1;
     }
 
     // Enter key (confirm selection/placement)
-    if (key == '\n' && select_state.current_plant != -1 )
+    if (key == '\n')
     {
         handle_enter_key();
         return 1;
@@ -456,18 +459,22 @@ void handle_enter_key()
     if (select_state.mode == 0)
     {
         // Enter placement mode
-        select_state.selected_card = select_state.col;
+        uart_puts("Placed 1");
+        uart_dec( select_state.col);
+        uart_puts("\n");
+        
+        // draw_selection(select_state.row, select_state.col);
+        place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
+        select_state.selected_card = -1;
+        select_state.current_plant = -1;
         select_state.mode = 1;
         select_state.row = 0;
         select_state.col = 0;
-        // draw_selection(select_state.row, select_state.col);
-        place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
     }
     else
     {
         // Place plant and reset selection state
         place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
-
         select_state.mode = 0;
         select_state.selected_card = -1;
         select_state.current_plant = -1;
