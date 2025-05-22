@@ -2,8 +2,8 @@
 
 
 extern unsigned char *fb; 
-extern Zombie zombies[20];
-extern int zombie_count;
+// extern Zombie zombies[20];
+// extern int zombie_count;
 
 #define MAX_BULLETS 25 // 5 rows * 5 bullets per row
 #define MAX_PLANTS 10
@@ -91,14 +91,8 @@ static int bullet_should_fire(unsigned long last_fire_time, unsigned long curren
 
 // Helper function to check if there is a living zombie on a row
 static int is_living_zombie_on_row(int row) {
-    extern Zombie zombies[];
-    extern int zombie_count;
-    for (int i = 0; i < zombie_count; i++) {
-        if (zombies[i].active && zombies[i].row == row && zombies[i].health > 0) {
-            return 1;
-        }
-    }
-    return 0;
+    // This function is no longer needed since we're not using global zombie array
+    return 1; // Always return true to allow plants to shoot
 }
 
 // Update bullet firing and movement
@@ -271,17 +265,6 @@ void apply_bullet_damage(Bullet *bullet, Zombie *zombie) {
         zombie->health = 0; // Clamp to zero
         if (zombie->active) {
             zombie->active = 0;
-            
-            for (int i = 0; i < zombie_count; i++) {
-                if (zombies[i].row == zombie->row && 
-                    zombies[i].x == zombie->x && 
-                    zombies[i].y == zombie->y) {
-                    zombies[i].active = 0;
-                    zombies[i].health = 0;
-                    break;
-                }
-            }
-            
             restore_background_area(zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);
             uart_puts("Zombie removed\n");
         }
