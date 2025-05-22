@@ -97,11 +97,11 @@ const Level LEVEL_HARD = {
 
 void game_main();
 void game_menu();
-void draw_selection(int row, int col);
 void start_level();
 int handle_user_input(int *frame_counter);
 int check_occupied();
 void handle_plant_selection(int plant_type);
+void handle_remove_plant();
 void handle_arrow_keys();
 void handle_enter_key();
 // void set_zombie_types_level(int level, int zombie_types[10]);

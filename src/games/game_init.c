@@ -117,66 +117,6 @@ void game_menu()
     }
 }
 
-void draw_selection(int row, int col)
-{
-    static int prev_row = -1;
-    static int prev_col = -1;
-    static int prev_mode = -1;
-
-    // If we have a previous selection, restore that area
-    if (prev_row != -1 && prev_col != -1)
-    {
-        if (prev_mode == 0)
-        {
-            // Restore card selection area
-            int x = CARD_START_X + prev_col * CARD_WIDTH;
-            int y = CARD_START_Y;
-            restore_background_area(x - 4, y - 4, CARD_WIDTH + 8, CARD_HEIGHT + 8, 0);
-        }
-        else
-        {
-            // Restore grid cell area
-            int x = GRID_LEFT_MARGIN + prev_col * GRID_COL_WIDTH;
-            int y = GRID_TOP_MARGIN + prev_row * GRID_ROW_HEIGHT;
-            restore_background_area(x - 4, y - 4, GRID_COL_WIDTH + 8, GRID_ROW_HEIGHT + 8, 0);
-        }
-    }
-
-    // Draw new selection
-    if (select_state.mode == 0)
-    {
-        // Draw selection around a plant card
-        int x = CARD_START_X + col * CARD_WIDTH;
-        int y = CARD_START_Y;
-
-        // Draw a yellow highlight around the card
-        draw_rect(x - 3, y - 3, CARD_WIDTH + 6, CARD_HEIGHT + 6, 0xFFFF00, 0);
-    }
-    else
-    {
-        // Draw selection on grid for placement
-        int x = GRID_LEFT_MARGIN + col * GRID_COL_WIDTH;
-        int y = GRID_TOP_MARGIN + row * GRID_ROW_HEIGHT;
-
-        // Draw a white semi-transparent rectangle to show valid placement
-        draw_rect(x, y, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0x80FFFFFF, 0);
-
-        // If we have a selected card, show the plant preview
-        if (select_state.selected_card >= 0)
-        {
-            // This would show a preview of the plant
-            // You'll need plant sprites for this
-            // For now, just draw a colored rectangle
-            draw_rect(x + 15, y + 15, 50, 50, 0x8000FF00, 1);
-        }
-    }
-
-    // Remember current selection for next time
-    prev_row = row;
-    prev_col = col;
-    prev_mode = select_state.mode;
-}
-
 void start_level()
 {
     // draw background first
@@ -398,6 +338,9 @@ int handle_user_input(int *frame_counter)
     return 0; // Key wasn't handled
 }
 
+void handle_remove_plant(){
+    
+}
 // Handle plant selection with number keys
 void handle_plant_selection(int plant_type)
 
