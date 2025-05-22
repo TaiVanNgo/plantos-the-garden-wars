@@ -1,9 +1,10 @@
-#include "../../include/game_init.h"
+#include "../include/game_init.h"
 
 SelectionState select_state = {
     .mode = 0, .selected_card = -1, .row = 0, .col = 0, .current_plant = -1};
 
 GameState game = {.state = GAME_MENU, .score = 0, .level = LEVEL_HARD_ENUM};
+
 
 void game_main()
 {
@@ -167,7 +168,8 @@ void draw_selection(int row, int col)
 void start_level()
 {
     // draw background first
-    draw_image(GARDEN, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
+    create_simulated_background(simulated_background, GARDEN, GARDEN_WIDTH, GARDEN_HEIGHT);
+    draw_image(simulated_background, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
     draw_grid();
 
     /* Plant Setting*/
@@ -366,7 +368,7 @@ int handle_user_input(int *frame_counter)
     }
 
     // Enter key (confirm selection/placement)
-    if (key == '\n')
+    if (key == '\n' && select_state.current_plant != -1 )
     {
         handle_enter_key();
         return 1;
@@ -449,15 +451,12 @@ void handle_arrow_keys()
     uart_puts(")\n");
 }
 
-// Handle Enter key press
 void handle_enter_key()
 {
     if (select_state.mode == 0)
     {
-        // Select this plant card
+        // Enter placement mode
         select_state.selected_card = select_state.col;
-
-        // Switch to grid placement mode
         select_state.mode = 1;
         select_state.row = 0;
         select_state.col = 0;
@@ -465,16 +464,18 @@ void handle_enter_key()
     }
     else
     {
-        // Place the plant at the selected grid position
-        // place_plant(selected_card, selected_row, selected_col);
+        // Place plant and reset selection state
+        place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
 
-        // Return to card selection mode
         select_state.mode = 0;
         select_state.selected_card = -1;
+        select_state.current_plant = -1;
+        select_state.row = 0;
         select_state.col = 0;
         draw_selection(select_state.row, select_state.col);
     }
 }
+
 
 void set_zombie_types_level(int level, int zombie_types[10])
 {
