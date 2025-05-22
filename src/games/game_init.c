@@ -441,9 +441,6 @@ void start_level_easy()
 
     int zombies_killed = 0;
     int frame_counter = 0;
-
-    zombies[0] = spawn_zombie(2, 3);
-    uart_puts("Test");
     while (1)
     {
         set_wait_timer(1, 50);
