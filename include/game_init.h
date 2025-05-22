@@ -25,7 +25,8 @@
 #define CARD_START_X 50;  // Left edge of first card
 #define CARD_START_Y 178; // Top edge of cards
 
-extern int plant_grid[GRID_ROWS][GRID_COLS];  
+extern Plant plant_grid[GRID_ROWS][GRID_COLS];
+
 // Enum for game states
 typedef enum
 {

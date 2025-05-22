@@ -5,7 +5,7 @@ SelectionState select_state = {
 
 GameState game = {.state = GAME_MENU, .score = 0, .level = LEVEL_HARD_ENUM};
 
-int plant_grid[GRID_ROWS][GRID_COLS] = {0};  
+Plant plant_grid[GRID_ROWS][GRID_COLS];
 void game_main()
 {
 
@@ -34,13 +34,18 @@ void game_main()
     }
 }
 
-int check_occupied(){
-    if (plant_grid[select_state.row][select_state.col] != 0) {
+int check_occupied()
+{   
+
+    if (plant_grid[select_state.row][select_state.col].type != 255)
+    {
         uart_puts("Cell already occupied!\n");
         return 0;
     }
+
     return 1;
 }
+
 void game_menu()
 {
     draw_image(MAIN_SCREEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
@@ -175,6 +180,12 @@ void draw_selection(int row, int col)
 void start_level()
 {
     // draw background first
+    for (int i = 0; i < GRID_ROWS; i++) {
+        for (int j = 0; j < GRID_COLS; j++) {
+            plant_grid[i][j].type = -1; 
+        }
+    }
+    
     create_simulated_background(simulated_background, GARDEN, GARDEN_WIDTH, GARDEN_HEIGHT);
     draw_image(simulated_background, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
     draw_grid();
@@ -468,14 +479,12 @@ void handle_enter_key()
     }
     if (select_state.mode == 0)
     {
-        // Enter placement mode
-        uart_puts("Placed 1");
-        uart_dec( select_state.col);
-        uart_puts("\n");
-        
-        // draw_selection(select_state.row, select_state.col);
+
         place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
-        plant_grid[select_state.row][select_state.col] = select_state.current_plant;
+        Plant new_plant = create_plant(select_state.current_plant, select_state.col, select_state.row);
+        // uart_puts("hehe ");
+        // uart_dec(new_plant.type);
+        plant_grid[select_state.row][select_state.col] = new_plant;
         select_state.selected_card = -1;
         select_state.current_plant = -1;
         select_state.mode = 1;
@@ -486,13 +495,13 @@ void handle_enter_key()
     {
         // Place plant and reset selection state
         place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
-        plant_grid[select_state.row][select_state.col] = select_state.current_plant;
+        Plant new_plant = create_plant(select_state.current_plant, select_state.col, select_state.row);
+        plant_grid[select_state.row][select_state.col] = new_plant;
         select_state.mode = 0;
         select_state.selected_card = -1;
         select_state.current_plant = -1;
         select_state.row = 0;
         select_state.col = 0;
-        // draw_selection(select_state.row, select_state.col);
     }
 }
 
