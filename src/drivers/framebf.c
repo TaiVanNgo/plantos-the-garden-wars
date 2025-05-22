@@ -344,7 +344,7 @@ void draw_string(int x, int y, char *s, unsigned int attr, int scale)
 }
 
 
-void restore_background_area(int x, int y, int width, int height, int draw_main_screen)
+void restore_background_area(int x, int y, int width, int height, int draw_main_screen, int redraw_default)
 {
 
   for (int row = 0; row < height; row++)
@@ -360,6 +360,10 @@ void restore_background_area(int x, int y, int width, int height, int draw_main_
         int bg_index = screen_y * GARDEN_WIDTH + screen_x;
         int fb_index = screen_y * (pitch / 4) + screen_x;
 
+        if(redraw_default){
+          *((unsigned int *)fb + fb_index) = GARDEN[bg_index];
+          continue;
+        }
         if( draw_main_screen){
           *((unsigned int *)fb + fb_index) = MAIN_SCREEN[bg_index];
         }else{
@@ -430,4 +434,29 @@ continue;
 draw_pixel(x + j, y + i, color);
 }
 }
+}
+
+
+void clear_plant_from_background(int grid_col, int grid_row) {
+    int x, y;
+    grid_to_pixel(grid_col, grid_row, &x, &y);
+
+    for (int row = 0; row < 75; row++) {
+        for (int col = 0; col < 75; col++) {
+            int screen_x = x + col;
+            int screen_y = y + row;
+
+            if (screen_x >= 0 && screen_x < GARDEN_WIDTH &&
+                screen_y >= 0 && screen_y < GARDEN_HEIGHT) {
+                int index = screen_y * GARDEN_WIDTH + screen_x;
+
+                // Restore pixel from original garden to simulated background
+                simulated_background[index] = GARDEN[index];
+
+                // Also update the framebuffer
+                int fb_index = screen_y * (pitch / 4) + screen_x;
+                *((unsigned int *)fb + fb_index) = GARDEN[index];
+            }
+        }
+    }
 }

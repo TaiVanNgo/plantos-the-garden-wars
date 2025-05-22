@@ -15,7 +15,7 @@
 #define PLANT_TYPE_SUNFLOWER_UNHAPPY  6
 #define PLANT_TYPE_CHILLIES_UNHAPPY   7
 #define PLANT_TYPE_WALLNUT_UNHAPPY    8
-
+#define SHOVEL                        9
 // Plant dimensions
 #define PLANT_WIDTH              70   // Default plant sprite width
 #define PLANT_HEIGHT             70   // Default plant sprite height

@@ -1,5 +1,6 @@
 #include "../../include/plants.h"
 #include "../../include/grid.h"
+#include "../assets/button/button.h"
 #include "gpio.h"
 
 // Default Sunflower
@@ -140,6 +141,9 @@ void draw_plant(int plant_type, int col, int row) {
         case PLANT_TYPE_WALLNUT_UNHAPPY:
             plant_sprite = wallnut_unhappy;
             break;
+        case SHOVEL:
+            plant_sprite= shovel;
+            break;
         default:
             return;
     }
@@ -234,5 +238,4 @@ void place_plant_on_background(int plant_type, int grid_col, int grid_row, unsig
 
     // draw_image(GARDEN, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
 }
-
 
