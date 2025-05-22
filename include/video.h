@@ -1,8 +1,8 @@
 #ifndef VIDEO_H
 #define VIDEO_H
 
-#define FRAME_WIDTH 800
-#define FRAME_HEIGHT 600
+#define FRAME_WIDTH 640
+#define FRAME_HEIGHT 360
 #define FRAME_DELAY 100000
 
 // Define in frames.c
@@ -55,7 +55,6 @@ const unsigned int *video_get_current_frame(Video *video);
 void video_next_frame(Video *video);
 void video_init(Video *video);
 void play_video(Video *video, int pos_x, int pos_y, int max_frames);
-void render_next_frame(Video *video, int pos_x, int pos_y);
 void wipe_transition();
 void video_init(Video *video);
 #endif // VIDEO_H
