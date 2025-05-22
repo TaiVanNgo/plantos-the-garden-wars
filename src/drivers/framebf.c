@@ -441,8 +441,8 @@ void clear_plant_from_background(int grid_col, int grid_row) {
     int x, y;
     grid_to_pixel(grid_col, grid_row, &x, &y);
 
-    for (int row = 0; row < 70; row++) {
-        for (int col = 0; col < 70; col++) {
+    for (int row = 0; row < 75; row++) {
+        for (int col = 0; col < 75; col++) {
             int screen_x = x + col;
             int screen_y = y + row;
 
