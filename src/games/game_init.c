@@ -432,8 +432,10 @@ void start_level_easy()
     draw_image(GARDEN, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
     draw_grid();
 
-    // Array of 5 Zombies
-    Zombie zombies[5];
+    // Define individual zombies instead of an array
+    Zombie zombie1, zombie2, zombie3, zombie4, zombie5;
+
+    Zombie *zombie_pointers[5] = {&zombie1, &zombie2, &zombie3, &zombie4, &zombie5};
     int zombie_spawned[5] = {0, 0, 0, 0, 0};
     int spawn_times[5] = {0, 300, 600, 900, 1200};
     int zombie_types[5] = {ZOMBIE_NORMAL, ZOMBIE_NORMAL, ZOMBIE_NORMAL, ZOMBIE_BUCKET, ZOMBIE_HELMET};
@@ -441,53 +443,72 @@ void start_level_easy()
 
     int zombies_killed = 0;
     int frame_counter = 0;
+
     while (1)
     {
         set_wait_timer(1, 50);
 
-        // Spawn zombies at the specific time
         for (int i = 0; i < 5; i++)
         {
             if (frame_counter == spawn_times[i] && !zombie_spawned[i])
             {
                 uart_puts("Spawning zombie ");
-                uart_dec(i);
+                uart_dec(i + 1);
                 uart_puts(" of type ");
                 uart_dec(zombie_types[i]);
                 uart_puts(" at row ");
                 uart_dec(zombie_rows[i]);
                 uart_puts("\n");
 
-                delay_ms(10);
-                zombies[i] = spawn_zombie(zombie_types[i], zombie_rows[i]);
+                // Use temporary variable to hold the spawned zombie
+                Zombie temp_zombie = spawn_zombie(zombie_types[i], zombie_rows[i]);
+
+                // Then copy to the appropriate zombie
+                switch (i)
+                {
+                case 0:
+                    zombie1 = temp_zombie;
+                    break;
+                case 1:
+                    zombie2 = temp_zombie;
+                    break;
+                case 2:
+                    zombie3 = temp_zombie;
+                    break;
+                case 3:
+                    zombie4 = temp_zombie;
+                    break;
+                case 4:
+                    zombie5 = temp_zombie;
+                    break;
+                }
+
                 zombie_spawned[i] = 1;
-                delay_ms(10);
             }
         }
 
+        // Update all zombies using pointers
         for (int i = 0; i < 5; i++)
         {
-            // update all zombies
-            if (!zombie_spawned[i] || !zombies[i].active)
+            if (!zombie_spawned[i] || !zombie_pointers[i]->active)
                 continue;
 
-            // Only print debug info every 30 frames to avoid UART overload
+            // Only print debug info occasionally
             if (frame_counter % 30 == 0)
             {
                 uart_puts("Updating zombie ");
-                uart_dec(i);
+                uart_dec(i + 1);
                 uart_puts(" at position x=");
-                uart_dec(zombies[i].x);
+                uart_dec(zombie_pointers[i]->x);
                 uart_puts(", y=");
-                uart_dec(zombies[i].y);
+                uart_dec(zombie_pointers[i]->y);
                 uart_puts("\n");
             }
 
-            // Update position
-            update_zombie_position(&zombies[i]);
+            update_zombie_position(zombie_pointers[i]);
 
             // Check for game over
-            if (zombies[i].x <= 50)
+            if (zombie_pointers[i]->x <= 50)
             {
                 game.state = GAME_OVER;
                 uart_puts("Game Over - Zombie reached house\n");
@@ -495,9 +516,9 @@ void start_level_easy()
             }
 
             // Check if killed
-            if (zombies[i].health <= 0)
+            if (zombie_pointers[i]->health <= 0)
             {
-                zombies[i].active = 0;
+                zombie_pointers[i]->active = 0;
                 zombies_killed++;
                 game.score += ZOMBIE_KILL_REWARD;
 
@@ -505,255 +526,20 @@ void start_level_easy()
                 uart_dec(ZOMBIE_KILL_REWARD);
                 uart_puts(" ,Total Score: ");
                 uart_dec(game.score);
+                uart_puts("\n");
             }
 
+            // Check for level completion
             if (zombies_killed >= 5)
             {
                 draw_string(350, 300, "LEVEL COMPLETE!", GREEN, 2);
                 delay_ms(2000);
 
-                // Advance to next level
-                game.level = LEVEL_INTERMEDIATE_ENUM;
+                game.state = GAME_VICTORY;
                 return;
             }
         }
-
         frame_counter++;
         set_wait_timer(0, 0);
     }
 }
-
-// void start_level_easy()
-// {
-//     // Draw background
-//     draw_image(GARDEN, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
-//     draw_grid();
-
-//     // Create five zombies;
-//     Zombie zombie1, zombie2, zombie3, zombie4, zombie5;
-//     int zombie1_spawned = 0;
-//     int zombie2_spawned = 0;
-//     int zombie3_spawned = 0;
-//     int zombie4_spawned = 0;
-//     int zombie5_spawned = 0;
-
-//     int zombies_killed = 0;
-//     int frame_counter = 0;
-
-//     while (1)
-//     {
-//         set_wait_timer(1, 50);
-
-//         // Spawn zombies at specific times
-//         if (frame_counter == 0 && !zombie1_spawned)
-//         {
-//             zombie1 = spawn_zombie(ZOMBIE_NORMAL, 0);
-//             zombie1_spawned = 1;
-//         }
-//         if (frame_counter == 300 && !zombie2_spawned)
-//         {
-//             zombie2 = spawn_zombie(ZOMBIE_NORMAL, 1);
-//             zombie2_spawned = 1;
-//         }
-
-//         if (frame_counter == 600 && !zombie3_spawned)
-//         {
-//             zombie3 = spawn_zombie(ZOMBIE_NORMAL, 2);
-//             zombie3_spawned = 1;
-//         }
-
-//         if (frame_counter == 900 && !zombie4_spawned)
-//         {
-//             zombie4 = spawn_zombie(ZOMBIE_BUCKET, 3);
-//             zombie4_spawned = 1;
-//         }
-
-//         if (frame_counter == 1200 && !zombie5_spawned)
-//         {
-//             zombie5 = spawn_zombie(ZOMBIE_HELMET, 1);
-//             zombie5_spawned = 1;
-//         }
-
-//         // update zombie's position
-//         if (zombie1_spawned && zombie1.active)
-//         {
-//             update_zombie_position(&zombie1);
-
-//             // Check for zombie reaching house
-//             if (zombie1.x <= 50)
-//             {
-//                 game.state = GAME_OVER;
-//                 uart_puts("Game Over");
-//                 return;
-//             }
-
-//             // Check if zombie was killed
-//             if (zombie1.health <= 0)
-//             {
-//                 zombie1.active = 0;
-//                 zombies_killed++;
-//                 game.score += ZOMBIE_KILL_REWARD;
-//             }
-//         }
-
-//         if (zombie2_spawned && zombie2.active)
-//         {
-//             update_zombie_position(&zombie2);
-
-//             if (zombie2.x <= 50)
-//             {
-//                 game.state = GAME_OVER;
-//                 return;
-//             }
-
-//             if (zombie2.health <= 0)
-//             {
-//                 zombie2.active = 0;
-//                 zombies_killed++;
-//                 game.score += ZOMBIE_KILL_REWARD;
-//             }
-//         }
-//         if (zombie3_spawned && zombie3.active)
-//         {
-//             update_zombie_position(&zombie3);
-
-//             if (zombie3.x <= 50)
-//             {
-//                 game.state = GAME_OVER;
-//                 return;
-//             }
-
-//             if (zombie3.health <= 0)
-//             {
-//                 zombie3.active = 0;
-//                 zombies_killed++;
-//                 game.score += ZOMBIE_KILL_REWARD;
-//             }
-//         }
-
-//         if (zombie4_spawned && zombie4.active)
-//         {
-//             update_zombie_position(&zombie4);
-
-//             if (zombie4.x <= 50)
-//             {
-//                 game.state = GAME_OVER;
-//                 return;
-//             }
-
-//             if (zombie4.health <= 0)
-//             {
-//                 zombie4.active = 0;
-//                 zombies_killed++;
-//                 game.score += ZOMBIE_KILL_REWARD;
-//             }
-//         }
-//         if (zombie5_spawned && zombie5.active)
-//         {
-//             update_zombie_position(&zombie5);
-
-//             if (zombie5.x <= 50)
-//             {
-//                 game.state = GAME_OVER;
-//                 return;
-//             }
-
-//             if (zombie5.health <= 0)
-//             {
-//                 zombie5.active = 0;
-//                 zombies_killed++;
-//                 game.score += ZOMBIE_KILL_REWARD;
-//             }
-//         }
-//         frame_counter++;
-//         set_wait_timer(0, 0);
-//     }
-// }
-
-// void start_level(GameState *game, LEVEL_DIFFICULTY difficulty)
-// {
-//     Level current_level;
-//     switch (difficulty)
-//     {
-//     case LEVEL_EASY_ENUM:
-//         current_level = LEVEL_EASY;
-//         break;
-//     case LEVEL_INTERMEDIATE_ENUM:
-//         current_level = LEVEL_INTERMEDIATE;
-//         break;
-//     case LEVEL_HARD_ENUM:
-//         // current_level = LEVEL_HARD;
-//         break;
-//     default:
-//         break;
-//     }
-
-//     int zombies_spawned = 0;
-//     int zombies_killed = 0;
-//     int frame_counter = 0;
-
-//     Zombie active_zombies[MAX_ZOMBIES_PER_LEVEL];
-//     // memset(active_zombies, 0, sizeof(active_zombies));
-
-//     uart_puts("\nLevel ");
-//     uart_puts(difficulty == LEVEL_EASY_ENUM ? "Easy " : difficulty == LEVEL_INTERMEDIATE_ENUM ? "Intermediate "
-//                                                                                               : "Hard ");
-//     uart_puts("Start\n");
-
-//     draw_image(GARDEN, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
-
-//     // play until all the zombies died
-//     while (zombies_killed < current_level.zombie_count)
-//     {
-//         /* GET USER INPUT */
-
-//         if (zombies_spawned < current_level.zombie_count && frame_counter >= current_level.spawn_times[zombies_spawned])
-//         {
-//             // spawn the next zombie if the
-//             active_zombies[zombies_spawned] = spawn_zombie(
-//                 current_level.zombie_types[zombies_spawned],
-//                 current_level.zombie_rows[zombies_spawned]);
-
-//             zombies_spawned++;
-//         }
-
-//         for (int i = 0; i < zombies_spawned; i++)
-//         {
-//             // Skip dead zombie
-//             if (active_zombies[i].active == 0)
-//                 continue;
-
-//             update_zombie_position(&active_zombies[i]);
-//             if (active_zombies[i].x <= 50)
-//             {
-//                 game->state = GAME_OVER;
-//                 return;
-//             }
-
-//             // Check if zombie was killed by plants
-//             if (active_zombies[i].health <= 0)
-//             {
-//                 active_zombies[i].active = 0;
-//                 zombies_killed++;
-//                 game->score += ZOMBIE_KILL_REWARD;
-//             }
-
-//             // Check collisions (Dev later)
-//             // check_plant_zombie_collisions(&active_zombies[i]);
-//         }
-
-//         // Update all active plants (DEV LATER)
-//         // update_plants();
-
-//         // Update sun production and collection (DEV LATER)
-//         // update_sun_resources();
-
-//         // Display level information (DEV LATER, USING UART)
-//         // char info[50];
-//         // uartputs(info, "Level: %d  Score: %d  Lives: %d", game->level, game->score, game->lives);
-//         frame_counter++;
-//     }
-
-//     // all zombies were killed, user won the level
-//     game->state = GAME_VICTORY;
-// }
