@@ -3,9 +3,6 @@
 // Card positions for plant selection
 int CARD_START_X = 50;  // Left edge of first card
 int CARD_START_Y = 178; // Top edge of cards
-#define CARD_WIDTH 50   // Width of each card
-#define CARD_HEIGHT 70  // Height of each card
-#define CARD_COUNT 8    // Number of plant cards
 
 // Tracks whether we're in card selection mode or grid placement mode
 int selection_mode = 0; // 0 = card selection, 1 = grid placement
@@ -13,9 +10,9 @@ int selected_card = -1;
 int selected_row = 1;
 int selected_col = 1;
 
+GameState game;
 void game_main()
 {
-    GameState game;
     game.state = GAME_MENU;
     game.score = 0;
     game.level = 1;
@@ -27,7 +24,7 @@ void game_main()
             game.state = game_menu();
             break;
         case GAME_PLAYING:
-            start_level(&game, LEVEL_EASY_ENUM);
+            start_level();
             // start_level();
             break;
         case GAME_PAUSED:
@@ -62,7 +59,7 @@ GAME_STATE game_menu()
         if (key == '[')
         {
             char key2 = getUart();
-            if ((key2 == 'A') && GAME_START == 0)
+            if ((key2 == 'A'))
             {
                 // 'up arrow' button
                 int previous_selection = current_selection;
@@ -76,7 +73,7 @@ GAME_STATE game_menu()
                 button_set_state(buttons[current_selection], BUTTON_SELECTED);
                 button_draw_selection(buttons, current_selection, previous_selection);
             }
-            else if ((key2 == 'B') && GAME_START == 0)
+            else if ((key2 == 'B'))
             {
                 // 'down arrow' button
                 int previous_selection = current_selection;
@@ -93,12 +90,11 @@ GAME_STATE game_menu()
             }
         }
 
-        if (key == '\n' && GAME_START == 0)
+        if (key == '\n')
         {
             if (current_selection == 0)
             {
                 clear_screen();
-                GAME_START = 1;
                 return GAME_PLAYING;
             }
             else if (current_selection == 1)
@@ -148,7 +144,7 @@ GAME_STATE game_menu()
 //             }
 //         }
 
-//         if (key == '\n' && GAME_START== 0 ) {
+//         if (key == '\n'  ) {
 
 //         }
 
@@ -411,91 +407,113 @@ void game_init()
         delay_ms(100);
     }
 }
-
-void start_level(GameState *game, LEVEL_DIFFICULTY difficulty)
+void start_level()
 {
-    Level current_level;
-    switch (difficulty)
-    {
-    case LEVEL_EASY_ENUM:
-        current_level = LEVEL_EASY;
-        break;
-    case LEVEL_INTERMEDIATE_ENUM:
-        current_level = LEVEL_INTERMEDIATE;
-        break;
-    case LEVEL_HARD_ENUM:
-        // current_level = LEVEL_HARD;
-        break;
-    default:
-        break;
-    }
+    // Use the global game variable directly
+    uart_puts("Starting level...\n");
 
-    int zombies_spawned = 0;
-    int zombies_killed = 0;
-    int frame_counter = 0;
-
-    Zombie active_zombies[MAX_ZOMBIES_PER_LEVEL];
-    // memset(active_zombies, 0, sizeof(active_zombies));
-
-    uart_puts("\nLevel ");
-    uart_puts(difficulty == LEVEL_EASY_ENUM ? "Easy " : difficulty == LEVEL_INTERMEDIATE_ENUM ? "Intermediate "
-                                                                                              : "Hard ");
-    uart_puts("Start\n");
-
+    // Simple implementation for testing
     draw_image(GARDEN, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
+    draw_rect(100, 100, 200, 100, 0xFF0000, 1); // Red rectangle
 
-    // play until all the zombies died
-    while (zombies_killed < current_level.zombie_count)
+    uart_puts("Level started. Press Enter to return to menu.\n");
+
+    // Wait for Enter key
+    while (1)
     {
-        /* GET USER INPUT */
-
-        if (zombies_spawned < current_level.zombie_count && frame_counter >= current_level.spawn_times[zombies_spawned])
+        char key = getUart();
+        if (key == '\n')
         {
-            // spawn the next zombie if the
-            active_zombies[zombies_spawned] = spawn_zombie(
-                current_level.zombie_types[zombies_spawned],
-                current_level.zombie_rows[zombies_spawned]);
-
-            zombies_spawned++;
+            game.state = GAME_MENU; // Using global game state
+            return;
         }
-
-        for (int i = 0; i < zombies_spawned; i++)
-        {
-            // Skip dead zombie
-            if (active_zombies[i].active == 0)
-                continue;
-
-            update_zombie_position(&active_zombies[i]);
-            if (active_zombies[i].x <= 50)
-            {
-                game->state = GAME_OVER;
-                return;
-            }
-
-            // Check if zombie was killed by plants
-            if (active_zombies[i].health <= 0)
-            {
-                active_zombies[i].active = 0;
-                zombies_killed++;
-                game->score += ZOMBIE_KILL_REWARD;
-            }
-
-            // Check collisions (Dev later)
-            // check_plant_zombie_collisions(&active_zombies[i]);
-        }
-
-        // Update all active plants (DEV LATER)
-        // update_plants();
-
-        // Update sun production and collection (DEV LATER)
-        // update_sun_resources();
-
-        // Display level information (DEV LATER, USING UART)
-        // char info[50];
-        // uartputs(info, "Level: %d  Score: %d  Lives: %d", game->level, game->score, game->lives);
-        frame_counter++;
     }
-
-    // all zombies were killed, user won the level
-    game->state = GAME_VICTORY;
 }
+
+// void start_level(GameState *game, LEVEL_DIFFICULTY difficulty)
+// {
+//     Level current_level;
+//     switch (difficulty)
+//     {
+//     case LEVEL_EASY_ENUM:
+//         current_level = LEVEL_EASY;
+//         break;
+//     case LEVEL_INTERMEDIATE_ENUM:
+//         current_level = LEVEL_INTERMEDIATE;
+//         break;
+//     case LEVEL_HARD_ENUM:
+//         // current_level = LEVEL_HARD;
+//         break;
+//     default:
+//         break;
+//     }
+
+//     int zombies_spawned = 0;
+//     int zombies_killed = 0;
+//     int frame_counter = 0;
+
+//     Zombie active_zombies[MAX_ZOMBIES_PER_LEVEL];
+//     // memset(active_zombies, 0, sizeof(active_zombies));
+
+//     uart_puts("\nLevel ");
+//     uart_puts(difficulty == LEVEL_EASY_ENUM ? "Easy " : difficulty == LEVEL_INTERMEDIATE_ENUM ? "Intermediate "
+//                                                                                               : "Hard ");
+//     uart_puts("Start\n");
+
+//     draw_image(GARDEN, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
+
+//     // play until all the zombies died
+//     while (zombies_killed < current_level.zombie_count)
+//     {
+//         /* GET USER INPUT */
+
+//         if (zombies_spawned < current_level.zombie_count && frame_counter >= current_level.spawn_times[zombies_spawned])
+//         {
+//             // spawn the next zombie if the
+//             active_zombies[zombies_spawned] = spawn_zombie(
+//                 current_level.zombie_types[zombies_spawned],
+//                 current_level.zombie_rows[zombies_spawned]);
+
+//             zombies_spawned++;
+//         }
+
+//         for (int i = 0; i < zombies_spawned; i++)
+//         {
+//             // Skip dead zombie
+//             if (active_zombies[i].active == 0)
+//                 continue;
+
+//             update_zombie_position(&active_zombies[i]);
+//             if (active_zombies[i].x <= 50)
+//             {
+//                 game->state = GAME_OVER;
+//                 return;
+//             }
+
+//             // Check if zombie was killed by plants
+//             if (active_zombies[i].health <= 0)
+//             {
+//                 active_zombies[i].active = 0;
+//                 zombies_killed++;
+//                 game->score += ZOMBIE_KILL_REWARD;
+//             }
+
+//             // Check collisions (Dev later)
+//             // check_plant_zombie_collisions(&active_zombies[i]);
+//         }
+
+//         // Update all active plants (DEV LATER)
+//         // update_plants();
+
+//         // Update sun production and collection (DEV LATER)
+//         // update_sun_resources();
+
+//         // Display level information (DEV LATER, USING UART)
+//         // char info[50];
+//         // uartputs(info, "Level: %d  Score: %d  Lives: %d", game->level, game->score, game->lives);
+//         frame_counter++;
+//     }
+
+//     // all zombies were killed, user won the level
+//     game->state = GAME_VICTORY;
+// }

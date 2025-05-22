@@ -19,7 +19,9 @@
 #define MAX_ROUNDS 5
 #define ZOMBIE_KILL_REWARD 10
 
-extern int GAME_START = 0;
+#define CARD_WIDTH 50  // Width of each card
+#define CARD_HEIGHT 70 // Height of each card
+#define CARD_COUNT 8   // Number of plant cards
 
 // Enum for game states
 typedef enum
@@ -71,6 +73,7 @@ const Level LEVEL_INTERMEDIATE = {
 
 void game_init();
 GAME_STATE game_menu();
-void start_level(GameState *game, LEVEL_DIFFICULTY difficulty);
+// void start_level(GameState *game, LEVEL_DIFFICULTY difficulty);
+void start_level();
 
 #endif
