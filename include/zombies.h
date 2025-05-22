@@ -39,6 +39,9 @@ Zombie spawn_zombie(uint8_t type, uint8_t row);  // Draw zombie on screen
 int move_zombie(Zombie *zombie);                 // Returns 1 if reached edge, 0 otherwise
 void update_zombie_position(Zombie *zombie);
 
+// Add after the existing function declarations
+int is_zombie_on_row(int row); // Returns 1 if any active zombie is on the given row
+
 /*//////////////////////////////////////////////////////////////
                               DEV_ONLY
 //////////////////////////////////////////////////////////////*/

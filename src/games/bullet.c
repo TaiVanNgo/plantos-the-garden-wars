@@ -2,6 +2,8 @@
 
 
 extern unsigned char *fb; 
+extern Zombie zombies[20];
+extern int zombie_count;
 
 #define MAX_BULLETS 25 // 5 rows * 5 bullets per row
 #define MAX_PLANTS 10
@@ -12,6 +14,7 @@ typedef struct {
     int prev_x, prev_y;
     int row;
     int active;
+    int plant_type;
 } Bullet;
 
 typedef struct {
@@ -23,7 +26,7 @@ typedef struct {
 static Bullet bullets[MAX_BULLETS];
 static PlantInstance plants[MAX_PLANTS];
 static int plant_count = 0;
-static unsigned int bullet_fire_interval = 4000; // ms, default 4 seconds
+static unsigned int bullet_fire_interval = 1000; // ms, default 1 second
 static unsigned int bullet_move_interval = 30;   // ms
 static unsigned long last_bullet_move_time = 0;
 static int target_x, target_y;
@@ -56,6 +59,7 @@ void bullet_spawn_plant(int col, int row, unsigned long start_ms) {
         plants[plant_count].row = row;
         plants[plant_count].last_fire_time = start_ms;
         plant_count++;
+        uart_puts("Plant spawned\n");
     }
 }
 
@@ -71,6 +75,9 @@ static void fire_bullet_for_plant(int col, int row) {
             bullets[i].prev_y = bullets[i].y;
             bullets[i].row = row;
             bullets[i].active = 1;
+            wait_msec(1);
+            bullets[i].plant_type = PLANT_TYPE_PEASHOOTER;
+            
             save_background(bullets[i].x, bullets[i].y, i);
             break;
         }
@@ -82,10 +89,23 @@ static int bullet_should_fire(unsigned long last_fire_time, unsigned long curren
     return (current_time - last_fire_time) >= interval;
 }
 
+// Helper function to check if there is a living zombie on a row
+static int is_living_zombie_on_row(int row) {
+    extern Zombie zombies[];
+    extern int zombie_count;
+    for (int i = 0; i < zombie_count; i++) {
+        if (zombies[i].active && zombies[i].row == row && zombies[i].health > 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 // Update bullet firing and movement
 void bullet_update(unsigned long current_time_ms) {
     for (int i = 0; i < plant_count; i++) {
-        if (bullet_should_fire(plants[i].last_fire_time, current_time_ms, bullet_fire_interval)) {
+        if (is_living_zombie_on_row(plants[i].row) && bullet_should_fire(plants[i].last_fire_time, current_time_ms, bullet_fire_interval)) {
+            uart_puts("Ready to fire bullet\n");
             fire_bullet_for_plant(plants[i].col, plants[i].row);
             plants[i].last_fire_time = current_time_ms;
         }
@@ -103,9 +123,11 @@ void bullet_update(unsigned long current_time_ms) {
                     bullets[i].y < target_y + target_height &&
                     bullets[i].y + BULLET_HEIGHT > target_y) {
                     bullets[i].active = 0;
+                    uart_puts("Bullet hit target\n");
                 }
                 if (bullets[i].x > PHYSICAL_WIDTH) {
                     bullets[i].active = 0;
+                    uart_puts("Bullet out of bounds\n");
                 }
             }
         }
@@ -128,7 +150,7 @@ void bullet_draw(void) {
 void Spawn_peashooter(int col, int row, unsigned long current_time_ms) {
     draw_plants_both(PLANT_TYPE_PEASHOOTER, col, row);
     if (plant_count == 0) {
-        bullet_system_init(current_time_ms, 4000); // 4 seconds default
+        bullet_system_init(current_time_ms, 1000); // 1 seconds default
     }
     bullet_spawn_plant(col, row, current_time_ms);
 }
@@ -143,27 +165,6 @@ static void save_background(int x, int y, int index) {
             if (bg_x < 0 || bg_x >= GARDEN_WIDTH) continue;
             background_buffer[index][i * BULLET_WIDTH + j] = sim_bg[bg_y * GARDEN_WIDTH + bg_x];
         }
-    }
-}
-
-// Restore the background under a bullet
-static void restore_background(int x, int y, int index) {
-    for (int i = 0; i < BULLET_HEIGHT; i++) {
-        int bg_y = y + i;
-        if (bg_y < 0 || bg_y >= GARDEN_HEIGHT) continue;
-        for (int j = 0; j < BULLET_WIDTH; j++) {
-            int bg_x = x + j;
-            if (bg_x < 0 || bg_x >= GARDEN_WIDTH) continue;
-            if (bg_x < PHYSICAL_WIDTH && bg_y < PHYSICAL_HEIGHT)
-                draw_pixel(bg_x, bg_y, background_buffer[index][i * BULLET_WIDTH + j]);
-        }
-    }
-}
-
-// Clear the previous positions of all bullets
-static void clear_bullet_area() {
-    for (int i = 0; i < MAX_BULLETS; i++) {
-        restore_background(bullets[i].prev_x, bullets[i].prev_y, i);
     }
 }
 
@@ -246,43 +247,140 @@ void draw_image_both(const unsigned int pixel_data[], int pos_x, int pos_y, int 
     }
 }
 
+
+void check_bullet_zombie_collisions(Zombie *zombie) {
+    if (!zombie->active) return;
+    for (int i = 0; i < MAX_BULLETS; i++) {
+        if (bullets[i].active) {
+            // Simple bounding box collision
+            if (bullets[i].x < zombie->x + ZOMBIE_WIDTH &&
+                bullets[i].x + BULLET_WIDTH > zombie->x &&
+                bullets[i].y < zombie->y + ZOMBIE_HEIGHT &&
+                bullets[i].y + BULLET_HEIGHT > zombie->y) {
+                apply_bullet_damage(&bullets[i], zombie);
+            }
+        }
+    }
+}
+
+void apply_bullet_damage(Bullet *bullet, Zombie *zombie) {
+    if (!zombie->active) return;
+    int dmg = get_plant_damage(bullet->plant_type);
+    zombie->health -= dmg;
+    if (zombie->health <= 0) {
+        zombie->health = 0; // Clamp to zero
+        if (zombie->active) {
+            zombie->active = 0;
+            
+            for (int i = 0; i < zombie_count; i++) {
+                if (zombies[i].row == zombie->row && 
+                    zombies[i].x == zombie->x && 
+                    zombies[i].y == zombie->y) {
+                    zombies[i].active = 0;
+                    zombies[i].health = 0;
+                    break;
+                }
+            }
+            
+            restore_background_area(zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);
+            uart_puts("Zombie removed\n");
+        }
+    }
+    bullet->active = 0;
+    // Print zombie health
+    uart_puts("Zombie health: ");
+    uart_dec(zombie->health);
+    uart_puts("\n");
+}
+
+// Restore the background under a bullet
+static void restore_background(int x, int y, int index) {
+    for (int i = 0; i < BULLET_HEIGHT; i++) {
+        int bg_y = y + i;
+        if (bg_y < 0 || bg_y >= GARDEN_HEIGHT) continue;
+        for (int j = 0; j < BULLET_WIDTH; j++) {
+            int bg_x = x + j;
+            if (bg_x < 0 || bg_x >= GARDEN_WIDTH) continue;
+            if (bg_x < PHYSICAL_WIDTH && bg_y < PHYSICAL_HEIGHT)
+                draw_pixel(bg_x, bg_y, background_buffer[index][i * BULLET_WIDTH + j]);
+        }
+    }
+}
+
+// Clear the previous positions of all bullets
+static void clear_bullet_area() {
+    for (int i = 0; i < MAX_BULLETS; i++) {
+        restore_background(bullets[i].prev_x, bullets[i].prev_y, i);
+    }
+}
+
 // --- Main Game Loop ---
 void bullet_game() {
+    // --- Initialization Block ---
+    // Initialize the framebuffer and draw the garden background
     framebf_init();
     for (int i = 0; i < GARDEN_WIDTH * GARDEN_HEIGHT; i++) {
         sim_bg[i] = GARDEN[i];
     }
     draw_image_both(GARDEN, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
     draw_grid();
+
+    // --- Timer Setup Block ---
+    // Set up timers for game loop and zombie updates
     unsigned long freq;
     asm volatile("mrs %0, cntfrq_el0" : "=r"(freq));
     unsigned long start_counter;
     asm volatile("mrs %0, cntpct_el0" : "=r"(start_counter));
     unsigned long start_ms = start_counter * 1000 / freq;
+
+    // --- Plant Spawning Block ---
+    // Spawn peashooter plants in rows 0-4 and an extra one in row 0
     for (int row = 0; row < 5; row++) {
         Spawn_peashooter(1, row, start_ms);
     }
-    Spawn_peashooter(2, 0, start_ms);
+    Spawn_peashooter(2, 0, start_ms); 
+
+    // --- Zombie Spawning Block ---
+    // Spawn a test zombie in row 0
     Zombie test_zombie = spawn_zombie(1, 0);
     const unsigned int zombie_frame_interval = 200; // 5 FPS for zombies
     unsigned long last_zombie_frame_time = start_ms;
     const unsigned int FRAME_INTERVAL_MS = 30; // ~33 FPS
+
+    // --- Main Game Loop Block ---
+    // Run the game loop until game_over is set
     while (!game_over) {
+        // Wait for the next frame
         set_wait_timer(1, FRAME_INTERVAL_MS);
+
+        // Check for quit command
         char c = getUart();
         if (c == 'q') {
             game_over = 1;
         }
-        unsigned long current_counter;
-        asm volatile("mrs %0, cntpct_el0" : "=r"(current_counter));
-        unsigned long current_time_ms = current_counter * 1000 / freq;
-        bullet_update(current_time_ms);
-        bullet_draw();
-        if ((current_time_ms - last_zombie_frame_time) >= zombie_frame_interval) {
-            update_zombie_position(&test_zombie);
-            last_zombie_frame_time = current_time_ms;
-        }
+
+    // Update current time
+    unsigned long current_counter;
+    asm volatile("mrs %0, cntpct_el0" : "=r"(current_counter));
+    unsigned long current_time_ms = current_counter * 1000 / freq;
+
+    if ((current_time_ms - last_zombie_frame_time) >= zombie_frame_interval) {
+        update_zombie_position(&test_zombie);
+        last_zombie_frame_time = current_time_ms;
+    }
+
+    // Always update and draw bullets, even if the zombie is dead
+    bullet_update(current_time_ms);
+    bullet_draw();
+
+    // Only check for collisions if zombie is alive
+    if (test_zombie.active) {
+        check_bullet_zombie_collisions(&test_zombie);
+    }
+        // Wait for the frame to end
         set_wait_timer(0, 0);
     }
+
+    // --- Game Over Block ---
     uart_puts("Game over\n");
 }
