@@ -1,26 +1,7 @@
 #include "../include/bullet.h"
 
-
-extern unsigned char *fb; 
-// extern Zombie zombies[20];
-// extern int zombie_count;
-
-#define MAX_BULLETS 25 // 5 rows * 5 bullets per row
-#define MAX_PLANTS 10
-
-// --- Data Structures ---
-typedef struct {
-    int x, y;
-    int prev_x, prev_y;
-    int row;
-    int active;
-    int plant_type;
-} Bullet;
-
-typedef struct {
-    int col, row;
-    unsigned long last_fire_time;
-} PlantInstance;
+extern unsigned char *fb;
+extern unsigned int simulated_background[GARDEN_WIDTH * GARDEN_HEIGHT];
 
 // --- Static State ---
 static Bullet bullets[MAX_BULLETS];
@@ -33,12 +14,14 @@ static int target_x, target_y;
 static int bullet_speed = 3;
 static int game_over;
 static unsigned int background_buffer[MAX_BULLETS][BULLET_WIDTH * BULLET_HEIGHT];
-static unsigned int sim_bg[GARDEN_WIDTH * GARDEN_HEIGHT];
 
 // --- Background/Utility Helpers ---
 static void save_background(int x, int y, int index);
 static void restore_background(int x, int y, int index);
 static void clear_bullet_area();
+static void fire_bullet_for_plant(int col, int row);
+static int bullet_should_fire(unsigned long last_fire_time, unsigned long current_time, unsigned int interval);
+static int is_living_zombie_on_row(int row);
 
 // --- Bullet System API ---
 // Initialize bullet system
@@ -157,7 +140,7 @@ static void save_background(int x, int y, int index) {
         for (int j = 0; j < BULLET_WIDTH; j++) {
             int bg_x = x + j;
             if (bg_x < 0 || bg_x >= GARDEN_WIDTH) continue;
-            background_buffer[index][i * BULLET_WIDTH + j] = sim_bg[bg_y * GARDEN_WIDTH + bg_x];
+            background_buffer[index][i * BULLET_WIDTH + j] = simulated_background[bg_y * GARDEN_WIDTH + bg_x];
         }
     }
 }
@@ -235,7 +218,7 @@ void draw_image_both(const unsigned int pixel_data[], int pos_x, int pos_y, int 
             // Only update if within bounds
             if (screen_x >= 0 && screen_x < GARDEN_WIDTH && 
                 screen_y >= 0 && screen_y < GARDEN_HEIGHT) {
-                sim_bg[screen_y * GARDEN_WIDTH + screen_x] = pixel_data[pixel_index];
+                simulated_background[screen_y * GARDEN_WIDTH + screen_x] = pixel_data[pixel_index];
             }
         }
     }
@@ -297,13 +280,13 @@ static void clear_bullet_area() {
     }
 }
 
-// --- Main Game Loop ---
+// --- TEsting Game ---
 void bullet_game() {
     // --- Initialization Block ---
     // Initialize the framebuffer and draw the garden background
     framebf_init();
     for (int i = 0; i < GARDEN_WIDTH * GARDEN_HEIGHT; i++) {
-        sim_bg[i] = GARDEN[i];
+        simulated_background[i] = GARDEN[i];
     }
     draw_image_both(GARDEN, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
     draw_grid();

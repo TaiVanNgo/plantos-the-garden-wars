@@ -1,6 +1,7 @@
 #ifndef GAME_INIT_H
 #define GAME_INIT_H
 
+#include "../include/bullet.h"
 #include "../assets/backgrounds/garden.h"
 #include "zombies.h"
 #include "utils.h"

@@ -1,4 +1,5 @@
 #include "../include/game_init.h"
+#include "../include/bullet.h"
 
 SelectionState select_state = {
     .mode = 0, .selected_card = -1, .row = 0, .col = 0, .current_plant = -1};
@@ -148,10 +149,6 @@ void start_level()
     unsigned long start_ms = start_counter * 1000 / freq;
     bullet_system_init(start_ms, 1000); // Initialize with 1 second fire interval
 
-    // Spawn a peashooter in the first row
-    // Spawn_peashooter(1, 0, start_ms);
-    // Spawn_peashooter(2, 0, start_ms);
-
     /* Zombie settings */
     // Define individual zombies instead of an array
     Zombie zombie1, zombie2, zombie3, zombie4, zombie5;
@@ -175,6 +172,7 @@ void start_level()
     while (1)
     {
         set_wait_timer(1, 50);
+        
         /*====== USER LOGIC START ====== */
         if (uart_isReadByteReady())
         {
@@ -186,6 +184,8 @@ void start_level()
         unsigned long current_counter;
         asm volatile("mrs %0, cntpct_el0" : "=r"(current_counter));
         unsigned long current_time_ms = current_counter * 1000 / freq;
+        
+        // Update bullets
         bullet_update(current_time_ms);
         bullet_draw();
 
@@ -194,14 +194,6 @@ void start_level()
         {
             if (frame_counter == spawn_times[i] && !zombie_spawned[i])
             {
-                // uart_puts("Spawning zombie ");
-                // uart_dec(i + 1);
-                // uart_puts(" of type ");
-                // uart_dec(zombie_types[i]);
-                // uart_puts(" at row ");
-                // uart_dec(zombie_rows[i]);
-                // uart_puts("\n");
-
                 // Use temporary variable to hold the spawned zombie
                 Zombie temp_zombie = spawn_zombie(zombie_types[i], zombie_rows[i]);
 
@@ -250,18 +242,6 @@ void start_level()
             if (!zombie_spawned[i] || !zombie_pointers[i]->active)
                 continue;
 
-            // Print zombie position in per 30 frame counts
-            if (frame_counter % 30 == 0)
-            {
-                // uart_puts("Updating zombie ");
-                // uart_dec(i + 1);
-                // uart_puts(" at position x=");
-                // uart_dec(zombie_pointers[i]->x);
-                // uart_puts(", y=");
-                // uart_dec(zombie_pointers[i]->y);
-                // uart_puts("\n");
-            }
-
             update_zombie_position(zombie_pointers[i]);
 
             // Check for bullet collisions
@@ -293,7 +273,6 @@ void start_level()
             if (zombies_killed >= 10)
             {
                 delay_ms(2000);
-
                 game.state = GAME_VICTORY;
                 return;
             }
@@ -422,12 +401,21 @@ void handle_enter_key()
     }
     if (select_state.mode == 0)
     {
-
         place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
         Plant new_plant = create_plant(select_state.current_plant, select_state.col, select_state.row);
-        // uart_puts("hehe ");
-        // uart_dec(new_plant.type);
         plant_grid[select_state.row][select_state.col] = new_plant;
+
+        // Register plant with bullet system if it's a shooting plant
+        if (select_state.current_plant == PLANT_PEASHOOTER || 
+            select_state.current_plant == PLANT_FROZEN_PEASHOOTER) {
+            unsigned long current_counter;
+            asm volatile("mrs %0, cntpct_el0" : "=r"(current_counter));
+            unsigned long freq;
+            asm volatile("mrs %0, cntfrq_el0" : "=r"(freq));
+            unsigned long current_time_ms = current_counter * 1000 / freq;
+            bullet_spawn_plant(select_state.col, select_state.row, current_time_ms);
+        }
+        
         select_state.selected_card = -1;
         select_state.current_plant = -1;
         select_state.mode = 1;
@@ -440,6 +428,18 @@ void handle_enter_key()
         place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
         Plant new_plant = create_plant(select_state.current_plant, select_state.col, select_state.row);
         plant_grid[select_state.row][select_state.col] = new_plant;
+
+        // Register plant with bullet system if it's a shooting plant
+        if (select_state.current_plant == PLANT_PEASHOOTER || 
+            select_state.current_plant == PLANT_FROZEN_PEASHOOTER) {
+            unsigned long current_counter;
+            asm volatile("mrs %0, cntpct_el0" : "=r"(current_counter));
+            unsigned long freq;
+            asm volatile("mrs %0, cntfrq_el0" : "=r"(freq));
+            unsigned long current_time_ms = current_counter * 1000 / freq;
+            bullet_spawn_plant(select_state.col, select_state.row, current_time_ms);
+        }
+        
         select_state.mode = 0;
         select_state.selected_card = -1;
         select_state.current_plant = -1;
