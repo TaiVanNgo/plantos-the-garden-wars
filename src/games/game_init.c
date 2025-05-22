@@ -328,21 +328,21 @@ void start_level()
 int handle_user_input(int *frame_counter)
 {
     char key = getUart();
-
+    int selection =-1;
     // Number keys for plant selection
     if (key >= '0' && key <= '6')
     {
-        int selection = key - '0';
+        selection = key - '0';
         handle_plant_selection(selection);
         return 1;
     }
 
-    // Arrow keys
-    if (key == '[')
+    if (key == '[' && select_state.current_plant != -1)
     {
         handle_arrow_keys();
         return 1;
     }
+    
 
     // Enter key (confirm selection/placement)
     if (key == '\n')

@@ -17,34 +17,27 @@
 //   #define TASK2_VID
 #define ZOMBIE_INIT
 // #define PLANT_INIT
-// #define TASK3_BULLET
+//    #define TASK3_BULLET
+
+
+
+
 
 #ifdef TASK1
 void main()
 {
-    // Initialize UART for CLI
-    uart_init();
+    // Set up the serial console
+    uart_init(GameState);
+    uart_puts("Starting Bullet Game...\n");
 
-    // Display welcome message
-    os_welcome();
+    // Run the bullet game
+    bullet_game();
 
-    // Initialize framebuffer
-    framebf_init();
-
-    // Initialize game components
-    // game_init();
-
-    // Display initial prompt
-    uart_puts(PROMPT);
-
-    // Main loop - handle both CLI and game input
+    // After game ends, run CLI
     while (1)
     {
-        // Process CLI commands
-        cli();
-
-        // Small delay to prevent CPU hogging
-        delay(10);
+        char c = uart_getc();
+        uart_sendc(c);
     }
 }
 #elif defined(TASK2_VID)
@@ -71,14 +64,21 @@ void main()
 void main()
 {
     uart_init();
+
     framebf_init();
+
+    // game_init();
+    // draw_grid();
+
+
+    // game_start();
     game_main();
 
-    while (1)
-    {
-        char c = uart_getc();
-        uart_dec(c);
-    }
+        while (1)
+        {
+            char c = uart_getc();
+            uart_dec(c);
+        }
 }
 #elif defined(PLANT_INIT)
 void main()
@@ -110,7 +110,8 @@ void main()
     // Run the bullet game
     bullet_game();
 
-    // start_game();
+   // start_game();
+
 
     // After game ends, run CLI
     while (1)
@@ -126,12 +127,12 @@ void main()
 
     uart_init();
     framebf_init();
-
+    
     game_init();
-
+    
     // draw_image(QUIT, 0, 0, 300, 85, 0);
     // display_team_members(1);
-
+    
     // while (1)
     // {
     //     char c = uart_getc();
