@@ -33,7 +33,7 @@ ifeq ($(OS),Windows_NT)
 else
     # macOS/Linux
     RM = rm -f
-    RM_PATH = $(BUILD_DIR)/kernel8.elf $(BUILD_DIR)/*.o $(BUILD_DIR)/**/*.o $(BUILD_DIR)/*.img
+    RM_PATH = $(BUILD_DIR)/kernel8.elf $(BUILD_DIR)/*.o $(BUILD_DIR)/**/*.o $(BUILD_DIR)/**/**/*.o $(BUILD_DIR)/*.img
     MKDIR = mkdir -p $(dir $@)
 endif
 

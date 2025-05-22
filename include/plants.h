@@ -7,14 +7,14 @@
 #include "grid.h"
 
 // Define plant types
-#define PLANT_TYPE_PEASHOOTER         0
 #define PLANT_TYPE_SUNFLOWER          1
-#define PLANT_TYPE_SUNFLOWER_UNHAPPY  2
+#define PLANT_TYPE_PEASHOOTER         2
 #define PLANT_TYPE_FROZEN_PEASHOOTER  3
-#define PLANT_TYPE_CHILLIES           4
-#define PLANT_TYPE_CHILLIES_UNHAPPY   5
-#define PLANT_TYPE_WALLNUT            6
-#define PLANT_TYPE_WALLNUT_UNHAPPY    7
+#define PLANT_TYPE_WALLNUT            4
+#define PLANT_TYPE_CHILLIES           5
+#define PLANT_TYPE_SUNFLOWER_UNHAPPY  6
+#define PLANT_TYPE_CHILLIES_UNHAPPY   7
+#define PLANT_TYPE_WALLNUT_UNHAPPY    8
 
 // Plant dimensions
 #define PLANT_WIDTH              70   // Default plant sprite width
