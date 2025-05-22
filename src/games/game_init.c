@@ -329,7 +329,7 @@ int handle_user_input(int *frame_counter)
     char key = getUart();
 
     // Number keys for plant selection
-    if (key >= '0' && key <= '6')
+    if (key >= '1' && key <= '5')
     {
         int selection = key - '0';
         handle_plant_selection(selection);
