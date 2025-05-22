@@ -10,12 +10,11 @@ int selected_card = -1;
 int selected_row = 1;
 int selected_col = 1;
 
-GameState game;
+GameState game = {.state = GAME_MENU, .score = 0, .level = 1};
+
 void game_main()
 {
-    game.state = GAME_MENU;
-    game.score = 0;
-    game.level = 1;
+
     while (1)
     {
         switch (game.state)
