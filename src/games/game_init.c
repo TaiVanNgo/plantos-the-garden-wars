@@ -180,6 +180,18 @@ void start_level()
 
     draw_grid();
 
+    // Initialize bullet system
+    unsigned long freq;
+    asm volatile("mrs %0, cntfrq_el0" : "=r"(freq));
+    unsigned long start_counter;
+    asm volatile("mrs %0, cntpct_el0" : "=r"(start_counter));
+    unsigned long start_ms = start_counter * 1000 / freq;
+    bullet_system_init(start_ms, 1000); // Initialize with 1 second fire interval
+
+    // Spawn a peashooter in the first row
+    Spawn_peashooter(1, 0, start_ms);
+    Spawn_peashooter(2, 0, start_ms);
+
     /* Zombie settings */
     // Define individual zombies instead of an array
     Zombie zombie1, zombie2, zombie3, zombie4, zombie5;
@@ -209,6 +221,13 @@ void start_level()
             handle_user_input(&frame_counter);
         }
         /*====== USER LOGIC END ====== */
+
+        // Update bullet system
+        unsigned long current_counter;
+        asm volatile("mrs %0, cntpct_el0" : "=r"(current_counter));
+        unsigned long current_time_ms = current_counter * 1000 / freq;
+        bullet_update(current_time_ms);
+        bullet_draw();
 
         /*====== ZOMBIE LOGIC START ====== */
         for (int i = 0; i < 10; i++)
@@ -284,6 +303,9 @@ void start_level()
             }
 
             update_zombie_position(zombie_pointers[i]);
+
+            // Check for bullet collisions
+            check_bullet_zombie_collisions(zombie_pointers[i]);
 
             // Check for game over
             if (zombie_pointers[i]->x <= 50)
