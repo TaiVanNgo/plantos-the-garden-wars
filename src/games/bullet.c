@@ -73,8 +73,10 @@ static void fire_bullet_for_plant(int col, int row) {
             bullets[i].prev_y = bullets[i].y;
             bullets[i].row = row;
             bullets[i].active = 1;
-            uart_puts("Set plant_type to PEASHOOTER\n");
+            //uart_puts("Set plant_type to PEASHOOTER\n");
+            wait_msec(1);
             bullets[i].plant_type = PLANT_TYPE_PEASHOOTER;
+            
             save_background(bullets[i].x, bullets[i].y, i);
             break;
         }
