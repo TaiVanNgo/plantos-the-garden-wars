@@ -37,25 +37,7 @@
 // };
 // extern struct bullets bullets;
 
-#define MAX_BULLETS 25 // 5 rows * 5 bullets per row
-#define MAX_PLANTS 10
-
-// --- Data Structures ---
-typedef struct {
-    int x, y;
-    int prev_x, prev_y;
-    int row;
-    int active;
-    int plant_type;
-} Bullet;
-
-typedef struct {
-    int col, row;
-    unsigned long last_fire_time;
-} PlantInstance;
 
 
-void check_bullet_zombie_collisions(Zombie *zombie);
-void apply_bullet_damage(Bullet *bullet, Zombie *zombie);
 
 #endif // BULLET_H 

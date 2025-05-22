@@ -3,6 +3,21 @@
 
 extern unsigned char *fb; 
 
+#define MAX_BULLETS 25 // 5 rows * 5 bullets per row
+#define MAX_PLANTS 10
+
+// --- Data Structures ---
+typedef struct {
+    int x, y;
+    int prev_x, prev_y;
+    int row;
+    int active;
+} Bullet;
+
+typedef struct {
+    int col, row;
+    unsigned long last_fire_time;
+} PlantInstance;
 
 // --- Static State ---
 static Bullet bullets[MAX_BULLETS];
@@ -56,8 +71,6 @@ static void fire_bullet_for_plant(int col, int row) {
             bullets[i].prev_y = bullets[i].y;
             bullets[i].row = row;
             bullets[i].active = 1;
-            bullets[i].plant_type = PLANT_TYPE_PEASHOOTER; // Or use the correct type if you support more
-
             save_background(bullets[i].x, bullets[i].y, i);
             break;
         }
@@ -233,43 +246,6 @@ void draw_image_both(const unsigned int pixel_data[], int pos_x, int pos_y, int 
     }
 }
 
-void check_bullet_zombie_collisions(Zombie *zombie) {
-    for (int i = 0; i < MAX_BULLETS; i++) {
-        if (bullets[i].active) {
-            // Simple bounding box collision
-            if (bullets[i].x < zombie->x + ZOMBIE_WIDTH &&
-                bullets[i].x + BULLET_WIDTH > zombie->x &&
-                bullets[i].y < zombie->y + ZOMBIE_HEIGHT &&
-                bullets[i].y + BULLET_HEIGHT > zombie->y) {
-                apply_bullet_damage(&bullets[i], zombie);
-            }
-        }
-    }
-}
-
-void apply_bullet_damage(Bullet *bullet, Zombie *zombie) {
-    int dmg = get_plant_damage(bullet->plant_type);
-    zombie->health -= dmg;
-    bullet->active = 0;
-
-    // Print zombie health
-    uart_puts("Zombie health: ");
-    char buf[16];
-    int h = zombie->health;
-    int idx = 0;
-    if (h == 0) {
-        buf[idx++] = '0';
-    } else {
-        if (h < 0) { buf[idx++] = '-'; h = -h; }
-        int digits[10], d = 0;
-        while (h > 0) { digits[d++] = h % 10; h /= 10; }
-        for (int j = d-1; j >= 0; j--) buf[idx++] = '0' + digits[j];
-    }
-    buf[idx] = '\0';
-    uart_puts(buf);
-    uart_puts("\n");
-}
-
 // --- Main Game Loop ---
 void bullet_game() {
     framebf_init();
@@ -302,7 +278,6 @@ void bullet_game() {
         unsigned long current_time_ms = current_counter * 1000 / freq;
         bullet_update(current_time_ms);
         bullet_draw();
-        // check_bullet_zombie_collisions(&test_zombie);
         if ((current_time_ms - last_zombie_frame_time) >= zombie_frame_interval) {
             update_zombie_position(&test_zombie);
             last_zombie_frame_time = current_time_ms;
