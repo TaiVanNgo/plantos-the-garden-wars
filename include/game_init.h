@@ -19,9 +19,11 @@
 #define MAX_ROUNDS 5
 #define ZOMBIE_KILL_REWARD 10
 
-#define CARD_WIDTH 50  // Width of each card
-#define CARD_HEIGHT 70 // Height of each card
-#define CARD_COUNT 8   // Number of plant cards
+#define CARD_WIDTH 50     // Width of each card
+#define CARD_HEIGHT 70    // Height of each card
+#define CARD_COUNT 8      // Number of plant cards
+#define CARD_START_X 50;  // Left edge of first card
+#define CARD_START_Y 178; // Top edge of cards
 
 // Enum for game states
 typedef enum
@@ -48,6 +50,15 @@ typedef struct
   int score;
   LEVEL_DIFFICULTY level;
 } GameState;
+
+typedef struct
+{
+  int mode;          // 0 = card selection, 1 = grid placement
+  int selected_card; // currently selected plant card
+  int row;           // current row
+  int col;           // current col
+  int current_plant; // current selected plant type
+} SelectionState;
 
 typedef struct
 {
@@ -80,8 +91,17 @@ const Level LEVEL_HARD = {
     .spawn_times = {0, 100, 200, 300, 500, 600, 700, 800, 1000, 1100, 1200, 1300},
 };
 
-void game_init();
+void game_main();
 void game_menu();
+void draw_selection(int row, int col);
 void start_level();
+int handle_user_input(int *frame_counter);
+void handle_plant_selection(int plant_type);
+void handle_arrow_keys();
+void handle_enter_key();
+
+// External global variables
+extern GameState game;
+extern SelectionState select_state;
 
 #endif

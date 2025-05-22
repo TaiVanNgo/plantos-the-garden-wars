@@ -1,14 +1,7 @@
 #include "../../include/game_init.h"
 
-// Card positions for plant selection
-int CARD_START_X = 50;  // Left edge of first card
-int CARD_START_Y = 178; // Top edge of cards
-
-// Tracks whether we're in card selection mode or grid placement mode
-int selection_mode = 0; // 0 = card selection, 1 = grid placement
-int selected_card = -1;
-int selected_row = 1;
-int selected_col = 1;
+SelectionState select_state = {
+    .mode = 0, .selected_card = -1, .row = 0, .col = 0, .current_plant = -1};
 
 GameState game = {.state = GAME_MENU, .score = 0, .level = LEVEL_EASY_ENUM};
 
@@ -111,67 +104,6 @@ void game_menu()
     }
 }
 
-// void game_init() {
-
-//     draw_image(GARDEN, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
-
-//     int selected_row = 0;
-//     int selected_col = 0;
-
-//     // Draw initial selection
-//     draw_selection(selected_row, selected_col);
-//     uart_puts("em ga oi");
-//     while (1) {
-//         char key = getUart();
-//         if(key == '['){
-//             char key2= getUart();
-//             if ((key2 == 'A' )  ) {
-//                 uart_puts("em ga oi");
-//                 if (selected_row > 0){
-//                     selected_row++;
-//                 }
-//             }
-//             else if ((key2 == 'B' )  ) {
-//                 uart_puts("em ga oi");
-//                 if (selected_row > 0){
-//                     selected_row--;
-//                 }
-//             }else if((key2 == 'C')){
-//                 uart_puts("em ga oi");
-//                 if (selected_col > 0){
-//                     selected_col++;
-//                 }
-//             }else if((key2 == 'D')){
-//                 uart_puts("em ga oi");
-//                 if (selected_col > 0){
-//                     selected_col--;
-//                 }
-//             }
-//         }
-
-//         if (key == '\n'  ) {
-
-//         }
-
-//     }
-// }
-
-// void draw_selection(int row, int col) {
-//     // Clear previous selection (optional)
-//     // Redraw background grid cell under old selection if needed
-
-//     int cell_width = 50;
-//     int cell_height = 85;
-//     int grid_start_x = 50;
-//     int grid_start_y = 178;
-
-//     int x = grid_start_x + col * cell_width;
-//     int y = grid_start_y + row * cell_height;
-
-//     // Draw the selection rectangle around the cell
-//     draw_rect(x, y, cell_width, cell_height, 0xff0000, 1);  // For example, red border
-// }
-
 void draw_selection(int row, int col)
 {
     static int prev_row = -1;
@@ -198,7 +130,7 @@ void draw_selection(int row, int col)
     }
 
     // Draw new selection
-    if (selection_mode == 0)
+    if (select_state.mode == 0)
     {
         // Draw selection around a plant card
         int x = CARD_START_X + col * CARD_WIDTH;
@@ -217,7 +149,7 @@ void draw_selection(int row, int col)
         draw_rect(x, y, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0x80FFFFFF, 0);
 
         // If we have a selected card, show the plant preview
-        if (selected_card >= 0)
+        if (select_state.selected_card >= 0)
         {
             // This would show a preview of the plant
             // You'll need plant sprites for this
@@ -229,194 +161,7 @@ void draw_selection(int row, int col)
     // Remember current selection for next time
     prev_row = row;
     prev_col = col;
-    prev_mode = selection_mode;
-}
-
-void game_init()
-{
-    // dev_test_zombie();
-    draw_image(GARDEN, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
-    Zombie zombie1 = spawn_zombie(1, 0);
-    Zombie zombie2 = spawn_zombie(1, 1);
-
-    // Plant selection variables
-    int selected_row = 0;
-    int selected_col = 0;
-    selection_mode = 0; // Start in card selection mode
-    selected_card = -1; // No card selected initially
-    // Draw initial selection (on first card)
-    int current_selection = -1;
-    // draw_selection(selected_row, selected_col);
-    // draw_rect(CARD_START_X  ,CARD_START_Y , CARD_START_X +60, CARD_START_Y+75, 0xfF00ff, 0);
-    // draw_plant(,selected_col, selected_row);
-    draw_grid();
-    while (1)
-    {
-
-        update_zombie_position(&zombie1);
-        update_zombie_position(&zombie2);
-        // update_zombie_position(&zombie3);
-        // update_zombie_position(&zombie4);
-        int x = 0;
-        int y = 0;
-        char key = getUart();
-        switch (key)
-        {
-        case '0':
-            current_selection = 0;
-            break;
-        case '1':
-            current_selection = 1;
-            break;
-        case '2':
-            current_selection = 2;
-            break;
-        case '3':
-            current_selection = 3;
-            break;
-        case '4':
-            current_selection = 4;
-            break;
-        case '5':
-            current_selection = 5;
-            break;
-        case '6':
-            current_selection = 6;
-            break;
-        default:
-            break;
-        }
-        if (current_selection != -1)
-        {
-            grid_to_pixel(selected_col, selected_row, &x, &y);
-        }
-
-        if (key == '[')
-        {
-            char key2 = getUart();
-            if (key2 == 'A')
-            { // Up arrow
-                // CARD_START_Y+= 90;
-                if (selected_row <= 0)
-                {
-                    selected_row = 0;
-                }
-                else
-                {
-                    selected_row--;
-                }
-
-                if (current_selection != -1)
-                {
-                    restore_background_area(x, y, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0);
-
-                    draw_plant(current_selection, selected_col, selected_row);
-                }
-            }
-            else if (key2 == 'B')
-            {
-                if (selected_row >= 4)
-                {
-                    selected_row = 4;
-                }
-                else
-                {
-                    selected_row++;
-                }
-                if (current_selection != -1)
-                {
-                    restore_background_area(x, y, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0);
-                    // grid_to_pixel(selected_col,selected_row, &x, &y );
-                    draw_plant(current_selection, selected_col, selected_row);
-                }
-            }
-            else if (key2 == 'C')
-            {
-                if (selected_col >= 9)
-                {
-                    selected_col = 9;
-                }
-                else
-                {
-                    selected_col++;
-                }
-                if (current_selection != -1)
-                {
-                    restore_background_area(x, y, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0);
-                    // grid_to_pixel(selected_col,selected_row, x, y );
-                    draw_plant(current_selection, selected_col, selected_row);
-                }
-            }
-            else if (key2 == 'D')
-            { // Left arrow
-                if (selected_col <= 0)
-                {
-                    selected_col = 1;
-                }
-                else
-                {
-                    selected_col--;
-                }
-                if (current_selection != -1)
-                {
-                    restore_background_area(x, y, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0);
-                    // grid_to_pixel(selected_col,selected_row, x, y );
-                    draw_plant(current_selection, selected_col, selected_row);
-                }
-            }
-            uart_puts("\n X:");
-            uart_dec(x);
-            uart_puts("\n Y :");
-            uart_dec(y);
-            uart_puts("\n");
-        }
-
-        if (key == '\n')
-        {
-            if (selection_mode == 0)
-            {
-                // Select this plant card
-                selected_card = selected_col;
-
-                // Switch to grid placement mode
-                selection_mode = 1;
-                selected_row = 0;
-                selected_col = 0;
-                draw_selection(selected_row, selected_col);
-
-                // uart_puts("Selected plant: ");
-                // uart_putc('0' + selected_card);
-                // uart_puts("\n");
-            }
-            else
-            {
-                // Place the plant at the selected grid position
-                // place_plant(selected_card, selected_row, selected_col);
-
-                // Return to card selection mode
-                selection_mode = 0;
-                selected_card = -1;
-                selected_col = 0;
-                draw_selection(selected_row, selected_col);
-
-                // uart_puts("Placed plant at row ");
-                // uart_putc('0' + selected_row);
-                // uart_puts(", col ");
-                // uart_putc('0' + selected_col);
-                // uart_puts("\n");
-            }
-        }
-
-        if (key == '0')
-        { // Deselect (cancel)
-            // Return to card selection mode
-            selection_mode = 0;
-            selected_card = -1;
-            selected_col = 0;
-            draw_selection(selected_row, selected_col);
-        }
-        delay_ms(100);
-    }
+    prev_mode = select_state.mode;
 }
 
 void start_level()
@@ -425,6 +170,17 @@ void start_level()
     draw_image(GARDEN, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
     draw_grid();
 
+    /* Plant Setting*/
+    // Reset selection state to default value
+    select_state.row = 0;
+    select_state.col = 0;
+    select_state.mode = 0;
+    select_state.selected_card = -1;
+    select_state.current_plant = -1;
+
+    draw_grid();
+
+    /* Zombie settings */
     // Define individual zombies instead of an array
     Zombie zombie1, zombie2, zombie3, zombie4, zombie5;
     Zombie zombie6, zombie7, zombie8, zombie9, zombie10;
@@ -446,8 +202,16 @@ void start_level()
     int frame_counter = 0;
     while (1)
     {
-        set_wait_timer(1, 17);
+        set_wait_timer(1, 50);
+        /*====== USER LOGIC START ====== */
+        if (uart_isReadByteReady())
+        {
+            handle_user_input(&frame_counter);
+        }
 
+        /*====== USER LOGIC END ====== */
+
+        /*====== ZOMBIE LOGIC START ====== */
         for (int i = 0; i < 10; i++)
         {
             if (frame_counter == spawn_times[i] && !zombie_spawned[i])
@@ -553,7 +317,140 @@ void start_level()
                 return;
             }
         }
+        /*====== ZOMBIE LOGIC END ====== */
+
         frame_counter++;
         set_wait_timer(0, 0);
+    }
+}
+
+// Handle user input and return whether input was processed
+int handle_user_input(int *frame_counter)
+{
+    char key = getUart();
+
+    // Number keys for plant selection
+    if (key >= '0' && key <= '6')
+    {
+        int selection = key - '0';
+        handle_plant_selection(selection);
+        return 1;
+    }
+
+    // Arrow keys
+    if (key == '[')
+    {
+        handle_arrow_keys();
+        return 1;
+    }
+
+    // Enter key (confirm selection/placement)
+    if (key == '\n')
+    {
+        handle_enter_key();
+        return 1;
+    }
+
+    return 0; // Key wasn't handled
+}
+
+// Handle plant selection with number keys
+void handle_plant_selection(int plant_type)
+
+{
+    int x_card = 0, y_card = 0;
+    select_state.current_plant = plant_type;
+
+    if (select_state.current_plant != -1)
+    {
+        grid_to_pixel(select_state.col, select_state.row, &x_card, &y_card);
+        restore_background_area(x_card, y_card, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0);
+        draw_plant(select_state.current_plant, select_state.col, select_state.row);
+    }
+}
+
+// Handle arrow key navigation
+void handle_arrow_keys()
+{
+    int x_card = 0, y_card = 0;
+    char key2 = getUart();
+
+    // Get current position for potential restoration
+    grid_to_pixel(select_state.col, select_state.row, &x_card, &y_card);
+
+    // Process direction
+    switch (key2)
+    {
+    case 'A': // Up arrow
+        if (select_state.row > 0)
+        {
+            select_state.row--;
+        }
+        break;
+
+    case 'B': // Down arrow
+        if (select_state.row < 4)
+        {
+            select_state.row++;
+        }
+        break;
+
+    case 'C': // Right arrow
+        if (select_state.col < 9)
+        {
+            select_state.col++;
+        }
+        break;
+
+    case 'D': // Left arrow
+        if (select_state.col > 0)
+        {
+            select_state.col--;
+        }
+        break;
+
+    default:
+        return; // Unrecognized key, exit
+    }
+
+    // Update display if a plant is selected
+    if (select_state.current_plant != -1)
+    {
+        restore_background_area(x_card, y_card, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0);
+        draw_plant(select_state.current_plant, select_state.col, select_state.row);
+    }
+
+    // Debug output
+    uart_puts("Card Position (");
+    uart_dec(x_card);
+    uart_puts(", ");
+    uart_dec(y_card);
+    uart_puts(")\n");
+}
+
+// Handle Enter key press
+void handle_enter_key()
+{
+    if (select_state.mode == 0)
+    {
+        // Select this plant card
+        select_state.selected_card = select_state.col;
+
+        // Switch to grid placement mode
+        select_state.mode = 1;
+        select_state.row = 0;
+        select_state.col = 0;
+        draw_selection(select_state.row, select_state.col);
+    }
+    else
+    {
+        // Place the plant at the selected grid position
+        // place_plant(selected_card, selected_row, selected_col);
+
+        // Return to card selection mode
+        select_state.mode = 0;
+        select_state.selected_card = -1;
+        select_state.col = 0;
+        draw_selection(select_state.row, select_state.col);
     }
 }
