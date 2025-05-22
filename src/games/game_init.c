@@ -3,7 +3,7 @@
 SelectionState select_state = {
     .mode = 0, .selected_card = -1, .row = 0, .col = 0, .current_plant = -1};
 
-GameState game = {.state = GAME_MENU, .score = 0, .level = LEVEL_HARD_ENUM};
+GameState game = {.state = GAME_PLAYING, .score = 0, .level = LEVEL_HARD_ENUM};
 
 void game_main()
 {
@@ -23,7 +23,7 @@ void game_main()
             break;
         case GAME_OVER:
             // draw loose screen
-            draw_image(LOSE_SCREEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
+            game_over();
             break;
         case GAME_QUIT:
             break;
@@ -512,6 +512,88 @@ void set_zombie_types_level(int level, int zombie_types[10])
         for (int i = 5; i < 10; i++)
         {
             zombie_types[i] = ZOMBIE_HELMET;
+        }
+    }
+}
+
+void game_over()
+{
+    draw_image(LOSE_SCREEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
+
+    // Create buttons
+    Button home_button;
+    Button retry_button;
+
+    button_init(&home_button, 280, 630, 300, 82, START);
+    button_init(&retry_button, 280, 630, 300, 82, QUIT);
+
+    Button *buttons[2] = {&home_button, &retry_button};
+    int current_selection = 0;
+    int previous_selection = current_selection;
+
+    // Initially set the first button selected
+    button_set_state(buttons[current_selection], BUTTON_SELECTED);
+    button_draw_selection(buttons, current_selection, previous_selection);
+
+    while (1)
+    {
+        char key = getUart();
+
+        if (key == '[')
+        {
+            char key2 = getUart();
+
+            // Handle left/right navigation between buttons
+            if (key2 == 'C') // Right arrow
+            {
+                previous_selection = current_selection;
+                button_set_state(buttons[current_selection], BUTTON_NORMAL);
+
+                current_selection++;
+                if (current_selection > 1)
+                {
+                    current_selection = 0;
+                }
+
+                button_set_state(buttons[current_selection], BUTTON_SELECTED);
+                button_draw_selection(buttons, current_selection, previous_selection);
+            }
+            else if (key2 == 'D') // Left arrow
+            {
+                previous_selection = current_selection;
+                button_set_state(buttons[current_selection], BUTTON_NORMAL);
+
+                current_selection--;
+                if (current_selection < 0)
+                {
+                    current_selection = 1;
+                }
+
+                button_set_state(buttons[current_selection], BUTTON_SELECTED);
+                button_draw_selection(buttons, current_selection, previous_selection);
+            }
+
+            // Add inside the key handling code
+            uart_puts("Selected button: ");
+            uart_dec(current_selection);
+            uart_puts("\n");
+        }
+
+        // Handle button press (Enter key)
+        if (key == '\n')
+        {
+            if (current_selection == 0) // Home button
+            {
+                clear_screen();
+                game.state = GAME_MENU;
+                return;
+            }
+            else if (current_selection == 1) // Retry button
+            {
+                clear_screen();
+                game.state = GAME_PLAYING;
+                return;
+            }
         }
     }
 }

@@ -95,11 +95,11 @@ void game_main();
 void game_menu();
 void draw_selection(int row, int col);
 void start_level();
+void game_over();
 int handle_user_input(int *frame_counter);
 void handle_plant_selection(int plant_type);
 void handle_arrow_keys();
 void handle_enter_key();
-// void set_zombie_types_level(int level, int zombie_types[10]);
 
 // External global variables
 extern GameState game;
