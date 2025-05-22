@@ -1,5 +1,9 @@
 #include "../../include/zombies.h"
 
+// Add at the top of the file, after the includes
+Zombie zombies[20]; // Global array to store active zombies
+int zombie_count = 0; // Number of active zombies
+
 // Default Zombie Basic
 const Zombie default_zombie_normal = {
     .type = ZOMBIE_NORMAL,
@@ -68,9 +72,10 @@ Zombie create_zombie(uint8_t type, uint8_t row)
 Zombie spawn_zombie(uint8_t type, uint8_t row)
 {
   Zombie new_zombie = create_zombie(type, row);
-
   draw_image(ZOMBIE_NORMAL_SPRITE, new_zombie.x, new_zombie.y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);
-
+  if (zombie_count < 20) {
+    zombies[zombie_count++] = new_zombie;
+  }
   return new_zombie;
 }
 
@@ -132,6 +137,16 @@ void update_zombie_position(Zombie *zombie)
   default:
     break;
   }
+}
+
+// Add new function to check if any zombie is on a given row
+int is_zombie_on_row(int row) {
+  for (int i = 0; i < zombie_count; i++) {
+    if (zombies[i].active && zombies[i].row == row) {
+      return 1;
+    }
+  }
+  return 0;
 }
 
 /*//////////////////////////////////////////////////////////////

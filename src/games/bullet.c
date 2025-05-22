@@ -85,7 +85,7 @@ static int bullet_should_fire(unsigned long last_fire_time, unsigned long curren
 // Update bullet firing and movement
 void bullet_update(unsigned long current_time_ms) {
     for (int i = 0; i < plant_count; i++) {
-        if (bullet_should_fire(plants[i].last_fire_time, current_time_ms, bullet_fire_interval)) {
+        if (is_zombie_on_row(plants[i].row) && bullet_should_fire(plants[i].last_fire_time, current_time_ms, bullet_fire_interval)) {
             fire_bullet_for_plant(plants[i].col, plants[i].row);
             plants[i].last_fire_time = current_time_ms;
         }
@@ -248,41 +248,68 @@ void draw_image_both(const unsigned int pixel_data[], int pos_x, int pos_y, int 
 
 // --- Main Game Loop ---
 void bullet_game() {
+    // --- Initialization Block ---
+    // Initialize the framebuffer and draw the garden background
     framebf_init();
     for (int i = 0; i < GARDEN_WIDTH * GARDEN_HEIGHT; i++) {
         sim_bg[i] = GARDEN[i];
     }
     draw_image_both(GARDEN, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
     draw_grid();
+
+    // --- Timer Setup Block ---
+    // Set up timers for game loop and zombie updates
     unsigned long freq;
     asm volatile("mrs %0, cntfrq_el0" : "=r"(freq));
     unsigned long start_counter;
     asm volatile("mrs %0, cntpct_el0" : "=r"(start_counter));
     unsigned long start_ms = start_counter * 1000 / freq;
+
+    // --- Plant Spawning Block ---
+    // Spawn peashooter plants in rows 0-4 and an extra one in row 0
     for (int row = 0; row < 5; row++) {
         Spawn_peashooter(1, row, start_ms);
     }
     Spawn_peashooter(2, 0, start_ms);
+
+    // --- Zombie Spawning Block ---
+    // Spawn a test zombie in row 0
     Zombie test_zombie = spawn_zombie(1, 0);
     const unsigned int zombie_frame_interval = 200; // 5 FPS for zombies
     unsigned long last_zombie_frame_time = start_ms;
     const unsigned int FRAME_INTERVAL_MS = 30; // ~33 FPS
+
+    // --- Main Game Loop Block ---
+    // Run the game loop until game_over is set
     while (!game_over) {
+        // Wait for the next frame
         set_wait_timer(1, FRAME_INTERVAL_MS);
+
+        // Check for quit command
         char c = getUart();
         if (c == 'q') {
             game_over = 1;
         }
+
+        // Update current time
         unsigned long current_counter;
         asm volatile("mrs %0, cntpct_el0" : "=r"(current_counter));
         unsigned long current_time_ms = current_counter * 1000 / freq;
+
+        // Update bullets and draw them
         bullet_update(current_time_ms);
         bullet_draw();
+
+        // Update zombie position if enough time has passed
         if ((current_time_ms - last_zombie_frame_time) >= zombie_frame_interval) {
             update_zombie_position(&test_zombie);
             last_zombie_frame_time = current_time_ms;
         }
+
+        // Wait for the frame to end
         set_wait_timer(0, 0);
     }
+
+    // --- Game Over Block ---
     uart_puts("Game over\n");
 }
