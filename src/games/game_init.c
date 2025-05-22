@@ -232,31 +232,46 @@ void draw_selection(int row, int col)
     prev_mode = selection_mode;
 }
 
-void game_init()
+void start_level()
 {
-    // dev_test_zombie();
+    // draw background first
     draw_image(GARDEN, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
-    Zombie zombie1 = spawn_zombie(1, 0);
-    Zombie zombie2 = spawn_zombie(1, 1);
+    draw_grid();
 
-    // Plant selection variables
+    /* Plant Setting*/
     int selected_row = 0;
     int selected_col = 0;
     selection_mode = 0; // Start in card selection mode
     selected_card = -1; // No card selected initially
-    // Draw initial selection (on first card)
     int current_selection = -1;
-    // draw_selection(selected_row, selected_col);
-    // draw_rect(CARD_START_X  ,CARD_START_Y , CARD_START_X +60, CARD_START_Y+75, 0xfF00ff, 0);
-    // draw_plant(,selected_col, selected_row);
     draw_grid();
+
+    /* Zombie settings */
+    // Define individual zombies instead of an array
+    Zombie zombie1, zombie2, zombie3, zombie4, zombie5;
+    Zombie zombie6, zombie7, zombie8, zombie9, zombie10;
+
+    // Pointer array for zombies
+    Zombie *zombie_pointers[10] = {
+        &zombie1, &zombie2, &zombie3, &zombie4, &zombie5,
+        &zombie6, &zombie7, &zombie8, &zombie9, &zombie10};
+
+    int zombie_spawned[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    int spawn_times[10] = {0, 100, 300, 450, 600, 750, 900, 1050, 1200, 1350};
+    int zombie_types[10] = {
+        ZOMBIE_NORMAL, ZOMBIE_NORMAL, ZOMBIE_NORMAL, ZOMBIE_NORMAL, ZOMBIE_NORMAL,
+        ZOMBIE_NORMAL, ZOMBIE_NORMAL, ZOMBIE_NORMAL, ZOMBIE_BUCKET, ZOMBIE_HELMET};
+
+    int zombie_rows[10] = {0, 1, 2, 3, 0, 1, 2, 3, 2, 1};
+
+    int zombies_killed = 0;
+    int frame_counter = 0;
     while (1)
     {
+        set_wait_timer(1, 50);
+        /*====== USER LOGIC START ====== */
 
-        update_zombie_position(&zombie1);
-        update_zombie_position(&zombie2);
-        // update_zombie_position(&zombie3);
-        // update_zombie_position(&zombie4);
+        /* rename `x` `y` -> it's misleading*/
         int x = 0;
         int y = 0;
         char key = getUart();
@@ -290,7 +305,6 @@ void game_init()
         {
             grid_to_pixel(selected_col, selected_row, &x, &y);
         }
-
         if (key == '[')
         {
             char key2 = getUart();
@@ -415,39 +429,9 @@ void game_init()
             selected_col = 0;
             draw_selection(selected_row, selected_col);
         }
-        delay_ms(100);
-    }
-}
+        /*====== USER LOGIC END ====== */
 
-void start_level()
-{
-    // draw background first
-    draw_image(GARDEN, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
-    draw_grid();
-
-    // Define individual zombies instead of an array
-    Zombie zombie1, zombie2, zombie3, zombie4, zombie5;
-    Zombie zombie6, zombie7, zombie8, zombie9, zombie10;
-
-    // Pointer array for zombies
-    Zombie *zombie_pointers[10] = {
-        &zombie1, &zombie2, &zombie3, &zombie4, &zombie5,
-        &zombie6, &zombie7, &zombie8, &zombie9, &zombie10};
-
-    int zombie_spawned[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    int spawn_times[10] = {0, 100, 300, 450, 600, 750, 900, 1050, 1200, 1350};
-    int zombie_types[10] = {
-        ZOMBIE_NORMAL, ZOMBIE_NORMAL, ZOMBIE_NORMAL, ZOMBIE_NORMAL, ZOMBIE_NORMAL,
-        ZOMBIE_NORMAL, ZOMBIE_NORMAL, ZOMBIE_NORMAL, ZOMBIE_BUCKET, ZOMBIE_HELMET};
-
-    int zombie_rows[10] = {0, 1, 2, 3, 0, 1, 2, 3, 2, 1};
-
-    int zombies_killed = 0;
-    int frame_counter = 0;
-    while (1)
-    {
-        set_wait_timer(1, 17);
-
+        /*====== ZOMBIE LOGIC START ====== */
         for (int i = 0; i < 10; i++)
         {
             if (frame_counter == spawn_times[i] && !zombie_spawned[i])
@@ -553,6 +537,8 @@ void start_level()
                 return;
             }
         }
+        /*====== ZOMBIE LOGIC END ====== */
+
         frame_counter++;
         set_wait_timer(0, 0);
     }
