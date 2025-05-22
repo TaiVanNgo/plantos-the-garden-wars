@@ -1,11 +1,7 @@
 #include "../../include/game_init.h"
 
-// Tracks whether we're in card selection mode or grid placement mode
-int selection_mode = 0; // 0 = card selection, 1 = grid placement
-int selected_card = -1;
-int selected_row = 1;
-int selected_col = 1;
-int current_selection = -1;
+SelectionState select_state = {
+    .mode = 0, .selected_card = -1, .row = 0, .col = 0, .current_plant = -1};
 
 GameState game = {.state = GAME_MENU, .score = 0, .level = LEVEL_EASY_ENUM};
 
@@ -108,22 +104,6 @@ void game_menu()
     }
 }
 
-// void draw_selection(int row, int col) {
-//     // Clear previous selection (optional)
-//     // Redraw background grid cell under old selection if needed
-
-//     int cell_width = 50;
-//     int cell_height = 85;
-//     int grid_start_x = 50;
-//     int grid_start_y = 178;
-
-//     int x = grid_start_x + col * cell_width;
-//     int y = grid_start_y + row * cell_height;
-
-//     // Draw the selection rectangle around the cell
-//     draw_rect(x, y, cell_width, cell_height, 0xff0000, 1);  // For example, red border
-// }
-
 void draw_selection(int row, int col)
 {
     static int prev_row = -1;
@@ -150,7 +130,7 @@ void draw_selection(int row, int col)
     }
 
     // Draw new selection
-    if (selection_mode == 0)
+    if (select_state.mode == 0)
     {
         // Draw selection around a plant card
         int x = CARD_START_X + col * CARD_WIDTH;
@@ -169,7 +149,7 @@ void draw_selection(int row, int col)
         draw_rect(x, y, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0x80FFFFFF, 0);
 
         // If we have a selected card, show the plant preview
-        if (selected_card >= 0)
+        if (select_state.selected_card >= 0)
         {
             // This would show a preview of the plant
             // You'll need plant sprites for this
@@ -181,7 +161,7 @@ void draw_selection(int row, int col)
     // Remember current selection for next time
     prev_row = row;
     prev_col = col;
-    prev_mode = selection_mode;
+    prev_mode = select_state.mode;
 }
 
 void start_level()
@@ -191,11 +171,13 @@ void start_level()
     draw_grid();
 
     /* Plant Setting*/
-    int selected_row = 0;
-    int selected_col = 0;
-    selection_mode = 0; // Start in card selection mode
-    selected_card = -1; // No card selected initially
-    int current_selection = -1;
+    // Reset selection state to default value
+    select_state.row = 0;
+    select_state.col = 0;
+    select_state.mode = 0;
+    select_state.selected_card = -1;
+    select_state.current_plant = -1;
+
     draw_grid();
 
     /* Zombie settings */
@@ -373,16 +355,17 @@ int handle_user_input(int *frame_counter)
 }
 
 // Handle plant selection with number keys
-void handle_plant_selection(int selection)
+void handle_plant_selection(int plant_type)
+
 {
     int x_card = 0, y_card = 0;
-    current_selection = selection;
+    select_state.current_plant = plant_type;
 
-    if (current_selection != -1)
+    if (select_state.current_plant != -1)
     {
-        grid_to_pixel(selected_col, selected_row, &x_card, &y_card);
+        grid_to_pixel(select_state.col, select_state.row, &x_card, &y_card);
         restore_background_area(x_card, y_card, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0);
-        draw_plant(current_selection, selected_col, selected_row);
+        draw_plant(select_state.current_plant, select_state.col, select_state.row);
     }
 }
 
@@ -393,36 +376,36 @@ void handle_arrow_keys()
     char key2 = getUart();
 
     // Get current position for potential restoration
-    grid_to_pixel(selected_col, selected_row, &x_card, &y_card);
+    grid_to_pixel(select_state.col, select_state.row, &x_card, &y_card);
 
     // Process direction
     switch (key2)
     {
     case 'A': // Up arrow
-        if (selected_row > 0)
+        if (select_state.row > 0)
         {
-            selected_row--;
+            select_state.row--;
         }
         break;
 
     case 'B': // Down arrow
-        if (selected_row < 4)
+        if (select_state.row < 4)
         {
-            selected_row++;
+            select_state.row++;
         }
         break;
 
     case 'C': // Right arrow
-        if (selected_col < 9)
+        if (select_state.col < 9)
         {
-            selected_col++;
+            select_state.col++;
         }
         break;
 
     case 'D': // Left arrow
-        if (selected_col > 0)
+        if (select_state.col > 0)
         {
-            selected_col--;
+            select_state.col--;
         }
         break;
 
@@ -431,10 +414,10 @@ void handle_arrow_keys()
     }
 
     // Update display if a plant is selected
-    if (current_selection != -1)
+    if (select_state.current_plant != -1)
     {
         restore_background_area(x_card, y_card, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0);
-        draw_plant(current_selection, selected_col, selected_row);
+        draw_plant(select_state.current_plant, select_state.col, select_state.row);
     }
 
     // Debug output
@@ -448,16 +431,16 @@ void handle_arrow_keys()
 // Handle Enter key press
 void handle_enter_key()
 {
-    if (selection_mode == 0)
+    if (select_state.mode == 0)
     {
         // Select this plant card
-        selected_card = selected_col;
+        select_state.selected_card = select_state.col;
 
         // Switch to grid placement mode
-        selection_mode = 1;
-        selected_row = 0;
-        selected_col = 0;
-        draw_selection(selected_row, selected_col);
+        select_state.mode = 1;
+        select_state.row = 0;
+        select_state.col = 0;
+        draw_selection(select_state.row, select_state.col);
     }
     else
     {
@@ -465,9 +448,9 @@ void handle_enter_key()
         // place_plant(selected_card, selected_row, selected_col);
 
         // Return to card selection mode
-        selection_mode = 0;
-        selected_card = -1;
-        selected_col = 0;
-        draw_selection(selected_row, selected_col);
+        select_state.mode = 0;
+        select_state.selected_card = -1;
+        select_state.col = 0;
+        draw_selection(select_state.row, select_state.col);
     }
 }

@@ -53,6 +53,15 @@ typedef struct
 
 typedef struct
 {
+  int mode;          // 0 = card selection, 1 = grid placement
+  int selected_card; // currently selected plant card
+  int row;           // current row
+  int col;           // current col
+  int current_plant; // current selected plant type
+} SelectionState;
+
+typedef struct
+{
   int zombie_count;                        // total zombies in a level
   int zombie_types[MAX_ZOMBIES_PER_LEVEL]; // type of each zombie (normal, bucket, helmet)
   int zombie_rows[MAX_ZOMBIES_PER_LEVEL];  // the row that zombie appears
@@ -82,12 +91,17 @@ const Level LEVEL_HARD = {
     .spawn_times = {0, 100, 200, 300, 500, 600, 700, 800, 1000, 1100, 1200, 1300},
 };
 
-void game_init();
+void game_main();
 void game_menu();
+void draw_selection(int row, int col);
 void start_level();
 int handle_user_input(int *frame_counter);
-void handle_plant_selection(int selection);
+void handle_plant_selection(int plant_type);
 void handle_arrow_keys();
 void handle_enter_key();
+
+// External global variables
+extern GameState game;
+extern SelectionState select_state;
 
 #endif
