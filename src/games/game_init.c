@@ -10,7 +10,7 @@ int selected_card = -1;
 int selected_row = 1;
 int selected_col = 1;
 
-GameState game = {.state = GAME_MENU, .score = 0, .level = 1};
+GameState game = {.state = GAME_MENU, .score = 0, .level = LEVEL_EASY_ENUM};
 
 void game_main()
 {
@@ -408,24 +408,89 @@ void game_init()
 }
 void start_level()
 {
-    // Use the global game variable directly
-    uart_puts("Starting level...\n");
+    Level current_level;
+    switch (game.level)
+    {
+    case 1:
+        current_level = LEVEL_EASY;
+        break;
+    case 2:
+        current_level = LEVEL_INTERMEDIATE;
+        break;
+    case 3:
+        current_level = LEVEL_HARD;
+        break;
+    default:
+        current_level = LEVEL_EASY;
+        break;
+    }
 
-    // Simple implementation for testing
+    uart_puts("Starting Level ");
+    uart_puts("...\n");
+
+    // Initialize variables
+    int zombies_spawned = 0;
+    int zombies_killed = 0;
+    int frame_counter = 0;
+
+    // Draw the garden background
     draw_image(GARDEN, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
-    draw_rect(100, 100, 200, 100, 0xFF0000, 1); // Red rectangle
+    draw_grid();
 
-    uart_puts("Level started. Press Enter to return to menu.\n");
+    // Individual zombie handling
+    Zombie zombies[MAX_ZOMBIES_PER_LEVEL];
+    for (int i = 0; i < MAX_ZOMBIES_PER_LEVEL; i++)
+    {
+        zombies[i].active = 0; // Initialize all zombies as inactive
+    }
+    uart_puts("sawn");
+    uart_dec(zombies_spawned);
+    uart_puts("\n");
 
-    // Wait for Enter key
     while (1)
     {
-        char key = getUart();
-        if (key == '\n')
+        // Game run 10 FPS
+        set_wait_timer(1, 100);
+
+        /**
+         * PROCESS USER INPUT HERE (DEV LATER)
+         */
+
+        if (zombies_spawned < current_level.zombie_count &&
+            frame_counter >= current_level.spawn_times[zombies_spawned])
         {
-            game.state = GAME_MENU; // Using global game state
-            return;
+            // Create a new zombie
+            zombies[zombies_spawned] = spawn_zombie(
+                current_level.zombie_types[zombies_spawned],
+                current_level.zombie_rows[zombies_spawned]);
+
+            // CLI logging
+            // uart_puts("Spawned zombie #");
+            // uart_dec(zombies_spawned + 1);
+            // uart_puts(" at row ");
+            // uart_dec(current_level.zombie_rows[zombies_spawned]);
+            // uart_puts("\n");
+
+            // increase zombie spawned count
+            zombies_spawned = zombies_spawned + 1;
+
+            uart_dec(zombies_spawned);
         }
+
+        // Update position and logic for all active zombies
+        // for (int i = 0; i < zombies_spawned; i++)
+        // {
+        //     // Skip dead zombies
+        //     if (!zombies[i].active)
+        //         continue;
+
+        //     /* Update position*/
+        //     // Update position
+        //     update_zombie_position(&zombies[i]);
+        // }
+
+        // frame_counter++;
+        set_wait_timer(0, 0);
     }
 }
 

@@ -46,7 +46,7 @@ typedef struct
 {
   GAME_STATE state;
   int score;
-  int level;
+  LEVEL_DIFFICULTY level;
 } GameState;
 
 typedef struct
@@ -69,6 +69,15 @@ const Level LEVEL_INTERMEDIATE = {
     .zombie_types = {ZOMBIE_NORMAL, ZOMBIE_NORMAL, ZOMBIE_NORMAL, ZOMBIE_BUCKET, ZOMBIE_NORMAL, ZOMBIE_BUCKET, ZOMBIE_NORMAL, ZOMBIE_BUCKET},
     .zombie_rows = {0, 1, 2, 3, 1, 0, 2, 3},
     .spawn_times = {0, 200, 400, 600, 800, 1000, 1200, 1400},
+};
+
+const Level LEVEL_HARD = {
+    .zombie_count = 12,
+    .zombie_types = {ZOMBIE_NORMAL, ZOMBIE_NORMAL, ZOMBIE_BUCKET, ZOMBIE_BUCKET,
+                     ZOMBIE_HELMET, ZOMBIE_NORMAL, ZOMBIE_BUCKET, ZOMBIE_HELMET,
+                     ZOMBIE_NORMAL, ZOMBIE_BUCKET, ZOMBIE_HELMET, ZOMBIE_HELMET},
+    .zombie_rows = {0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3},
+    .spawn_times = {0, 100, 200, 300, 500, 600, 700, 800, 1000, 1100, 1200, 1300},
 };
 
 void game_init();
