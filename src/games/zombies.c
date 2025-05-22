@@ -81,11 +81,9 @@ Zombie spawn_zombie(uint8_t type, uint8_t row)
     draw_image(ZOMBIE_HELMET_SPRITE, new_zombie.x, new_zombie.y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);
     break;
   default:
-    // Fallback to normal zombie if type is unknown
-    draw_image(ZOMBIE_NORMAL_SPRITE, new_zombie.x, new_zombie.y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);
+    // Fallback to normal zombie if type is unknown    draw_image(ZOMBIE_NORMAL_SPRITE, new_zombie.x, new_zombie.y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);
     break;
   }
-
   return new_zombie;
 }
 
@@ -148,6 +146,19 @@ void update_zombie_position(Zombie *zombie)
     break;
   }
 }
+
+// void update_zombie_in_global_array(Zombie *zombie)
+// {
+//   // Removed row check and global array update logic
+//   // This function now does nothing, allowing multiple zombies to be spawned without interference
+// }
+
+// // Add new function to check if any zombie is on a given row
+// int is_zombie_on_row(int row)
+// {
+//   // This function is no longer valid with the new implementation
+//   return 0;
+// }
 
 /*//////////////////////////////////////////////////////////////
                               DEV_ONLY

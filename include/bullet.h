@@ -7,6 +7,8 @@
 #include "../include/plants.h"
 #include "../assets/backgrounds/garden.h"
 #include "../include/zombies.h"
+#include "../include/plants.h"
+#include "../include/utils.h"
 #define BOX_SIZE 20
 #define DEFAULT_BULLET_SPEED 5
 #define DEFAULT_COLLISION_DELAY 10
@@ -36,10 +38,7 @@
 // };
 // extern struct bullets bullets;
 
-void bullet_set_position(int x, int y);
-void update_bullets(void);
-void fire_bullet(void);
-void update_all_bullets(void);
-void draw_all_bullets(void);
+
+
 
 #endif // BULLET_H 

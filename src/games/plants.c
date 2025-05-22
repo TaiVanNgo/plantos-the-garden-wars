@@ -221,3 +221,16 @@ void place_plant_on_background(int plant_type, int grid_col, int grid_row)
 
     // draw_image(GARDEN, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
 }
+
+int get_plant_damage(int plant_type) {
+    switch (plant_type) {
+        case PLANT_TYPE_PEASHOOTER:
+            return default_peashooter.attack_damage;
+        case PLANT_TYPE_FROZEN_PEASHOOTER:
+            return default_frozen_peashooter.attack_damage;
+        case PLANT_TYPE_CHILLIES:
+            return default_chillies.attack_damage;
+        default:
+            return 0;
+    }
+}
