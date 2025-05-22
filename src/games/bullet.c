@@ -2,6 +2,8 @@
 
 
 extern unsigned char *fb; 
+extern Zombie zombies[20];
+extern int zombie_count;
 
 #define MAX_BULLETS 25 // 5 rows * 5 bullets per row
 #define MAX_PLANTS 10
@@ -101,13 +103,6 @@ static int is_living_zombie_on_row(int row) {
 
 // Update bullet firing and movement
 void bullet_update(unsigned long current_time_ms) {
-    // Cease fire on rows with no living zombies
-    for (int i = 0; i < plant_count; i++) {
-        int row = plants[i].row;
-        if (!is_living_zombie_on_row(row)) {
-            cease_fire(row);
-        }
-    }
     for (int i = 0; i < plant_count; i++) {
         if (is_living_zombie_on_row(plants[i].row) && bullet_should_fire(plants[i].last_fire_time, current_time_ms, bullet_fire_interval)) {
             uart_puts("Ready to fire bullet\n");
@@ -276,6 +271,17 @@ void apply_bullet_damage(Bullet *bullet, Zombie *zombie) {
         zombie->health = 0; // Clamp to zero
         if (zombie->active) {
             zombie->active = 0;
+            
+            for (int i = 0; i < zombie_count; i++) {
+                if (zombies[i].row == zombie->row && 
+                    zombies[i].x == zombie->x && 
+                    zombies[i].y == zombie->y) {
+                    zombies[i].active = 0;
+                    zombies[i].health = 0;
+                    break;
+                }
+            }
+            
             restore_background_area(zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);
             uart_puts("Zombie removed\n");
         }
@@ -308,15 +314,6 @@ static void clear_bullet_area() {
     }
 }
 
-// Cease fire on a given row: deactivate all bullets on that row
-void cease_fire(int row) {
-    for (int i = 0; i < MAX_BULLETS; i++) {
-        if (bullets[i].active && bullets[i].row == row) {
-            bullets[i].active = 0;
-        }
-    }
-}
-
 // --- Main Game Loop ---
 void bullet_game() {
     // --- Initialization Block ---
@@ -341,7 +338,7 @@ void bullet_game() {
     for (int row = 0; row < 5; row++) {
         Spawn_peashooter(1, row, start_ms);
     }
-    Spawn_peashooter(2, 0, start_ms);
+    Spawn_peashooter(2, 0, start_ms); 
 
     // --- Zombie Spawning Block ---
     // Spawn a test zombie in row 0
@@ -367,20 +364,19 @@ void bullet_game() {
     asm volatile("mrs %0, cntpct_el0" : "=r"(current_counter));
     unsigned long current_time_ms = current_counter * 1000 / freq;
 
-    // Update zombie position if enough time has passed
     if ((current_time_ms - last_zombie_frame_time) >= zombie_frame_interval) {
         update_zombie_position(&test_zombie);
         last_zombie_frame_time = current_time_ms;
     }
 
-    // Only update bullets if the zombie is alive
+    // Always update and draw bullets, even if the zombie is dead
+    bullet_update(current_time_ms);
+    bullet_draw();
+
+    // Only check for collisions if zombie is alive
     if (test_zombie.active) {
-        bullet_update(current_time_ms);
-        bullet_draw();
+        check_bullet_zombie_collisions(&test_zombie);
     }
-
-    check_bullet_zombie_collisions(&test_zombie);
-
         // Wait for the frame to end
         set_wait_timer(0, 0);
     }

@@ -122,6 +122,8 @@ void update_zombie_position(Zombie *zombie)
   // Move zombie left (update position)
   move_zombie(zombie);
 
+  update_zombie_in_global_array(zombie);
+
   // Draw the zombie at its current position
   switch (zombie->type)
   {
@@ -137,6 +139,43 @@ void update_zombie_position(Zombie *zombie)
   default:
     break;
   }
+}
+
+void update_zombie_in_global_array(Zombie *zombie) {
+    int found = 0;
+    for (int i = 0; i < zombie_count; i++) {
+        // More precise matching using type, row and approximate position
+        int x_diff = zombies[i].x - zombie->x;
+        // Instead of abs(x_diff) < 20, use this:
+        if (zombies[i].row == zombie->row && 
+            zombies[i].type == zombie->type && 
+            x_diff > -20 && x_diff < 20) {  // Compare without using abs()
+            
+            // Update position and status
+            zombies[i].x = zombie->x;
+            zombies[i].y = zombie->y;
+            zombies[i].active = zombie->active;
+            zombies[i].health = zombie->health;
+            found = 1;
+            break;
+        }
+    }
+    
+    // If we didn't find the zombie, this might be a new zombie
+    // or the position has changed significantly
+    if (!found) {
+        // Fallback to just matching the row if needed
+        for (int i = 0; i < zombie_count; i++) {
+            if (zombies[i].row == zombie->row) {
+                // This might be the right zombie, update it
+                zombies[i].x = zombie->x;
+                zombies[i].y = zombie->y;
+                zombies[i].active = zombie->active;
+                zombies[i].health = zombie->health;
+                break;
+            }
+        }
+    }
 }
 
 // Add new function to check if any zombie is on a given row
