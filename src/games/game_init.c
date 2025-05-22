@@ -191,8 +191,8 @@ void start_level()
     bullet_system_init(start_ms, 1000); // Initialize with 1 second fire interval
 
     // Spawn a peashooter in the first row
-    Spawn_peashooter(1, 0, start_ms);
-    Spawn_peashooter(2, 0, start_ms);
+    // Spawn_peashooter(1, 0, start_ms);
+    // Spawn_peashooter(2, 0, start_ms);
 
     /* Zombie settings */
     // Define individual zombies instead of an array
@@ -460,7 +460,8 @@ void handle_enter_key()
         select_state.mode = 1;
         select_state.row = 0;
         select_state.col = 0;
-        draw_selection(select_state.row, select_state.col);
+        // draw_selection(select_state.row, select_state.col);
+        place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
     }
     else
     {
@@ -472,7 +473,7 @@ void handle_enter_key()
         select_state.current_plant = -1;
         select_state.row = 0;
         select_state.col = 0;
-        draw_selection(select_state.row, select_state.col);
+        // draw_selection(select_state.row, select_state.col);
     }
 }
 
