@@ -12,6 +12,7 @@ typedef struct {
     int prev_x, prev_y;
     int row;
     int active;
+    int plant_type;
 } Bullet;
 
 typedef struct {
@@ -56,6 +57,7 @@ void bullet_spawn_plant(int col, int row, unsigned long start_ms) {
         plants[plant_count].row = row;
         plants[plant_count].last_fire_time = start_ms;
         plant_count++;
+        uart_puts("Plant spawned\n");
     }
 }
 
@@ -71,6 +73,8 @@ static void fire_bullet_for_plant(int col, int row) {
             bullets[i].prev_y = bullets[i].y;
             bullets[i].row = row;
             bullets[i].active = 1;
+            uart_puts("Set plant_type to PEASHOOTER\n");
+            bullets[i].plant_type = PLANT_TYPE_PEASHOOTER;
             save_background(bullets[i].x, bullets[i].y, i);
             break;
         }
@@ -86,6 +90,7 @@ static int bullet_should_fire(unsigned long last_fire_time, unsigned long curren
 void bullet_update(unsigned long current_time_ms) {
     for (int i = 0; i < plant_count; i++) {
         if (is_zombie_on_row(plants[i].row) && bullet_should_fire(plants[i].last_fire_time, current_time_ms, bullet_fire_interval)) {
+            uart_puts("Ready to fire bullet\n");
             fire_bullet_for_plant(plants[i].col, plants[i].row);
             plants[i].last_fire_time = current_time_ms;
         }
@@ -103,9 +108,11 @@ void bullet_update(unsigned long current_time_ms) {
                     bullets[i].y < target_y + target_height &&
                     bullets[i].y + BULLET_HEIGHT > target_y) {
                     bullets[i].active = 0;
+                    uart_puts("Bullet hit target\n");
                 }
                 if (bullets[i].x > PHYSICAL_WIDTH) {
                     bullets[i].active = 0;
+                    uart_puts("Bullet out of bounds\n");
                 }
             }
         }
@@ -145,6 +152,123 @@ static void save_background(int x, int y, int index) {
         }
     }
 }
+
+// Function to draw plants on both main screen and simulated background
+void draw_plants_both(int plant_type, int col, int row) {
+    if (!is_valid_grid_position(col, row)) {
+        return;
+    }
+    
+    // Calculate pixel coordinates from grid position, centered in cell
+    int x, y;
+    grid_to_pixel(col, row, &x, &y);
+    
+    // Get offsets to center the plant in the cell
+    int offset_x, offset_y;
+    calculate_grid_center_offset(PLANT_WIDTH, PLANT_HEIGHT, &offset_x, &offset_y);
+    
+    // Apply the offsets
+    x += offset_x;
+    y += offset_y;
+    
+    const unsigned int* plant_sprite;
+    
+    switch(plant_type) {
+        case PLANT_TYPE_PEASHOOTER:
+            plant_sprite = peashooter;
+            break;
+        case PLANT_TYPE_SUNFLOWER:
+            plant_sprite = sunflower;
+            break;
+        case PLANT_TYPE_SUNFLOWER_UNHAPPY:
+            plant_sprite = sunflower_unhappy;
+            break;
+        case PLANT_TYPE_FROZEN_PEASHOOTER:
+            plant_sprite = frozen_peashooter;
+            break;
+        case PLANT_TYPE_CHILLIES:
+            plant_sprite = chillies;
+            break;
+        case PLANT_TYPE_CHILLIES_UNHAPPY:
+            plant_sprite = chillies_unhappy;
+            break;
+        case PLANT_TYPE_WALLNUT:
+            plant_sprite = wallnut;
+            break;
+        case PLANT_TYPE_WALLNUT_UNHAPPY:
+            plant_sprite = wallnut_unhappy;
+            break;
+        default:
+            return;
+    }
+    
+    // Draw on both main screen and simulated background
+    draw_image_both(plant_sprite, x, y, PLANT_WIDTH, PLANT_HEIGHT, 0);
+}
+
+// Function to draw image on both main screen and simulated background
+void draw_image_both(const unsigned int pixel_data[], int pos_x, int pos_y, int width, int height, int show_transparent) {
+    // Draw on main screen
+    draw_image(pixel_data, pos_x, pos_y, width, height, show_transparent);
+    
+    // Draw on simulated background
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            int pixel_index = y * width + x;
+            int screen_x = pos_x + x;
+            int screen_y = pos_y + y;
+            
+            // Skip transparent pixels if show_transparent is 0
+            if (pixel_data[pixel_index] == 0 && !show_transparent) {
+                continue;
+            }
+            
+            // Only update if within bounds
+            if (screen_x >= 0 && screen_x < GARDEN_WIDTH && 
+                screen_y >= 0 && screen_y < GARDEN_HEIGHT) {
+                sim_bg[screen_y * GARDEN_WIDTH + screen_x] = pixel_data[pixel_index];
+            }
+        }
+    }
+}
+
+
+// void check_bullet_zombie_collisions(Zombie *zombie) {
+//     for (int i = 0; i < MAX_BULLETS; i++) {
+//         if (bullets[i].active) {
+//             // Simple bounding box collision
+//             if (bullets[i].x < zombie->x + ZOMBIE_WIDTH &&
+//                 bullets[i].x + BULLET_WIDTH > zombie->x &&
+//                 bullets[i].y < zombie->y + ZOMBIE_HEIGHT &&
+//                 bullets[i].y + BULLET_HEIGHT > zombie->y) {
+//                 apply_bullet_damage(&bullets[i], zombie);
+//             }
+//         }
+//     }
+// }
+
+// void apply_bullet_damage(Bullet *bullet, Zombie *zombie) {
+//     int dmg = get_plant_damage(bullet->plant_type);
+//     zombie->health -= dmg;
+//     bullet->active = 0;
+
+//     // Print zombie health
+//     uart_puts("Zombie health: ");
+//     char buf[16];
+//     int h = zombie->health;
+//     int idx = 0;
+//     if (h == 0) {
+//         buf[idx++] = '0';
+//     } else {
+//         if (h < 0) { buf[idx++] = '-'; h = -h; }
+//         int digits[10], d = 0;
+//         while (h > 0) { digits[d++] = h % 10; h /= 10; }
+//         for (int j = d-1; j >= 0; j--) buf[idx++] = '0' + digits[j];
+//     }
+//     buf[idx] = '\0';
+//     uart_puts(buf);
+//     uart_puts("\n");
+// }
 
 // Restore the background under a bullet
 static void restore_background(int x, int y, int index) {

@@ -8,6 +8,7 @@
 #include "../assets/backgrounds/garden.h"
 #include "../include/zombies.h"
 #include "../include/plants.h"
+#include "../include/utils.h"
 #define BOX_SIZE 20
 #define DEFAULT_BULLET_SPEED 5
 #define DEFAULT_COLLISION_DELAY 10
