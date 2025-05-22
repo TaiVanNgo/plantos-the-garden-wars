@@ -4,7 +4,8 @@
 extern const unsigned int START[];
 extern const unsigned int QUIT[];
 extern const unsigned int ARROW[];
-
+extern const unsigned int HOME[];
+extern const unsigned int RETRY[];
 // Button structure
 typedef struct
 {

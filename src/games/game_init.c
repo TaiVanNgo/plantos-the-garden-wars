@@ -308,7 +308,7 @@ void start_level()
             check_bullet_zombie_collisions(zombie_pointers[i]);
 
             // Check for game over
-            if (zombie_pointers[i]->x <= 50)
+            if (zombie_pointers[i]->x <= 200)
             {
                 game.state = GAME_OVER;
                 uart_puts("Game Over - Zombie reached house\n");
@@ -518,14 +518,15 @@ void set_zombie_types_level(int level, int zombie_types[10])
 
 void game_over()
 {
+    // clear_screen();
     draw_image(LOSE_SCREEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
 
     // Create buttons
     Button home_button;
     Button retry_button;
 
-    button_init(&home_button, 280, 630, 300, 82, START);
-    button_init(&retry_button, 280, 630, 300, 82, QUIT);
+    button_init(&home_button, 100, 450, 230, 100, HOME);
+    button_init(&retry_button, 450, 450, 230, 100, RETRY);
 
     Button *buttons[2] = {&home_button, &retry_button};
     int current_selection = 0;
@@ -534,7 +535,7 @@ void game_over()
     // Initially set the first button selected
     button_set_state(buttons[current_selection], BUTTON_SELECTED);
     button_draw_selection(buttons, current_selection, previous_selection);
-
+    
     while (1)
     {
         char key = getUart();
