@@ -47,7 +47,7 @@ void game_menu()
     int previous_selection = current_selection;
     // Initially set the first button selected
     button_set_state(buttons[current_selection], BUTTON_SELECTED);
-    button_draw_selection(buttons, current_selection, previous_selection);
+    button_draw_selection(buttons, current_selection, previous_selection,1);
 
     while (1)
     {
@@ -67,7 +67,7 @@ void game_menu()
                 }
 
                 button_set_state(buttons[current_selection], BUTTON_SELECTED);
-                button_draw_selection(buttons, current_selection, previous_selection);
+                button_draw_selection(buttons, current_selection, previous_selection,1);
             }
             else if ((key2 == 'B'))
             {
@@ -82,7 +82,7 @@ void game_menu()
                 }
 
                 button_set_state(buttons[current_selection], BUTTON_SELECTED);
-                button_draw_selection(buttons, current_selection, previous_selection);
+                button_draw_selection(buttons, current_selection, previous_selection,1);
             }
         }
 
@@ -534,7 +534,7 @@ void game_over()
 
     // Initially set the first button selected
     button_set_state(buttons[current_selection], BUTTON_SELECTED);
-    button_draw_selection(buttons, current_selection, previous_selection);
+    button_draw_selection(buttons, current_selection, previous_selection,1);
     
     while (1)
     {
@@ -557,7 +557,7 @@ void game_over()
                 }
 
                 button_set_state(buttons[current_selection], BUTTON_SELECTED);
-                button_draw_selection(buttons, current_selection, previous_selection);
+                button_draw_selection(buttons, current_selection, previous_selection, 0);
             }
             else if (key2 == 'D') // Left arrow
             {
@@ -571,7 +571,7 @@ void game_over()
                 }
 
                 button_set_state(buttons[current_selection], BUTTON_SELECTED);
-                button_draw_selection(buttons, current_selection, previous_selection);
+                button_draw_selection(buttons, current_selection, previous_selection, 0);
             }
 
             // Add inside the key handling code

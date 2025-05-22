@@ -24,9 +24,9 @@ void button_set_state(Button* button, int state){
     button->state= state;
 }
 
-void button_draw_selection(Button *button[], int current_selection, int prev_selection){
+void button_draw_selection(Button *button[], int current_selection, int prev_selection, int background){
     
-    restore_background_area(button[prev_selection]->x - 150,button[prev_selection]->y,120,60, 0);
+    restore_background_area(button[prev_selection]->x - 150,button[prev_selection]->y,120,60, background);
     draw_image(ARROW, button[current_selection]->x - 150, button[current_selection]->y, 120, 60, 0);
 }
 
