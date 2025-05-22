@@ -265,17 +265,71 @@ unsigned char getUart()
 		ch = uart_getc();
 	return ch;
 }
+
 void uart_toggle_rts_cts() {
     /* Check if RTS and CTS are enabled */
     if (UART0_CR & (UART0_CR_RTSEN | UART0_CR_CTSEN)) {
         /* If enabled, disable RTS and CTS */
         UART0_CR &= ~(UART0_CR_RTSEN | UART0_CR_CTSEN);
+        uart_puts("\nRTS/CTS handshaking disabled\n");
     } else {
         /* If disabled, enable RTS and CTS */
         UART0_CR |= (UART0_CR_RTSEN | UART0_CR_CTSEN);
+        uart_puts("\nRTS/CTS handshaking enabled\n");
     }
 }
 
+// Function to wait for CTS to be clear before sending
+void uart_wait_for_cts() {
+    while (UART0_FR & UART0_FR_CTS) {
+        asm volatile("nop");
+    }
+}
+
+// Function to check if RTS is asserted
+int uart_is_rts_asserted() {
+    return !(UART0_FR & UART0_FR_RTS);
+}
+
+// Function to send a character with RTS/CTS handshaking
+void uart_sendc_with_handshake(char c) {
+    // Wait for CTS to be clear before sending
+    uart_wait_for_cts();
+    
+    // Wait until transmitter is not full
+    while (UART0_FR & UART0_FR_TXFF) {
+        asm volatile("nop");
+    }
+    
+    // Write data byte to the data register
+    UART0_DR = c;
+}
+
+// Function to receive a character with RTS/CTS handshaking
+char uart_getc_with_handshake() {
+    char c = 0;
+    
+    // Wait until Receiver is not empty
+    while (UART0_FR & UART0_FR_RXFE) {
+        asm volatile("nop");
+    }
+    
+    // Read the data
+    c = (unsigned char)(UART0_DR);
+    
+    // Convert carriage return to newline
+    return (c == '\r' ? '\n' : c);
+}
+
+// Function to send a string with RTS/CTS handshaking
+void uart_puts_with_handshake(const char *s) {
+    while (*s) {
+        if (*s == '\n') {
+            uart_sendc_with_handshake('\r');
+        }
+        uart_sendc_with_handshake(*s++);
+    }
+}
 
 int set_uart_baudrate(int baudrate)
 {
