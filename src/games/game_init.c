@@ -427,30 +427,26 @@ void handle_arrow_keys()
     uart_dec(y_card);
     uart_puts(")\n");
 }
-
-// Handle Enter key press
 void handle_enter_key()
 {
     if (select_state.mode == 0)
     {
-        // Select this plant card
         select_state.selected_card = select_state.col;
-
-        // Switch to grid placement mode
         select_state.mode = 1;
         select_state.row = 0;
         select_state.col = 0;
-        draw_selection(select_state.row, select_state.col);
+        // draw_selection(select_state.row, select_state.col);/
     }
     else
     {
-        // Place the plant at the selected grid position
-        // place_plant(selected_card, selected_row, selected_col);
+        // Place plant permanently
+        place_plant_on_background(select_state.current_plant, select_state.col, select_state.row);
 
-        // Return to card selection mode
+        // Reset state
         select_state.mode = 0;
         select_state.selected_card = -1;
+        select_state.current_plant = -1;
         select_state.col = 0;
-        draw_selection(select_state.row, select_state.col);
+        // draw_selection(select_state.row, select_state.col);
     }
 }

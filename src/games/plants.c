@@ -2,6 +2,7 @@
 #include "../../include/grid.h"
 #include "gpio.h"
 
+
 // Default Sunflower
 const Plant default_sunflower = {
     .type = PLANT_SUNFLOWER,
@@ -169,4 +170,54 @@ void fill_plant_grid(void) {
             type_idx = (type_idx + 1) % num_types;
         }
     }
+}
+void place_plant_on_background(int plant_type, int grid_col, int grid_row)
+{
+    const unsigned int *plant;
+
+    switch (plant_type)
+    {
+    case PLANT_TYPE_PEASHOOTER:
+        plant = peashooter;
+        break;
+    case PLANT_TYPE_SUNFLOWER:
+        plant = sunflower;
+        break;
+    case PLANT_TYPE_SUNFLOWER_UNHAPPY:
+        plant = sunflower_unhappy;
+        break;
+    case PLANT_TYPE_FROZEN_PEASHOOTER:
+        plant = frozen_peashooter;
+        break;
+    case PLANT_TYPE_CHILLIES:
+        plant = chillies;
+        break;
+    case PLANT_TYPE_CHILLIES_UNHAPPY:
+        plant = chillies_unhappy;
+        break;
+    case PLANT_TYPE_WALLNUT:
+        plant = wallnut;
+        break;
+    case PLANT_TYPE_WALLNUT_UNHAPPY:
+        plant = wallnut_unhappy;
+        break;
+    default:
+        uart_puts("Invalid plant type!\n");
+        return;
+    }
+
+    int x, y;
+    grid_to_pixel(grid_col, grid_row, &x, &y);
+
+    draw_on_simulated_background(
+        GARDEN,   
+        plant,
+        x,
+        y,
+        PLANT_WIDTH,
+        PLANT_HEIGHT,
+        GARDEN_WIDTH
+    );
+
+    // draw_image(GARDEN, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
 }

@@ -44,5 +44,5 @@ typedef struct
 void draw_plant(int plant_type, int col, int row);
 Plant create_plant(uint8_t type, uint8_t col, uint8_t row);
 void fill_plant_grid(void);
-
+void place_plant_on_background(int plant_type, int grid_col, int grid_row);
 #endif 
