@@ -538,7 +538,7 @@ void set_zombie_types_level(int level, int zombie_types[10])
         for (int i = 0; i < 3; i++)
     {
             zombie_types[i] = ZOMBIE_NORMAL;
-        }
+    }
         for (int i = 3; i < 6; i++)
         {
             zombie_types[i] = ZOMBIE_BUCKET;
