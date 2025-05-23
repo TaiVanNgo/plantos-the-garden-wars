@@ -394,11 +394,12 @@ void handle_arrow_keys()
         }
         break;
 
-        case 'B':  // Down arrow
-            if (select_state.row < 4) {
-                select_state.row++;
-            }
-            break;
+    case 'B': // Down arrow
+        if (select_state.row < 4)
+        {
+            select_state.row++;
+        }
+        break;
 
     case 'C': // Right arrow
         if (select_state.col < 9)
@@ -517,50 +518,65 @@ void set_zombie_types_level(int level, int zombie_types[10])
 {
     if (level == LEVEL_EASY_ENUM)
     {
-        for (int i = 0; i < 8; i++)
+        // easy level: 5 normal zombie + 3 bucket zombies + 2 helmet zombies
+        for (int i = 0; i < 5; i++)
         {
             zombie_types[i] = ZOMBIE_NORMAL;
         }
 
-        zombie_types[8] = ZOMBIE_BUCKET;
+        for (int i = 5; i < 8; i++)
+        {
+            zombie_types[i] = ZOMBIE_BUCKET;
+        }
+
+        zombie_types[8] = ZOMBIE_HELMET;
         zombie_types[9] = ZOMBIE_HELMET;
     }
     else if (level == LEVEL_INTERMEDIATE_ENUM)
     {
-        // Intermediate level - 3 normal + 5 bucket + 2 helmet
+        // Intermediate level - 3 normal + 3 bucket + 4 helmet
         for (int i = 0; i < 3; i++)
         {
             zombie_types[i] = ZOMBIE_NORMAL;
         }
-        for (int i = 3; i < 8; i++)
+        for (int i = 3; i < 6; i++)
         {
             zombie_types[i] = ZOMBIE_BUCKET;
         }
-        zombie_types[8] = ZOMBIE_HELMET;
-        zombie_types[9] = ZOMBIE_HELMET;
-    }
-    else
-    {
-        // Hard level - mix of bucket and helmet zombies
-        for (int i = 0; i < 5; i++)
-        {
-            zombie_types[i] = ZOMBIE_BUCKET;
-        }
-        for (int i = 5; i < 10; i++)
+        for (int i = 6; i < 10; i++)
         {
             zombie_types[i] = ZOMBIE_HELMET;
         }
     }
+    else
+    {
+        // Hard level- 4 buckets + 3 helmet + 3 footballs
+        for (int i = 0; i < 4; i++)
+        {
+            zombie_types[i] = ZOMBIE_BUCKET;
+        }
+        for (int i = 4; i < 7; i++)
+        {
+            zombie_types[i] = ZOMBIE_HELMET;
+        }
+        for (int i = 7; i < 10; i++)
+        {
+            zombie_types[i] = ZOMBIE_FOOTBALL;
+        }
+    }
 }
 
-int get_selection_current_plant(void) {
+int get_selection_current_plant(void)
+{
     return select_state.current_plant;
 }
 
-int get_selection_row(void) {
+int get_selection_row(void)
+{
     return select_state.row;
 }
 
-int get_selection_col(void) {
+int get_selection_col(void)
+{
     return select_state.col;
 }

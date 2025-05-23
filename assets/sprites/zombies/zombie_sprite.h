@@ -10,6 +10,7 @@
 extern const unsigned int ZOMBIE_NORMAL_SPRITE[];
 extern const unsigned int ZOMBIE_BUCKET_SPRITE[];
 extern const unsigned int ZOMBIE_HELMET_SPRITE[];
+extern const unsigned int ZOMBIE_FOOTBALL_SPRITE[];
 extern const unsigned int SCAR_SPRITE[];
 
 #endif
