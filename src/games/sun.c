@@ -1,9 +1,15 @@
 #include "../../include/sun.h"
+#include "../include/game_init.h"
 
 extern const unsigned int sun[];
 
 // Array to hold all active suns
 static Sun suns[MAX_SUNS];
+extern GameState game;
+
+#define SUN_VALUE 50      // Each sun gives 50 resource points
+#define SUN_COUNT_X 20    // Position to display sun count
+#define SUN_COUNT_Y 20
 
 // Array to track sunflower positions
 typedef struct {
@@ -61,12 +67,11 @@ void create_sun_from_sunflower(int col, int row, int current_frame) {
             int x, y;
             grid_to_pixel(col, row, &x, &y);
             
-            // Position sun at the plant's position
-            int offset_x, offset_y;
-            calculate_grid_center_offset(PLANT_WIDTH, PLANT_HEIGHT, &offset_x, &offset_y);
+            // Position sun at the bottom left corner of the cell
+            x += 10;  // Small margin from left edge
             
-            x += offset_x + 15; // Offset slightly from plant center
-            y += offset_y - 10; // Position above the plant
+            // Position at the bottom with a small margin
+            y += GRID_ROW_HEIGHT - SUN_HEIGHT - 10; 
             
             suns[i].x = x;
             suns[i].y = y;
@@ -120,4 +125,44 @@ void draw_suns() {
             draw_image(sun, suns[i].x, suns[i].y, SUN_WIDTH, SUN_HEIGHT, 0);
         }
     }
+}
+
+// Function to check if a sun can be collected at position
+int collect_sun_at_position(int col, int row) {
+    int x, y;
+    grid_to_pixel(col, row, &x, &y);
+    
+    // Check all active suns to see if they're at this position
+    for (int i = 0; i < MAX_SUNS; i++) {
+        if (!suns[i].active) continue;
+        
+        // Check if the click is within the sun's area
+        if (x >= suns[i].x && x < suns[i].x + SUN_WIDTH &&
+            y >= suns[i].y && y < suns[i].y + SUN_HEIGHT) {
+            
+            // Collect the sun
+            game.sun_count += SUN_VALUE;
+            
+            // Remove the sun from the display
+            restore_background_area(suns[i].x, suns[i].y, SUN_WIDTH, SUN_HEIGHT, 0, 0);
+            
+            // Mark the sun as inactive
+            suns[i].active = 0;
+            
+            // Update the sun count display
+            draw_sun_count(game.sun_count);
+            
+            return 1; // Sun collected successfully
+        }
+    }
+    
+    return 0; // No sun collected
+}
+
+// Function to display the current sun count
+void draw_sun_count(int count) {
+    // Display the sun count
+    uart_puts("[Sun] Current sun count: ");
+    uart_dec(count);
+    uart_puts("\n");
 }

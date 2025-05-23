@@ -6,7 +6,7 @@ extern int flame_active[GRID_ROWS];  // Add external declaration
 SelectionState select_state = {
     .mode = 0, .selected_card = -1, .row = 0, .col = 0, .current_plant = -1};
 
-GameState game = {.state = GAME_MENU, .score = 0, .level = LEVEL_HARD_ENUM};
+GameState game = {.state = GAME_MENU, .score = 0, .level = LEVEL_HARD_ENUM, .sun_count = 2000};
 
 Plant plant_grid[GRID_ROWS][GRID_COLS];
 
@@ -135,6 +135,7 @@ void start_level()
     create_simulated_background(simulated_background, GARDEN, GARDEN_WIDTH, GARDEN_HEIGHT);
     draw_image(simulated_background, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
     draw_grid();
+    draw_sun_count(game.sun_count);
 
     /* Plant Setting*/
     // Reset selection state to default value
@@ -354,6 +355,19 @@ int handle_user_input(int *frame_counter)
     {
         handle_remove_plant();
     }
+
+    // Check for sun collection
+    if (key == 'S' || key == 's')
+    {
+        if (collect_sun_at_position(select_state.col, select_state.row))
+        {
+            uart_puts("[Sun] Collected sun! Current sun count: ");
+            uart_dec(game.sun_count);
+            uart_puts("\n");
+            return 1;
+        }
+    }
+
     // Enter key (confirm selection/placement)
     if (key == '\n')
     {
