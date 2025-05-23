@@ -197,7 +197,7 @@ void start_level()
         {
             if (frame_counter == spawn_times[i] && !zombie_spawned[i])
             {
-                uart_puts("Spawning zombie ");
+                uart_puts("[Zombie] Spawning zombie ");
                 uart_dec(i + 1);
                 uart_puts(" of type ");
                 uart_dec(zombie_types[i]);
@@ -536,7 +536,7 @@ void set_zombie_types_level(int level, int zombie_types[10])
     {
         // Intermediate level - 3 normal + 3 bucket + 4 helmet
         for (int i = 0; i < 3; i++)
-        {
+    {
             zombie_types[i] = ZOMBIE_NORMAL;
         }
         for (int i = 3; i < 6; i++)
