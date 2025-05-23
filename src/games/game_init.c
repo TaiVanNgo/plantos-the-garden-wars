@@ -1,6 +1,8 @@
 #include "../include/game_init.h"
 #include "../include/bullet.h"
 
+extern int flame_active[GRID_ROWS];  // Add external declaration
+
 SelectionState select_state = {
     .mode = 0, .selected_card = -1, .row = 0, .col = 0, .current_plant = -1};
 
@@ -186,11 +188,16 @@ void start_level()
         // Update bullet system
         unsigned long current_counter;
         asm volatile("mrs %0, cntpct_el0" : "=r"(current_counter));
+        unsigned long freq;
+        asm volatile("mrs %0, cntfrq_el0" : "=r"(freq));
         unsigned long current_time_ms = current_counter * 1000 / freq;
 
         // Update bullets
         bullet_update(current_time_ms);
         bullet_draw();
+
+        // Update flame effects with current frame
+        update_flame_effects(frame_counter);
 
         /*====== ZOMBIE LOGIC START ====== */
         for (int i = 0; i < 10; i++)
@@ -271,6 +278,11 @@ void start_level()
             // Check for bullet collisions
             check_bullet_zombie_collisions(zombie_pointers[i]);
 
+            // Check for chilli damage if flames are active on this row
+            if (flame_active[zombie_pointers[i]->row]) {
+                apply_chilli_damage(zombie_pointers[i]);
+            }
+
             // Check for game over
             if (zombie_pointers[i]->x <= 50)
             {
@@ -339,7 +351,7 @@ int handle_user_input(int *frame_counter)
     // Enter key (confirm selection/placement)
     if (key == '\n')
     {
-        handle_enter_key();
+        handle_enter_key(*frame_counter);
         return 1;
     }
 
@@ -434,7 +446,7 @@ void handle_arrow_keys()
     uart_puts(")\n");
 }
 
-void handle_enter_key()
+void handle_enter_key(int frame_counter)
 {
     if (select_state.mode == 2)
     {
@@ -474,6 +486,13 @@ void handle_enter_key()
             unsigned long current_time_ms = current_counter * 1000 / freq;
             bullet_spawn_plant(select_state.col, select_state.row, current_time_ms);
         }
+        else if (select_state.current_plant == PLANT_CHILLIES)
+        {
+            chillies_detonate(select_state.row, frame_counter);
+            // Clear the chilli plant from the grid and background
+            plant_grid[select_state.row][select_state.col].type = 255;
+            clear_plant_from_background(select_state.col, select_state.row);
+        }
 
         select_state.selected_card = -1;
         select_state.current_plant = -1;
@@ -501,6 +520,13 @@ void handle_enter_key()
             asm volatile("mrs %0, cntfrq_el0" : "=r"(freq));
             unsigned long current_time_ms = current_counter * 1000 / freq;
             bullet_spawn_plant(select_state.col, select_state.row, current_time_ms);
+        }
+        else if (select_state.current_plant == PLANT_CHILLIES)
+        {
+            chillies_detonate(select_state.row, frame_counter);
+            
+            plant_grid[select_state.row][select_state.col].type = 255;
+            clear_plant_from_background(select_state.col, select_state.row);
         }
 
         select_state.mode = 0;
