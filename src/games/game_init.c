@@ -395,7 +395,7 @@ void handle_arrow_keys()
         break;
 
     case 'B': // Down arrow
-        if (select_state.row < 4)
+        if (select_state.row < 3)
         {
             select_state.row++;
         }
