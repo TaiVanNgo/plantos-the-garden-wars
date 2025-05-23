@@ -1,6 +1,7 @@
 #include "../../include/plants.h"
 #include "../../include/grid.h"
 #include "../assets/button/button.h"
+// #include "../../include/game_init.h"
 #include "gpio.h"
 
 // Default Sunflower
@@ -195,6 +196,9 @@ int get_plant_damage(int plant_type)
 
 void place_plant_on_background(int plant_type, int grid_col, int grid_row, unsigned int *sim_bg)
 {
+    if(plant_grid[grid_row][grid_col].type != 255){
+        return;
+    }
     const unsigned int *plant;
 
     switch (plant_type)
