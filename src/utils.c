@@ -18,7 +18,7 @@ void int_to_str(int num, char *str)
         str[i++] = '0';
     }
 
-    // Handle the negative numbers (if you want to handle negative integers)
+    // Handle the negative numbers 
     if (num < 0)
     {
         str[i++] = '-';

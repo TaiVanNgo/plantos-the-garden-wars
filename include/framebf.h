@@ -2,6 +2,7 @@
 #include "../assets/fonts/fonts.h"
 #include "../assets/backgrounds/garden.h"
 #include "../assets/backgrounds/background.h"
+#include "../assets/selection/selection.h"
 #include "mbox.h"
 #include "uart0.h"
 #include "uart1.h"
@@ -43,3 +44,4 @@ void draw_on_simulated_background(unsigned int *sim_bg, const unsigned int plant
 unsigned int get_simulated_pixel(const unsigned int *sim_bg, int x, int y, int garden_width);
 void draw_image_scaled(const unsigned int *image_data, int x, int y, int src_width, int src_height, int dest_width, int dest_height, int transparent);
 void clear_plant_from_background(int grid_col, int grid_row);
+void draw_selection_border(int selection);

@@ -354,11 +354,11 @@ void handle_remove_plant()
 }
 // Handle plant selection with number keys
 void handle_plant_selection(int plant_type)
-
 {
     int x_card = 0, y_card = 0;
     select_state.current_plant = plant_type;
 
+    draw_selection_border(plant_type);
     if (select_state.mode == 2)
     {
         grid_to_pixel(select_state.col, select_state.row, &x_card, &y_card);
@@ -443,6 +443,10 @@ void handle_enter_key()
         select_state.mode = 1;
         select_state.selected_card = -1;
         select_state.current_plant = -1;
+
+        // clear selection border
+        draw_selection_border(-1);
+
         select_state.row = 0;
         select_state.col = 0;
         return;
@@ -472,6 +476,10 @@ void handle_enter_key()
 
         select_state.selected_card = -1;
         select_state.current_plant = -1;
+
+        // clear selection border
+        draw_selection_border(-1);
+
         select_state.mode = 1;
         select_state.row = 0;
         select_state.col = 0;
@@ -497,6 +505,9 @@ void handle_enter_key()
         select_state.mode = 0;
         select_state.selected_card = -1;
         select_state.current_plant = -1;
+
+        draw_selection_border(-1);
+
         select_state.row = 0;
         select_state.col = 0;
     }
