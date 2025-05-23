@@ -3,8 +3,8 @@
 
 #define PLANT_WIDTH 70
 #define PLANT_HEIGHT 70
-#define BULLET_WIDTH 20
-#define BULLET_HEIGHT 20
+// #define BULLET_WIDTH 20
+// #define BULLET_HEIGHT 20
 
 extern const unsigned int peashooter[];
 extern const unsigned int sunflower[];
