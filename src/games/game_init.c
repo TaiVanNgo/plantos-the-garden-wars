@@ -394,12 +394,11 @@ void handle_arrow_keys()
         }
         break;
 
-    case 'B': // Down arrow
-        if (select_state.row < 3)
-        {
-            select_state.row++;
-        }
-        break;
+        case 'B':  // Down arrow
+            if (select_state.row < 4) {
+                select_state.row++;
+            }
+            break;
 
     case 'C': // Right arrow
         if (select_state.col < 9)
@@ -541,4 +540,16 @@ void set_zombie_types_level(int level, int zombie_types[10])
             zombie_types[i] = ZOMBIE_HELMET;
         }
     }
+}
+
+int get_selection_current_plant(void) {
+    return select_state.current_plant;
+}
+
+int get_selection_row(void) {
+    return select_state.row;
+}
+
+int get_selection_col(void) {
+    return select_state.col;
 }

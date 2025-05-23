@@ -231,14 +231,15 @@ void place_plant_on_background(int plant_type, int grid_col, int grid_row, unsig
     int x, y;
     grid_to_pixel(grid_col, grid_row, &x, &y);
 
-    draw_on_simulated_background(
-        sim_bg,
-        plant,
-        x,
-        y,
-        PLANT_WIDTH,
-        PLANT_HEIGHT,
-        GARDEN_WIDTH);
-
-    // draw_image(GARDEN, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
+    // Get offsets to center the plant in the cell
+    int offset_x, offset_y;
+    calculate_grid_center_offset(PLANT_WIDTH, PLANT_HEIGHT, &offset_x, &offset_y);
+    
+    // Apply the offsets
+    x += offset_x;
+    y += offset_y;
+    
+    // Draw on both the screen and simulated background
+    draw_on_simulated_background(sim_bg, plant, x, y, PLANT_WIDTH, PLANT_HEIGHT, GARDEN_WIDTH);
+    draw_image(plant, x, y, PLANT_WIDTH, PLANT_HEIGHT, 0);
 }
