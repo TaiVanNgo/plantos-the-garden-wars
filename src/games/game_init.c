@@ -8,39 +8,32 @@ GameState game = {.state = GAME_MENU, .score = 0, .level = LEVEL_HARD_ENUM};
 
 Plant plant_grid[GRID_ROWS][GRID_COLS];
 
-void game_main()
-{
-
-    while (1)
-    {
-        switch (game.state)
-        {
-        case GAME_MENU:
-            game_menu();
-            break;
-        case GAME_PLAYING:
-            start_level();
-            break;
-        case GAME_PAUSED:
-            // Handle pause menu
-            break;
-        case GAME_OVER:
-            // draw loose screen
-            draw_image(LOSE_SCREEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
-            break;
-        case GAME_QUIT:
-            break;
-        default:
-            break;
+void game_main() {
+    while (1) {
+        switch (game.state) {
+            case GAME_MENU:
+                game_menu();
+                break;
+            case GAME_PLAYING:
+                start_level();
+                break;
+            case GAME_PAUSED:
+                // Handle pause menu
+                break;
+            case GAME_OVER:
+                // draw loose screen
+                draw_image(LOSE_SCREEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
+                break;
+            case GAME_QUIT:
+                break;
+            default:
+                break;
         }
     }
 }
 
-int check_occupied()
-{
-
-    if (plant_grid[select_state.row][select_state.col].type != 255)
-    {
+int check_occupied() {
+    if (plant_grid[select_state.row][select_state.col].type != 255) {
         uart_puts("Cell already occupied!\n");
         return 0;
     }
@@ -48,8 +41,7 @@ int check_occupied()
     return 1;
 }
 
-void game_menu()
-{
+void game_menu() {
     draw_image(MAIN_SCREEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
 
     Button startButton;
@@ -64,35 +56,28 @@ void game_menu()
     button_set_state(buttons[current_selection], BUTTON_SELECTED);
     button_draw_selection(buttons, current_selection, previous_selection);
 
-    while (1)
-    {
+    while (1) {
         char key = getUart();
-        if (key == '[')
-        {
+        if (key == '[') {
             char key2 = getUart();
-            if ((key2 == 'A'))
-            {
+            if ((key2 == 'A')) {
                 // 'up arrow' button
                 int previous_selection = current_selection;
                 button_set_state(buttons[current_selection], BUTTON_NORMAL);
                 current_selection--;
-                if (current_selection < 0)
-                {
+                if (current_selection < 0) {
                     current_selection = 1;
                 }
 
                 button_set_state(buttons[current_selection], BUTTON_SELECTED);
                 button_draw_selection(buttons, current_selection, previous_selection);
-            }
-            else if ((key2 == 'B'))
-            {
+            } else if ((key2 == 'B')) {
                 // 'down arrow' button
                 int previous_selection = current_selection;
                 button_set_state(buttons[current_selection], BUTTON_NORMAL);
 
                 current_selection++;
-                if (current_selection > 1)
-                {
+                if (current_selection > 1) {
                     current_selection = 0;
                 }
 
@@ -101,16 +86,12 @@ void game_menu()
             }
         }
 
-        if (key == '\n')
-        {
-            if (current_selection == 0)
-            {
+        if (key == '\n') {
+            if (current_selection == 0) {
                 clear_screen();
                 game.state = GAME_PLAYING;
                 return;
-            }
-            else if (current_selection == 1)
-            {
+            } else if (current_selection == 1) {
                 uart_puts("Quit Game ");
                 game.state = GAME_QUIT;
                 return;
@@ -119,13 +100,12 @@ void game_menu()
     }
 }
 
-void start_level()
-{
+void start_level() {
+    reset_zombie_counts();  // Reset zombie tracking
+
     // draw background first
-    for (int i = 0; i < GRID_ROWS; i++)
-    {
-        for (int j = 0; j < GRID_COLS; j++)
-        {
+    for (int i = 0; i < GRID_ROWS; i++) {
+        for (int j = 0; j < GRID_COLS; j++) {
             plant_grid[i][j].type = -1;
         }
     }
@@ -150,7 +130,7 @@ void start_level()
     unsigned long start_counter;
     asm volatile("mrs %0, cntpct_el0" : "=r"(start_counter));
     unsigned long start_ms = start_counter * 1000 / freq;
-    bullet_system_init(start_ms, 1000); // Initialize with 1 second fire interval
+    bullet_system_init(start_ms, 1000);  // Initialize with 1 second fire interval
 
     /* Zombie settings */
     // Define individual zombies instead of an array
@@ -172,13 +152,11 @@ void start_level()
 
     int zombies_killed = 0;
     int frame_counter = 0;
-    while (1)
-    {
+    while (1) {
         set_wait_timer(1, 50);
 
         /*====== USER LOGIC START ====== */
-        if (uart_isReadByteReady())
-        {
+        if (uart_isReadByteReady()) {
             handle_user_input(&frame_counter);
         }
         /*====== USER LOGIC END ====== */
@@ -193,10 +171,8 @@ void start_level()
         bullet_draw();
 
         /*====== ZOMBIE LOGIC START ====== */
-        for (int i = 0; i < 10; i++)
-        {
-            if (frame_counter == spawn_times[i] && !zombie_spawned[i])
-            {
+        for (int i = 0; i < 10; i++) {
+            if (frame_counter == spawn_times[i] && !zombie_spawned[i]) {
                 uart_puts("Spawning zombie ");
                 uart_dec(i + 1);
                 uart_puts(" of type ");
@@ -204,58 +180,56 @@ void start_level()
                 uart_puts(" at row ");
                 uart_dec(zombie_rows[i]);
                 uart_puts("\n");
-                
+
                 // Use temporary variable to hold the spawned zombie
                 Zombie temp_zombie = spawn_zombie(zombie_types[i], zombie_rows[i]);
 
                 // Then copy to the appropriate zombie
-                switch (i)
-                {
-                case 0:
-                    zombie1 = temp_zombie;
-                    break;
-                case 1:
-                    zombie2 = temp_zombie;
-                    break;
-                case 2:
-                    zombie3 = temp_zombie;
-                    break;
-                case 3:
-                    zombie4 = temp_zombie;
-                    break;
-                case 4:
-                    zombie5 = temp_zombie;
-                    break;
-                case 5:
-                    zombie6 = temp_zombie;
-                    break;
-                case 6:
-                    zombie7 = temp_zombie;
-                    break;
-                case 7:
-                    zombie8 = temp_zombie;
-                    break;
-                case 8:
-                    zombie9 = temp_zombie;
-                    break;
-                case 9:
-                    zombie10 = temp_zombie;
-                    break;
+                switch (i) {
+                    case 0:
+                        zombie1 = temp_zombie;
+                        break;
+                    case 1:
+                        zombie2 = temp_zombie;
+                        break;
+                    case 2:
+                        zombie3 = temp_zombie;
+                        break;
+                    case 3:
+                        zombie4 = temp_zombie;
+                        break;
+                    case 4:
+                        zombie5 = temp_zombie;
+                        break;
+                    case 5:
+                        zombie6 = temp_zombie;
+                        break;
+                    case 6:
+                        zombie7 = temp_zombie;
+                        break;
+                    case 7:
+                        zombie8 = temp_zombie;
+                        break;
+                    case 8:
+                        zombie9 = temp_zombie;
+                        break;
+                    case 9:
+                        zombie10 = temp_zombie;
+                        break;
                 }
 
+                register_zombie_on_row(zombie_rows[i], 1);
                 zombie_spawned[i] = 1;
             }
         }
 
         // Update all zombies using pointers
-        for (int i = 0; i < 10; i++)
-        {
+        for (int i = 0; i < 10; i++) {
             if (!zombie_spawned[i] || !zombie_pointers[i]->active)
                 continue;
 
             // Print zombie position in per 100 frame counts
-            if (frame_counter % 100 == 0)
-            {
+            if (frame_counter % 100 == 0) {
                 uart_puts("[Zombie] Updating zombie ");
                 uart_dec(i + 1);
                 uart_puts(" at position x=");
@@ -271,17 +245,16 @@ void start_level()
             check_bullet_zombie_collisions(zombie_pointers[i]);
 
             // Check for game over
-            if (zombie_pointers[i]->x <= 50)
-            {
+            if (zombie_pointers[i]->x <= 50) {
                 game.state = GAME_OVER;
                 uart_puts("[Game State] Game Over - Zombie reached house\n");
                 return;
             }
 
             // Check if killed
-            if (zombie_pointers[i]->health <= 0)
-            {
+            if (zombie_pointers[i]->health <= 0 && zombie_pointers[i]->active) {
                 zombie_pointers[i]->active = 0;
+                register_zombie_on_row(zombie_pointers[i]->row, 0);
                 zombies_killed++;
                 game.score += ZOMBIE_KILL_REWARD;
 
@@ -293,8 +266,7 @@ void start_level()
             }
 
             // Check for level completion
-            if (zombies_killed >= 10)
-            {
+            if (zombies_killed >= 10) {
                 delay_ms(2000);
                 game.state = GAME_VICTORY;
                 return;
@@ -308,21 +280,18 @@ void start_level()
 }
 
 // Handle user input and return whether input was processed
-int handle_user_input(int *frame_counter)
-{
+int handle_user_input(int *frame_counter) {
     char key = getUart();
 
     // Number keys for plant selection
-    if (key >= '1' && key <= '5')
-    {
+    if (key >= '1' && key <= '5') {
         int selection = key - '0';
         handle_plant_selection(selection);
         return 1;
     }
 
     // Arrow keys
-    if (key == '[' && select_state.current_plant != -1)
-    {
+    if (key == '[' && select_state.current_plant != -1) {
         uart_puts("selected _ plant\n");
         uart_dec(select_state.current_plant);
         uart_puts("\n");
@@ -330,22 +299,19 @@ int handle_user_input(int *frame_counter)
         return 1;
     }
 
-    if (key == 'P' || key == 'p')
-    {
+    if (key == 'P' || key == 'p') {
         handle_remove_plant();
     }
     // Enter key (confirm selection/placement)
-    if (key == '\n')
-    {
+    if (key == '\n') {
         handle_enter_key();
         return 1;
     }
 
-    return 0; // Key wasn't handled
+    return 0;  // Key wasn't handled
 }
 
-void handle_remove_plant()
-{
+void handle_remove_plant() {
     select_state.selected_card = 9;
     select_state.mode = 2;
     handle_plant_selection(9);
@@ -357,16 +323,14 @@ void handle_plant_selection(int plant_type)
     int x_card = 0, y_card = 0;
     select_state.current_plant = plant_type;
 
-    if (select_state.mode == 2)
-    {
+    if (select_state.mode == 2) {
         grid_to_pixel(select_state.col, select_state.row, &x_card, &y_card);
         restore_background_area(x_card, y_card, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0, 0);
         draw_plant(select_state.current_plant, select_state.col, select_state.row);
         return;
     }
 
-    if (select_state.current_plant != -1)
-    {
+    if (select_state.current_plant != -1) {
         grid_to_pixel(select_state.col, select_state.row, &x_card, &y_card);
         restore_background_area(x_card, y_card, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0, 0);
         draw_plant(select_state.current_plant, select_state.col, select_state.row);
@@ -374,8 +338,7 @@ void handle_plant_selection(int plant_type)
 }
 
 // Handle arrow key navigation
-void handle_arrow_keys()
-{
+void handle_arrow_keys() {
     int x_card = 0, y_card = 0;
     char key2 = getUart();
 
@@ -383,43 +346,37 @@ void handle_arrow_keys()
     grid_to_pixel(select_state.col, select_state.row, &x_card, &y_card);
 
     // Process direction
-    switch (key2)
-    {
-    case 'A': // Up arrow
-        if (select_state.row > 0)
-        {
-            select_state.row--;
-        }
-        break;
+    switch (key2) {
+        case 'A':  // Up arrow
+            if (select_state.row > 0) {
+                select_state.row--;
+            }
+            break;
 
-    case 'B': // Down arrow
-        if (select_state.row < 4)
-        {
-            select_state.row++;
-        }
-        break;
+        case 'B':  // Down arrow
+            if (select_state.row < 4) {
+                select_state.row++;
+            }
+            break;
 
-    case 'C': // Right arrow
-        if (select_state.col < 9)
-        {
-            select_state.col++;
-        }
-        break;
+        case 'C':  // Right arrow
+            if (select_state.col < 9) {
+                select_state.col++;
+            }
+            break;
 
-    case 'D': // Left arrow
-        if (select_state.col > 0)
-        {
-            select_state.col--;
-        }
-        break;
+        case 'D':  // Left arrow
+            if (select_state.col > 0) {
+                select_state.col--;
+            }
+            break;
 
-    default:
-        return; // Unrecognized key, exit
+        default:
+            return;  // Unrecognized key, exit
     }
 
     // Update display if a plant is selected
-    if (select_state.current_plant != -1)
-    {
+    if (select_state.current_plant != -1) {
         restore_background_area(x_card, y_card, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0, 0);
         draw_plant(select_state.current_plant, select_state.col, select_state.row);
     }
@@ -432,11 +389,8 @@ void handle_arrow_keys()
     uart_puts(")\n");
 }
 
-void handle_enter_key()
-{
-
-    if (select_state.mode == 2)
-    {
+void handle_enter_key() {
+    if (select_state.mode == 2) {
         int x, y;
         plant_grid[select_state.row][select_state.col].type = 255;
         clear_plant_from_background(select_state.col, select_state.row);
@@ -448,20 +402,17 @@ void handle_enter_key()
         return;
     }
 
-    if (!check_occupied())
-    {
+    if (!check_occupied()) {
         return;
     }
-    if (select_state.mode == 0)
-    {
+    if (select_state.mode == 0) {
         place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
         Plant new_plant = create_plant(select_state.current_plant, select_state.col, select_state.row);
         plant_grid[select_state.row][select_state.col] = new_plant;
 
         // Register plant with bullet system if it's a shooting plant
         if (select_state.current_plant == PLANT_PEASHOOTER ||
-            select_state.current_plant == PLANT_FROZEN_PEASHOOTER)
-        {
+            select_state.current_plant == PLANT_FROZEN_PEASHOOTER) {
             unsigned long current_counter;
             asm volatile("mrs %0, cntpct_el0" : "=r"(current_counter));
             unsigned long freq;
@@ -475,17 +426,14 @@ void handle_enter_key()
         select_state.mode = 1;
         select_state.row = 0;
         select_state.col = 0;
-    }
-    else if (select_state.mode == 1)
-    {
+    } else if (select_state.mode == 1) {
         place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
         Plant new_plant = create_plant(select_state.current_plant, select_state.col, select_state.row);
         plant_grid[select_state.row][select_state.col] = new_plant;
 
         // Register plant with bullet system if it's a shooting plant
         if (select_state.current_plant == PLANT_PEASHOOTER ||
-            select_state.current_plant == PLANT_FROZEN_PEASHOOTER)
-        {
+            select_state.current_plant == PLANT_FROZEN_PEASHOOTER) {
             unsigned long current_counter;
             asm volatile("mrs %0, cntpct_el0" : "=r"(current_counter));
             unsigned long freq;
@@ -502,41 +450,30 @@ void handle_enter_key()
     }
 }
 
-void set_zombie_types_level(int level, int zombie_types[10])
-{
-    if (level == LEVEL_EASY_ENUM)
-    {
-        for (int i = 0; i < 8; i++)
-        {
+void set_zombie_types_level(int level, int zombie_types[10]) {
+    if (level == LEVEL_EASY_ENUM) {
+        for (int i = 0; i < 8; i++) {
             zombie_types[i] = ZOMBIE_NORMAL;
         }
 
         zombie_types[8] = ZOMBIE_BUCKET;
         zombie_types[9] = ZOMBIE_HELMET;
-    }
-    else if (level == LEVEL_INTERMEDIATE_ENUM)
-    {
+    } else if (level == LEVEL_INTERMEDIATE_ENUM) {
         // Intermediate level - 3 normal + 5 bucket + 2 helmet
-        for (int i = 0; i < 3; i++)
-        {
+        for (int i = 0; i < 3; i++) {
             zombie_types[i] = ZOMBIE_NORMAL;
         }
-        for (int i = 3; i < 8; i++)
-        {
+        for (int i = 3; i < 8; i++) {
             zombie_types[i] = ZOMBIE_BUCKET;
         }
         zombie_types[8] = ZOMBIE_HELMET;
         zombie_types[9] = ZOMBIE_HELMET;
-    }
-    else
-    {
+    } else {
         // Hard level - mix of bucket and helmet zombies
-        for (int i = 0; i < 5; i++)
-        {
+        for (int i = 0; i < 5; i++) {
             zombie_types[i] = ZOMBIE_BUCKET;
         }
-        for (int i = 5; i < 10; i++)
-        {
+        for (int i = 5; i < 10; i++) {
             zombie_types[i] = ZOMBIE_HELMET;
         }
     }

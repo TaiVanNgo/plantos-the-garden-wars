@@ -14,6 +14,7 @@ static int target_x, target_y;
 static int bullet_speed = 3;
 static int game_over;
 static unsigned int background_buffer[MAX_BULLETS][BULLET_WIDTH * BULLET_HEIGHT];
+static int zombies_on_row[GRID_ROWS] = {0, 0, 0, 0};
 
 // --- Background/Utility Helpers ---
 static void save_background(int x, int y, int index);
@@ -74,8 +75,30 @@ static int bullet_should_fire(unsigned long last_fire_time, unsigned long curren
 
 // Helper function to check if there is a living zombie on a row
 static int is_living_zombie_on_row(int row) {
-    // This function is no longer needed since we're not using global zombie array
-    return 1; // Always return true to allow plants to shoot
+    if (row < 0 || row >= GRID_ROWS) return 0; 
+    return zombies_on_row[row] > 0;
+}
+
+// Register an active zombie on a row
+void register_zombie_on_row(int row, int active) {
+    if (row < 0 || row >= GRID_ROWS) return; 
+    if (active) {
+        zombies_on_row[row]++; 
+        uart_puts("Zombie added to row ");
+        uart_dec(row);
+        uart_puts(", count: ");
+        uart_dec(zombies_on_row[row]);
+        uart_puts("\n");
+    } else {
+        if (zombies_on_row[row] > 0) {
+            zombies_on_row[row]--; 
+            uart_puts("Zombie removed from row ");
+            uart_dec(row);
+            uart_puts(", count: ");
+            uart_dec(zombies_on_row[row]);
+            uart_puts("\n");
+        }
+    }
 }
 
 // Update bullet firing and movement
@@ -115,17 +138,16 @@ void bullet_update(unsigned long current_time_ms) {
     }
 }
 
-// Draw all active bullets and the target
 void bullet_draw(void) {
     for (int i = 0; i < MAX_BULLETS; i++) {
-        if (bullets[i].active) {
-            // First restore the background at the previous position
+        if (bullets[i].prev_x > 0 || bullets[i].prev_y > 0) {
             restore_background(bullets[i].prev_x, bullets[i].prev_y, i);
-            // Then draw the bullet at the new position
+        }
+        
+        if (bullets[i].active) {
             draw_image(bullet_green, bullets[i].x, bullets[i].y, BULLET_WIDTH, BULLET_HEIGHT, 0);
         }
     }
-    draw_rect(target_x, target_y, target_x + 40, target_y + 70, RED, 1);
 }
 
 // Draw and register a peashooter plant
@@ -249,16 +271,20 @@ void apply_bullet_damage(Bullet *bullet, Zombie *zombie) {
     if (!zombie->active) return;
     int dmg = get_plant_damage(bullet->plant_type);
     zombie->health -= dmg;
+    
+    restore_background(bullet->x, bullet->y, bullet - bullets);
+    
     if (zombie->health <= 0) {
-        zombie->health = 0; // Clamp to zero
+        zombie->health = 0;
         if (zombie->active) {
             zombie->active = 0;
-            restore_background_area(zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0,0);
+            register_zombie_on_row(zombie->row, 0);
+            restore_background_area(zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0, 0);
             uart_puts("Zombie removed\n");
         }
     }
+    
     bullet->active = 0;
-    // Print zombie health
     uart_puts("Zombie health: ");
     uart_dec(zombie->health);
     uart_puts("\n");
@@ -287,7 +313,13 @@ static void clear_bullet_area() {
     }
 }
 
-// --- TEsting Game ---
+void reset_zombie_counts(void) {
+    for (int i = 0; i < GRID_ROWS; i++) {
+        zombies_on_row[i] = 0;
+    }
+}
+
+// --- Testing Game ---
 void bullet_game() {
     // --- Initialization Block ---
     // Initialize the framebuffer and draw the garden background
