@@ -204,7 +204,7 @@ void start_level()
         {
             if (frame_counter == spawn_times[i] && !zombie_spawned[i])
             {
-                uart_puts("Spawning zombie ");
+                uart_puts("[Zombie] Spawning zombie ");
                 uart_dec(i + 1);
                 uart_puts(" of type ");
                 uart_dec(zombie_types[i]);
@@ -366,11 +366,11 @@ void handle_remove_plant()
 }
 // Handle plant selection with number keys
 void handle_plant_selection(int plant_type)
-
 {
     int x_card = 0, y_card = 0;
     select_state.current_plant = plant_type;
 
+    draw_selection_border(plant_type);
     if (select_state.mode == 2)
     {
         grid_to_pixel(select_state.col, select_state.row, &x_card, &y_card);
@@ -407,7 +407,7 @@ void handle_arrow_keys()
         break;
 
     case 'B': // Down arrow
-        if (select_state.row < 3)
+        if (select_state.row < 4)
         {
             select_state.row++;
         }
@@ -456,6 +456,10 @@ void handle_enter_key(int frame_counter)
         select_state.mode = 1;
         select_state.selected_card = -1;
         select_state.current_plant = -1;
+
+        // clear selection border
+        draw_selection_border(-1);
+
         select_state.row = 0;
         select_state.col = 0;
         return;
@@ -492,6 +496,10 @@ void handle_enter_key(int frame_counter)
 
         select_state.selected_card = -1;
         select_state.current_plant = -1;
+
+        // clear selection border
+        draw_selection_border(-1);
+
         select_state.mode = 1;
         select_state.row = 0;
         select_state.col = 0;
@@ -524,6 +532,9 @@ void handle_enter_key(int frame_counter)
         select_state.mode = 0;
         select_state.selected_card = -1;
         select_state.current_plant = -1;
+
+        draw_selection_border(-1);
+
         select_state.row = 0;
         select_state.col = 0;
     }
@@ -533,38 +544,65 @@ void set_zombie_types_level(int level, int zombie_types[10])
 {
     if (level == LEVEL_EASY_ENUM)
     {
-        for (int i = 0; i < 8; i++)
+        // easy level: 5 normal zombie + 3 bucket zombies + 2 helmet zombies
+        for (int i = 0; i < 5; i++)
         {
             zombie_types[i] = ZOMBIE_NORMAL;
         }
 
-        zombie_types[8] = ZOMBIE_BUCKET;
+        for (int i = 5; i < 8; i++)
+        {
+            zombie_types[i] = ZOMBIE_BUCKET;
+        }
+
+        zombie_types[8] = ZOMBIE_HELMET;
         zombie_types[9] = ZOMBIE_HELMET;
     }
     else if (level == LEVEL_INTERMEDIATE_ENUM)
     {
-        // Intermediate level - 3 normal + 5 bucket + 2 helmet
+        // Intermediate level - 3 normal + 3 bucket + 4 helmet
         for (int i = 0; i < 3; i++)
-        {
+    {
             zombie_types[i] = ZOMBIE_NORMAL;
         }
-        for (int i = 3; i < 8; i++)
+        for (int i = 3; i < 6; i++)
         {
             zombie_types[i] = ZOMBIE_BUCKET;
         }
-        zombie_types[8] = ZOMBIE_HELMET;
-        zombie_types[9] = ZOMBIE_HELMET;
-    }
-    else
-    {
-        // Hard level - mix of bucket and helmet zombies
-        for (int i = 0; i < 5; i++)
-        {
-            zombie_types[i] = ZOMBIE_BUCKET;
-        }
-        for (int i = 5; i < 10; i++)
+        for (int i = 6; i < 10; i++)
         {
             zombie_types[i] = ZOMBIE_HELMET;
         }
     }
+    else
+    {
+        // Hard level- 4 buckets + 3 helmet + 3 footballs
+        for (int i = 0; i < 4; i++)
+        {
+            zombie_types[i] = ZOMBIE_BUCKET;
+        }
+        for (int i = 4; i < 7; i++)
+        {
+            zombie_types[i] = ZOMBIE_HELMET;
+        }
+        for (int i = 7; i < 10; i++)
+        {
+            zombie_types[i] = ZOMBIE_FOOTBALL;
+        }
+    }
+}
+
+int get_selection_current_plant(void)
+{
+    return select_state.current_plant;
+}
+
+int get_selection_row(void)
+{
+    return select_state.row;
+}
+
+int get_selection_col(void)
+{
+    return select_state.col;
 }

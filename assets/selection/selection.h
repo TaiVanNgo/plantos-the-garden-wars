@@ -1,5 +1,4 @@
-// extern const unsigned int top_left[];
-// extern const unsigned int bottom_left[];
-// extern const unsigned int bottom_right[];
-// extern const unsigned int top_down[];
-extern const unsigned int selection[];
+#define SEL_BORDER_WIDTH 66
+#define SEL_BORDER_HEIGHT 70
+
+extern const unsigned int SELECTION_BORDER[];

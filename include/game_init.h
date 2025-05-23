@@ -17,14 +17,7 @@
 #define ROWS 4
 #define COLS 9
 #define MAX_ZOMBIES_PER_LEVEL 20
-#define MAX_ROUNDS 5
 #define ZOMBIE_KILL_REWARD 10
-
-#define CARD_WIDTH 50     // Width of each card
-#define CARD_HEIGHT 70    // Height of each card
-#define CARD_COUNT 8      // Number of plant cards
-#define CARD_START_X 50;  // Left edge of first card
-#define CARD_START_Y 178; // Top edge of cards
 
 extern Plant plant_grid[GRID_ROWS][GRID_COLS];
 
@@ -71,29 +64,6 @@ typedef struct
   int spawn_times[MAX_ZOMBIES_PER_LEVEL];  // spawn time for each zombie
 } Level;
 
-const Level LEVEL_EASY = {
-    .zombie_count = 5,
-    .zombie_types = {ZOMBIE_NORMAL, ZOMBIE_NORMAL, ZOMBIE_NORMAL, ZOMBIE_BUCKET, ZOMBIE_HELMET},
-    .zombie_rows = {0, 1, 2, 3, 1},
-    .spawn_times = {0, 300, 600, 900, 1200},
-};
-
-const Level LEVEL_INTERMEDIATE = {
-    .zombie_count = 8,
-    .zombie_types = {ZOMBIE_NORMAL, ZOMBIE_NORMAL, ZOMBIE_NORMAL, ZOMBIE_BUCKET, ZOMBIE_NORMAL, ZOMBIE_BUCKET, ZOMBIE_NORMAL, ZOMBIE_BUCKET},
-    .zombie_rows = {0, 1, 2, 3, 1, 0, 2, 3},
-    .spawn_times = {0, 200, 400, 600, 800, 1000, 1200, 1400},
-};
-
-const Level LEVEL_HARD = {
-    .zombie_count = 12,
-    .zombie_types = {ZOMBIE_NORMAL, ZOMBIE_NORMAL, ZOMBIE_BUCKET, ZOMBIE_BUCKET,
-                     ZOMBIE_HELMET, ZOMBIE_NORMAL, ZOMBIE_BUCKET, ZOMBIE_HELMET,
-                     ZOMBIE_NORMAL, ZOMBIE_BUCKET, ZOMBIE_HELMET, ZOMBIE_HELMET},
-    .zombie_rows = {0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3},
-    .spawn_times = {0, 100, 200, 300, 500, 600, 700, 800, 1000, 1100, 1200, 1300},
-};
-
 void game_main();
 void game_menu();
 void start_level();
@@ -104,6 +74,11 @@ void handle_remove_plant();
 void handle_arrow_keys();
 void handle_enter_key();
 // void set_zombie_types_level(int level, int zombie_types[10]);
+
+// allow access to the selection state from other files
+int get_selection_current_plant(void);
+int get_selection_row(void);
+int get_selection_col(void);
 
 // External global variables
 extern GameState game;

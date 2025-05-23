@@ -237,16 +237,17 @@ void place_plant_on_background(int plant_type, int grid_col, int grid_row, unsig
     int x, y;
     grid_to_pixel(grid_col, grid_row, &x, &y);
 
-    draw_on_simulated_background(
-        sim_bg,
-        plant,
-        x,
-        y,
-        PLANT_WIDTH,
-        PLANT_HEIGHT,
-        GARDEN_WIDTH);
+    // Get offsets to center the plant in the cell
+    int offset_x, offset_y;
+    calculate_grid_center_offset(PLANT_WIDTH, PLANT_HEIGHT, &offset_x, &offset_y);
 
-    // draw_image(GARDEN, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
+    // Apply the offsets
+    x += offset_x;
+    y += offset_y;
+
+    // Draw on both the screen and simulated background
+    draw_on_simulated_background(sim_bg, plant, x, y, PLANT_WIDTH, PLANT_HEIGHT, GARDEN_WIDTH);
+    draw_image(plant, x, y, PLANT_WIDTH, PLANT_HEIGHT, 0);
 }
 
 void draw_flames_on_row(int row)
@@ -306,5 +307,27 @@ void apply_chilli_damage(Zombie *zombie) {
         uart_puts("Zombie health after chilli: ");
         uart_dec(zombie->health);
         uart_puts("\n");
+    }
+}
+
+// get plant name
+const char *get_plant_name(int type)
+{
+    switch (type)
+    {
+    case PLANT_TYPE_SUNFLOWER:
+        return "Sunflower";
+    case PLANT_TYPE_PEASHOOTER:
+        return "Peashooter";
+    case PLANT_TYPE_FROZEN_PEASHOOTER:
+        return "Snow Pea";
+    case PLANT_TYPE_WALLNUT:
+        return "Wall-nut";
+    case PLANT_TYPE_CHILLIES:
+        return "Chilies";
+    case SHOVEL:
+        return "Shovel";
+    default:
+        return "Unknown";
     }
 }
