@@ -1,6 +1,8 @@
 #include "../include/game_init.h"
 #include "../include/bullet.h"
 
+extern int flame_active[GRID_ROWS];  // Add external declaration
+
 SelectionState select_state = {
     .mode = 0, .selected_card = -1, .row = 0, .col = 0, .current_plant = -1};
 
@@ -275,6 +277,11 @@ void start_level()
 
             // Check for bullet collisions
             check_bullet_zombie_collisions(zombie_pointers[i]);
+
+            // Check for chilli damage if flames are active on this row
+            if (flame_active[zombie_pointers[i]->row]) {
+                apply_chilli_damage(zombie_pointers[i]);
+            }
 
             // Check for game over
             if (zombie_pointers[i]->x <= 50)

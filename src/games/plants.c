@@ -1,12 +1,13 @@
 #include "../../include/plants.h"
 #include "../../include/grid.h"
+#include "../../include/zombies.h"
 #include "../assets/button/button.h"
 #include "gpio.h"
 
 // Add static counter array at the top of the file
 static int flame_counters[GRID_ROWS] = {0};
 static int flame_start_frames[GRID_ROWS] = {0};
-static int flame_active[GRID_ROWS] = {0};
+int flame_active[GRID_ROWS] = {0};
 
 // Default Sunflower
 const Plant default_sunflower = {
@@ -286,5 +287,24 @@ void update_flame_effects(int current_frame) {
                 draw_flames_on_row(row);
             }
         }
+    }
+}
+
+void apply_chilli_damage(Zombie *zombie) {
+    if (!zombie->active) return;
+    int dmg = default_chillies.attack_damage;
+    
+    // Check if damage would cause overflow
+    if (dmg >= zombie->health) {
+        zombie->health = 0;
+        zombie->active = 0;
+        register_zombie_on_row(zombie->row, 0);
+        restore_background_area(zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0, 0);
+        uart_puts("Zombie removed by chilli\n");
+    } else {
+        zombie->health -= dmg;
+        uart_puts("Zombie health after chilli: ");
+        uart_dec(zombie->health);
+        uart_puts("\n");
     }
 }
