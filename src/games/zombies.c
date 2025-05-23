@@ -119,7 +119,7 @@ int move_zombie(Zombie *zombie)
       {
         uart_puts("[Zombie] Plant is Destroyed!\n");
         plant_grid[zombie->row][zombie_col].type = 255; // Mark as empty
-        clear_plant_from_background(zombie_col, zombie->row, 0);
+        clear_plant_from_background(zombie_col, zombie->row, 0, 0);
       }
     }
 

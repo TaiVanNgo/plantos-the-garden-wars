@@ -46,6 +46,15 @@ int check_occupied()
     return 1;
 }
 
+int check_clear() {
+    if (plant_grid[prev_row][prev_col].type != 255) {
+        uart_puts("Cell already occupied!\n");
+        return 1;
+    }
+    return 0; 
+}
+
+
 void game_menu()
 {
     draw_image(MAIN_SCREEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
@@ -349,6 +358,7 @@ int handle_user_input(int *frame_counter)
     return 0; // Key wasn't handled
 }
 
+
 void handle_remove_plant()
 {
     select_state.selected_card = 9;
@@ -372,7 +382,8 @@ void handle_plant_selection(int plant_type)
 
     if (select_state.current_plant != -1)
     {
-        clear_plant_from_background(prev_col,prev_row, 0);
+        int taken= check_clear() ? 1: 0; 
+        clear_plant_from_background(prev_col,prev_row, 0, taken);
         // grid_to_pixel(select_state.col, select_state.row, &x_card, &y_card);
         place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
         // restore_background_area(x_card, y_card, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0, 0);
@@ -430,7 +441,9 @@ void handle_arrow_keys()
     // Update display if a plant is selected
     if (select_state.current_plant != -1)
     {
-        clear_plant_from_background(prev_col,prev_row, 0);
+        int taken= check_clear() ? 1: 0; 
+
+        clear_plant_from_background(prev_col,prev_row, 0, taken);
         // clear_plant_from_background(prev_col, prev_row, 1);
         // place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
         // place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, tmp);
@@ -454,7 +467,7 @@ void handle_enter_key()
     {
         int x, y;
         plant_grid[select_state.row][select_state.col].type = 255;
-        clear_plant_from_background(select_state.col, select_state.row,0);
+        clear_plant_from_background(select_state.col, select_state.row,0, 0);
         select_state.mode = 1;
         select_state.selected_card = -1;
         select_state.current_plant = -1;
@@ -494,6 +507,7 @@ void handle_enter_key()
     }
     else if (select_state.mode == 1)
     {
+        
         place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
         // place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, tmp);
         Plant new_plant = create_plant(select_state.current_plant, select_state.col, select_state.row);
