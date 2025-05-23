@@ -136,7 +136,7 @@ void play_video(Video *video, int pos_x, int pos_y, int max_frames)
 		// Move to the next frame
 		video_next_frame(video);
 
-		// Add a delay between frames (e.g., 700ms)
+		// Add a delay between frames (e.g., 600ms)
 		delay_ms(600);
 	}
 

@@ -204,7 +204,7 @@ void start_level()
                 uart_puts(" at row ");
                 uart_dec(zombie_rows[i]);
                 uart_puts("\n");
-                
+
                 // Use temporary variable to hold the spawned zombie
                 Zombie temp_zombie = spawn_zombie(zombie_types[i], zombie_rows[i]);
 
