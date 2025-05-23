@@ -14,6 +14,7 @@ static int target_x, target_y;
 static int bullet_speed = 3;
 static int game_over;
 static unsigned int background_buffer[MAX_BULLETS][BULLET_WIDTH * BULLET_HEIGHT];
+static int zombies_on_row[GRID_ROWS] = {0, 0, 0, 0};
 
 // --- Background/Utility Helpers ---
 static void save_background(int x, int y, int index);
@@ -30,7 +31,7 @@ void bullet_system_init(unsigned long start_ms, int fire_interval_ms) {
     plant_count = 0;
     bullet_fire_interval = fire_interval_ms;
     last_bullet_move_time = start_ms;
-    target_x = PHYSICAL_WIDTH - 100;
+    target_x = PHYSICAL_WIDTH - 50;
     target_y = GRID_TOP_MARGIN + GRID_ROW_HEIGHT;
     game_over = 0;
 }
@@ -74,11 +75,32 @@ static int bullet_should_fire(unsigned long last_fire_time, unsigned long curren
 
 // Helper function to check if there is a living zombie on a row
 static int is_living_zombie_on_row(int row) {
-    // This function is no longer needed since we're not using global zombie array
-    return 1; // Always return true to allow plants to shoot
+    if (row < 0 || row >= GRID_ROWS) return 0; 
+    return zombies_on_row[row] > 0;
 }
 
-// Update bullet firing and movement
+// Register an active zombie on a row
+void register_zombie_on_row(int row, int active) {
+    if (row < 0 || row >= GRID_ROWS) return; 
+    if (active) {
+        zombies_on_row[row]++; 
+        uart_puts("Zombie added to row ");
+        uart_dec(row);
+        uart_puts(", count: ");
+        uart_dec(zombies_on_row[row]);
+        uart_puts("\n");
+    } else {
+        if (zombies_on_row[row] > 0) {
+            zombies_on_row[row]--; 
+            uart_puts("Zombie removed from row ");
+            uart_dec(row);
+            uart_puts(", count: ");
+            uart_dec(zombies_on_row[row]);
+            uart_puts("\n");
+        }
+    }
+}
+
 void bullet_update(unsigned long current_time_ms) {
     for (int i = 0; i < plant_count; i++) {
         if (is_living_zombie_on_row(plants[i].row) && bullet_should_fire(plants[i].last_fire_time, current_time_ms, bullet_fire_interval)) {
@@ -93,19 +115,14 @@ void bullet_update(unsigned long current_time_ms) {
                 bullets[i].prev_x = bullets[i].x;
                 bullets[i].prev_y = bullets[i].y;
                 bullets[i].x += bullet_speed;
-                int target_width = 40, target_height = 70;
-                if (bullets[i].x < target_x + target_width &&
-                    bullets[i].x + BULLET_WIDTH > target_x &&
-                    bullets[i].y < target_y + target_height &&
-                    bullets[i].y + BULLET_HEIGHT > target_y) {
-                    // Restore background before deactivating
-                    restore_background(bullets[i].x, bullets[i].y, i);
+                
+                if (bullets[i].x > PHYSICAL_WIDTH - 50) {
+                    restore_background_area(bullets[i].x, bullets[i].y, BULLET_WIDTH, BULLET_HEIGHT, 0, 0);
                     bullets[i].active = 0;
-                    uart_puts("Bullet hit target\n");
                 }
+                
                 if (bullets[i].x > PHYSICAL_WIDTH) {
-                    // Restore background before deactivating
-                    restore_background(bullets[i].x, bullets[i].y, i);
+                    restore_background_area(bullets[i].x, bullets[i].y, BULLET_WIDTH, BULLET_HEIGHT, 0, 0);
                     bullets[i].active = 0;
                     uart_puts("Bullet out of bounds\n");
                 }
@@ -115,27 +132,18 @@ void bullet_update(unsigned long current_time_ms) {
     }
 }
 
-// Draw all active bullets and the target
 void bullet_draw(void) {
     for (int i = 0; i < MAX_BULLETS; i++) {
+        if (bullets[i].prev_x > 0 || bullets[i].prev_y > 0) {
+            restore_background_area(bullets[i].prev_x, bullets[i].prev_y,BULLET_WIDTH, BULLET_HEIGHT, 0, 0);
+        }
+        
         if (bullets[i].active) {
-            // First restore the background at the previous position
-            restore_background(bullets[i].prev_x, bullets[i].prev_y, i);
-            // Then draw the bullet at the new position
             draw_image(bullet_green, bullets[i].x, bullets[i].y, BULLET_WIDTH, BULLET_HEIGHT, 0);
         }
     }
-    draw_rect(target_x, target_y, target_x + 40, target_y + 70, RED, 1);
 }
 
-// Draw and register a peashooter plant
-void Spawn_peashooter(int col, int row, unsigned long current_time_ms) {
-    draw_plants_both(PLANT_TYPE_PEASHOOTER, col, row);
-    if (plant_count == 0) {
-        bullet_system_init(current_time_ms, 1000); // 1 seconds default
-    }
-    bullet_spawn_plant(col, row, current_time_ms);
-}
 
 // Save the background under a bullet
 static void save_background(int x, int y, int index) {
@@ -249,45 +257,65 @@ void apply_bullet_damage(Bullet *bullet, Zombie *zombie) {
     if (!zombie->active) return;
     int dmg = get_plant_damage(bullet->plant_type);
     zombie->health -= dmg;
+    
+    restore_background_area(bullet->x, bullet->y, BULLET_WIDTH, BULLET_HEIGHT, 0, 0);
+    
     if (zombie->health <= 0) {
-        zombie->health = 0; // Clamp to zero
+        zombie->health = 0;
         if (zombie->active) {
             zombie->active = 0;
-            restore_background_area(zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0,0);
+            register_zombie_on_row(zombie->row, 0);
+            restore_background_area(zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0, 0);
             uart_puts("Zombie removed\n");
         }
     }
+    
     bullet->active = 0;
-    // Print zombie health
     uart_puts("Zombie health: ");
     uart_dec(zombie->health);
     uart_puts("\n");
 }
 
 // Restore the background under a bullet
-static void restore_background(int x, int y, int index) {
-    for (int i = 0; i < BULLET_HEIGHT; i++) {
-        int bg_y = y + i;
-        if (bg_y < 0 || bg_y >= GARDEN_HEIGHT) continue;
-        for (int j = 0; j < BULLET_WIDTH; j++) {
-            int bg_x = x + j;
-            if (bg_x < 0 || bg_x >= GARDEN_WIDTH) continue;
-            if (bg_x < PHYSICAL_WIDTH && bg_y < PHYSICAL_HEIGHT) {
-                // Use the simulated background instead of the saved background
-                draw_pixel(bg_x, bg_y, simulated_background[bg_y * GARDEN_WIDTH + bg_x]);
-            }
-        }
+// static void restore_background(int x, int y, int index) {
+//     for (int i = 0; i < BULLET_HEIGHT; i++) {
+//         int bg_y = y + i;
+//         if (bg_y < 0 || bg_y >= GARDEN_HEIGHT) continue;
+//         for (int j = 0; j < BULLET_WIDTH; j++) {
+//             int bg_x = x + j;
+//             if (bg_x < 0 || bg_x >= GARDEN_WIDTH) continue;
+//             if (bg_x < PHYSICAL_WIDTH && bg_y < PHYSICAL_HEIGHT) {
+//                 // Use the simulated background instead of the saved background
+//                 draw_pixel(bg_x, bg_y, simulated_background[bg_y * GARDEN_WIDTH + bg_x]);
+//             }
+//         }
+//     }
+// }
+
+// // Clear the previous positions of all bullets
+// static void clear_bullet_area() {
+//     for (int i = 0; i < MAX_BULLETS; i++) {
+//         restore_background(bullets[i].prev_x, bullets[i].prev_y, i);
+//     }
+// }
+
+void reset_zombie_counts(void) {
+    for (int i = 0; i < GRID_ROWS; i++) {
+        zombies_on_row[i] = 0;
     }
 }
 
-// Clear the previous positions of all bullets
-static void clear_bullet_area() {
-    for (int i = 0; i < MAX_BULLETS; i++) {
-        restore_background(bullets[i].prev_x, bullets[i].prev_y, i);
+// --- Testing Game and Testing Functions---
+
+// Draw and register a peashooter plant
+void spawn_peashooter(int col, int row, unsigned long current_time_ms) {
+    draw_plants_both(PLANT_TYPE_PEASHOOTER, col, row);
+    if (plant_count == 0) {
+        bullet_system_init(current_time_ms, 1000); // 1 seconds default
     }
+    bullet_spawn_plant(col, row, current_time_ms);
 }
 
-// --- TEsting Game ---
 void bullet_game() {
     // --- Initialization Block ---
     // Initialize the framebuffer and draw the garden background
@@ -309,9 +337,9 @@ void bullet_game() {
     // --- Plant Spawning Block ---
     // Spawn peashooter plants in rows 0-4 and an extra one in row 0
     for (int row = 0; row < 5; row++) {
-        Spawn_peashooter(1, row, start_ms);
+        spawn_peashooter(1, row, start_ms);
     }
-    Spawn_peashooter(2, 0, start_ms); 
+    spawn_peashooter(2, 0, start_ms); 
 
     // --- Zombie Spawning Block ---
     // Spawn a test zombie in row 0

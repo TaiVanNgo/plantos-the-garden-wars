@@ -10,7 +10,6 @@ Plant plant_grid[GRID_ROWS][GRID_COLS];
 
 void game_main()
 {
-
     while (1)
     {
         switch (game.state)
@@ -38,7 +37,6 @@ void game_main()
 
 int check_occupied()
 {
-
     if (plant_grid[select_state.row][select_state.col].type != 255)
     {
         uart_puts("Cell already occupied!\n");
@@ -121,6 +119,8 @@ void game_menu()
 
 void start_level()
 {
+    reset_zombie_counts(); // Reset zombie tracking
+
     // draw background first
     for (int i = 0; i < GRID_ROWS; i++)
     {
@@ -243,6 +243,7 @@ void start_level()
                     break;
                 }
 
+                register_zombie_on_row(zombie_rows[i], 1);
                 zombie_spawned[i] = 1;
             }
         }
@@ -279,9 +280,10 @@ void start_level()
             }
 
             // Check if killed
-            if (zombie_pointers[i]->health <= 0)
+            if (zombie_pointers[i]->health <= 0 && zombie_pointers[i]->active)
             {
                 zombie_pointers[i]->active = 0;
+                register_zombie_on_row(zombie_pointers[i]->row, 0);
                 zombies_killed++;
                 game.score += ZOMBIE_KILL_REWARD;
 
@@ -393,7 +395,7 @@ void handle_arrow_keys()
         break;
 
     case 'B': // Down arrow
-        if (select_state.row < 4)
+        if (select_state.row < 3)
         {
             select_state.row++;
         }
@@ -434,7 +436,6 @@ void handle_arrow_keys()
 
 void handle_enter_key()
 {
-
     if (select_state.mode == 2)
     {
         int x, y;
