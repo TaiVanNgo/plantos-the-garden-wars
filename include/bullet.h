@@ -42,6 +42,8 @@ void Spawn_peashooter(int col, int row, unsigned long current_time_ms);
 void draw_plants_both(int plant_type, int col, int row);
 void draw_image_both(const unsigned int pixel_data[], int pos_x, int pos_y, int width, int height, int show_transparent);
 void bullet_game(void);
+void register_zombie_on_row(int row, int active);
+void reset_zombie_counts(void);
 
 // External variables
 extern const unsigned int bullet_green[];
