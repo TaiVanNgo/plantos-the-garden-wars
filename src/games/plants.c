@@ -58,9 +58,9 @@ const Plant default_chillies = {
     .max_health = 50,
     .col = 0,
     .row = 0,
-    .attack_damage = 150, // High damage as it's an explosive plant
+    .attack_damage = 255, // High damage as it's an explosive plant
     .cost = 125,
-    .attack_speed = 1, // One-time use, explodes once
+    .attack_speed = 1,
 };
 
 // Function to create a new plant of the specified type
