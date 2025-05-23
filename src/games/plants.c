@@ -3,6 +3,11 @@
 #include "../assets/button/button.h"
 #include "gpio.h"
 
+// Add static counter array at the top of the file
+static int flame_counters[GRID_ROWS] = {0};
+static int flame_start_frames[GRID_ROWS] = {0};
+static int flame_active[GRID_ROWS] = {0};
+
 // Default Sunflower
 const Plant default_sunflower = {
     .type = PLANT_SUNFLOWER,
@@ -243,19 +248,43 @@ void place_plant_on_background(int plant_type, int grid_col, int grid_row, unsig
     // draw_image(GARDEN, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
 }
 
-void chillies_firing_animation(int grid_col, int grid_row)
-{
-    int x, y;
-    grid_to_pixel(grid_col, grid_row, &x, &y);
-}
-
 void draw_flames_on_row(int row)
 {
     int x, y;
-    // Start from the left edge of the garden
-    x = GRID_LEFT_MARGIN;
     grid_to_pixel(0, row, &x, &y);
-
+    x = GRID_LEFT_MARGIN;
+    y = GRID_TOP_MARGIN + (row * GRID_ROW_HEIGHT) + ((GRID_ROW_HEIGHT - FLAMES_EFFECT_HEIGHT) / 2);
+    
     // Draw the flames effect across the entire row
-    draw_image_both(FLAMES_EFFECT, x, y, FLAMES_EFFECT_WIDTH, FLAMES_EFFECT_HEIGHT, 0);
+    draw_image(FLAMES_EFFECT, x, y, FLAMES_EFFECT_WIDTH, FLAMES_EFFECT_HEIGHT, 0);
+}
+
+void clear_flames_on_row(int row)
+{
+    int x, y;
+    grid_to_pixel(0, row, &x, &y);
+    x = GRID_LEFT_MARGIN;
+    y = GRID_TOP_MARGIN + (row * GRID_ROW_HEIGHT) + ((GRID_ROW_HEIGHT - FLAMES_EFFECT_HEIGHT) / 2);
+    
+    // Restore the background where flames were
+    restore_background_area(x, y, FLAMES_EFFECT_WIDTH, FLAMES_EFFECT_HEIGHT, 0, 0);
+}
+
+void chillies_detonate(int row, int current_frame) {
+    flame_active[row] = 1;
+    flame_start_frames[row] = current_frame;
+}
+
+void update_flame_effects(int current_frame) {
+    for (int row = 0; row < GRID_ROWS; row++) {
+        if (flame_active[row]) {
+            // If 30 frames have passed since start, clear the flames
+            if (current_frame - flame_start_frames[row] >= 30) {
+                clear_flames_on_row(row);
+                flame_active[row] = 0;
+            } else {
+                draw_flames_on_row(row);
+            }
+        }
+    }
 }
