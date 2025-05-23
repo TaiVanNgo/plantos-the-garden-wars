@@ -3,7 +3,7 @@
 SelectionState select_state = {
     .mode = 0, .selected_card = -1, .row = 0, .col = 0, .current_plant = -1};
 
-GameState game = {.state = GAME_OVER, .score = 0, .level = LEVEL_HARD_ENUM};
+GameState game = {.state = GAME_VICTORY, .score = 0, .level = LEVEL_HARD_ENUM};
 
 void game_main()
 {
@@ -22,8 +22,10 @@ void game_main()
             // Handle pause menu
             break;
         case GAME_OVER:
-            victory_screen();
+            game_over();
             break;
+        case GAME_VICTORY:
+            victory_screen();
         case GAME_QUIT:
             break;
         default:
@@ -46,7 +48,7 @@ void game_menu()
     int previous_selection = current_selection;
     // Initially set the first button selected
     button_set_state(buttons[current_selection], BUTTON_SELECTED);
-    button_draw_selection(buttons, current_selection, previous_selection,1);
+    button_draw_selection(buttons, current_selection, previous_selection, 1);
 
     while (1)
     {
@@ -66,7 +68,7 @@ void game_menu()
                 }
 
                 button_set_state(buttons[current_selection], BUTTON_SELECTED);
-                button_draw_selection(buttons, current_selection, previous_selection,1);
+                button_draw_selection(buttons, current_selection, previous_selection, 1);
             }
             else if ((key2 == 'B'))
             {
@@ -81,7 +83,7 @@ void game_menu()
                 }
 
                 button_set_state(buttons[current_selection], BUTTON_SELECTED);
-                button_draw_selection(buttons, current_selection, previous_selection,1);
+                button_draw_selection(buttons, current_selection, previous_selection, 1);
             }
         }
 
@@ -533,8 +535,8 @@ void game_over()
 
     // Initially set the first button selected
     button_set_state(buttons[current_selection], BUTTON_SELECTED);
-    button_draw_selection(buttons, current_selection, previous_selection,1);
-    
+    button_draw_selection(buttons, current_selection, previous_selection, 1);
+
     while (1)
     {
         char key = getUart();
@@ -598,11 +600,10 @@ void game_over()
     }
 }
 
-
 void victory_screen()
 {
     // clear_screen();
-    draw_image(VICTORY, 100, 50, 600, 400, 0);
+    draw_image(VICTORY_SCREEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
 
     // Create buttons
     Button back_button;
@@ -617,8 +618,8 @@ void victory_screen()
 
     // Initially set the first button selected
     button_set_state(buttons[current_selection], BUTTON_SELECTED);
-    button_draw_selection(buttons, current_selection, previous_selection,1);
-    
+    button_draw_selection(buttons, current_selection, previous_selection, 1);
+
     while (1)
     {
         char key = getUart();

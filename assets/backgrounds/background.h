@@ -3,4 +3,4 @@
 extern const unsigned int BACKGROUND[];
 extern const unsigned int MAIN_SCREEN[];
 extern const unsigned int LOSE_SCREEN[];
-extern const unsigned int VICTORY[];
+extern const unsigned int VICTORY_SCREEN[];
