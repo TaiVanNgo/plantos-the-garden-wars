@@ -144,14 +144,6 @@ void bullet_draw(void) {
     }
 }
 
-// Draw and register a peashooter plant
-void Spawn_peashooter(int col, int row, unsigned long current_time_ms) {
-    draw_plants_both(PLANT_TYPE_PEASHOOTER, col, row);
-    if (plant_count == 0) {
-        bullet_system_init(current_time_ms, 1000); // 1 seconds default
-    }
-    bullet_spawn_plant(col, row, current_time_ms);
-}
 
 // Save the background under a bullet
 static void save_background(int x, int y, int index) {
@@ -314,6 +306,16 @@ void reset_zombie_counts(void) {
 }
 
 // --- Testing Game ---
+
+// Draw and register a peashooter plant
+void Spawn_peashooter(int col, int row, unsigned long current_time_ms) {
+    draw_plants_both(PLANT_TYPE_PEASHOOTER, col, row);
+    if (plant_count == 0) {
+        bullet_system_init(current_time_ms, 1000); // 1 seconds default
+    }
+    bullet_spawn_plant(col, row, current_time_ms);
+}
+
 void bullet_game() {
     // --- Initialization Block ---
     // Initialize the framebuffer and draw the garden background
