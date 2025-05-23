@@ -38,7 +38,7 @@ void bullet_update(unsigned long current_time_ms);
 void bullet_draw(void);
 void check_bullet_zombie_collisions(Zombie *zombie);
 void apply_bullet_damage(Bullet *bullet, Zombie *zombie);
-void Spawn_peashooter(int col, int row, unsigned long current_time_ms);
+void spawn_peashooter(int col, int row, unsigned long current_time_ms);
 void draw_plants_both(int plant_type, int col, int row);
 void draw_image_both(const unsigned int pixel_data[], int pos_x, int pos_y, int width, int height, int show_transparent);
 void bullet_game(void);

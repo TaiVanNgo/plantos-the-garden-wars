@@ -308,7 +308,7 @@ void reset_zombie_counts(void) {
 // --- Testing Game and Testing Functions---
 
 // Draw and register a peashooter plant
-void Spawn_peashooter(int col, int row, unsigned long current_time_ms) {
+void spawn_peashooter(int col, int row, unsigned long current_time_ms) {
     draw_plants_both(PLANT_TYPE_PEASHOOTER, col, row);
     if (plant_count == 0) {
         bullet_system_init(current_time_ms, 1000); // 1 seconds default
@@ -337,9 +337,9 @@ void bullet_game() {
     // --- Plant Spawning Block ---
     // Spawn peashooter plants in rows 0-4 and an extra one in row 0
     for (int row = 0; row < 5; row++) {
-        Spawn_peashooter(1, row, start_ms);
+        spawn_peashooter(1, row, start_ms);
     }
-    Spawn_peashooter(2, 0, start_ms); 
+    spawn_peashooter(2, 0, start_ms); 
 
     // --- Zombie Spawning Block ---
     // Spawn a test zombie in row 0
