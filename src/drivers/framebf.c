@@ -469,3 +469,54 @@ void clear_plant_from_background(int grid_col, int grid_row)
     }
   }
 }
+
+/* Draw hight light selection for choosing plant */
+void draw_selection_border(int selection)
+{
+  // Card position
+  const int FIRST_CARD_X = 65; // X position of first card
+  const int CARDS_Y = 100;     // Y position of all cards
+  const int CARD_SPACING = 55; // Horizontal spacing between cards
+
+  const int SHOVEL_X = 460; // X position of shovel
+
+  // Keep track previous selection
+  static int prev_selection = -1;
+
+  int prev_x = FIRST_CARD_X + (prev_selection - 1) * CARD_SPACING;
+
+  // remove the selection border & shovel border
+  restore_background_area(prev_x, CARDS_Y, SEL_BORDER_WIDTH, SEL_BORDER_HEIGHT, 0, 1);
+  restore_background_area(
+      SHOVEL_X,
+      CARDS_Y,
+      SEL_BORDER_WIDTH,
+      SEL_BORDER_HEIGHT,
+      0,
+      1);
+
+  // update current selection for next time using
+  prev_selection = selection;
+
+  // invalid choose
+  if (selection < 1 || (selection > 5 && selection != 9))
+  {
+    return;
+  }
+
+  // Draw new selection border
+  if (selection >= 1 && selection <= 5)
+  {
+    draw_image(SELECTION_BORDER, FIRST_CARD_X + (selection - 1) * CARD_SPACING, CARDS_Y, SEL_BORDER_WIDTH, SEL_BORDER_HEIGHT, 0);
+  }
+  else
+  {
+    // draw shovel
+    draw_image(SELECTION_BORDER, SHOVEL_X, CARDS_Y, SEL_BORDER_WIDTH, SEL_BORDER_HEIGHT, 0);
+  }
+
+  // Logging selection
+  uart_puts("[Game State] Selected plant: ");
+  uart_dec(selection);
+  uart_puts("\n");
+}
