@@ -117,12 +117,12 @@ void bullet_update(unsigned long current_time_ms) {
                 bullets[i].x += bullet_speed;
                 
                 if (bullets[i].x > PHYSICAL_WIDTH - 50) {
-                    restore_background(bullets[i].x, bullets[i].y, i);
+                    restore_background_area(bullets[i].x, bullets[i].y, BULLET_WIDTH, BULLET_HEIGHT, 0, 0);
                     bullets[i].active = 0;
                 }
                 
                 if (bullets[i].x > PHYSICAL_WIDTH) {
-                    restore_background(bullets[i].x, bullets[i].y, i);
+                    restore_background_area(bullets[i].x, bullets[i].y, BULLET_WIDTH, BULLET_HEIGHT, 0, 0);
                     bullets[i].active = 0;
                     uart_puts("Bullet out of bounds\n");
                 }
@@ -135,7 +135,7 @@ void bullet_update(unsigned long current_time_ms) {
 void bullet_draw(void) {
     for (int i = 0; i < MAX_BULLETS; i++) {
         if (bullets[i].prev_x > 0 || bullets[i].prev_y > 0) {
-            restore_background(bullets[i].prev_x, bullets[i].prev_y, i);
+            restore_background_area(bullets[i].prev_x, bullets[i].prev_y,BULLET_WIDTH, BULLET_HEIGHT, 0, 0);
         }
         
         if (bullets[i].active) {
@@ -144,14 +144,6 @@ void bullet_draw(void) {
     }
 }
 
-// Draw and register a peashooter plant
-void Spawn_peashooter(int col, int row, unsigned long current_time_ms) {
-    draw_plants_both(PLANT_TYPE_PEASHOOTER, col, row);
-    if (plant_count == 0) {
-        bullet_system_init(current_time_ms, 1000); // 1 seconds default
-    }
-    bullet_spawn_plant(col, row, current_time_ms);
-}
 
 // Save the background under a bullet
 static void save_background(int x, int y, int index) {
@@ -266,7 +258,7 @@ void apply_bullet_damage(Bullet *bullet, Zombie *zombie) {
     int dmg = get_plant_damage(bullet->plant_type);
     zombie->health -= dmg;
     
-    restore_background(bullet->x, bullet->y, bullet - bullets);
+    restore_background_area(bullet->x, bullet->y, BULLET_WIDTH, BULLET_HEIGHT, 0, 0);
     
     if (zombie->health <= 0) {
         zombie->health = 0;
@@ -285,27 +277,27 @@ void apply_bullet_damage(Bullet *bullet, Zombie *zombie) {
 }
 
 // Restore the background under a bullet
-static void restore_background(int x, int y, int index) {
-    for (int i = 0; i < BULLET_HEIGHT; i++) {
-        int bg_y = y + i;
-        if (bg_y < 0 || bg_y >= GARDEN_HEIGHT) continue;
-        for (int j = 0; j < BULLET_WIDTH; j++) {
-            int bg_x = x + j;
-            if (bg_x < 0 || bg_x >= GARDEN_WIDTH) continue;
-            if (bg_x < PHYSICAL_WIDTH && bg_y < PHYSICAL_HEIGHT) {
-                // Use the simulated background instead of the saved background
-                draw_pixel(bg_x, bg_y, simulated_background[bg_y * GARDEN_WIDTH + bg_x]);
-            }
-        }
-    }
-}
+// static void restore_background(int x, int y, int index) {
+//     for (int i = 0; i < BULLET_HEIGHT; i++) {
+//         int bg_y = y + i;
+//         if (bg_y < 0 || bg_y >= GARDEN_HEIGHT) continue;
+//         for (int j = 0; j < BULLET_WIDTH; j++) {
+//             int bg_x = x + j;
+//             if (bg_x < 0 || bg_x >= GARDEN_WIDTH) continue;
+//             if (bg_x < PHYSICAL_WIDTH && bg_y < PHYSICAL_HEIGHT) {
+//                 // Use the simulated background instead of the saved background
+//                 draw_pixel(bg_x, bg_y, simulated_background[bg_y * GARDEN_WIDTH + bg_x]);
+//             }
+//         }
+//     }
+// }
 
-// Clear the previous positions of all bullets
-static void clear_bullet_area() {
-    for (int i = 0; i < MAX_BULLETS; i++) {
-        restore_background(bullets[i].prev_x, bullets[i].prev_y, i);
-    }
-}
+// // Clear the previous positions of all bullets
+// static void clear_bullet_area() {
+//     for (int i = 0; i < MAX_BULLETS; i++) {
+//         restore_background(bullets[i].prev_x, bullets[i].prev_y, i);
+//     }
+// }
 
 void reset_zombie_counts(void) {
     for (int i = 0; i < GRID_ROWS; i++) {
@@ -313,7 +305,17 @@ void reset_zombie_counts(void) {
     }
 }
 
-// --- Testing Game ---
+// --- Testing Game and Testing Functions---
+
+// Draw and register a peashooter plant
+void spawn_peashooter(int col, int row, unsigned long current_time_ms) {
+    draw_plants_both(PLANT_TYPE_PEASHOOTER, col, row);
+    if (plant_count == 0) {
+        bullet_system_init(current_time_ms, 1000); // 1 seconds default
+    }
+    bullet_spawn_plant(col, row, current_time_ms);
+}
+
 void bullet_game() {
     // --- Initialization Block ---
     // Initialize the framebuffer and draw the garden background
@@ -335,9 +337,9 @@ void bullet_game() {
     // --- Plant Spawning Block ---
     // Spawn peashooter plants in rows 0-4 and an extra one in row 0
     for (int row = 0; row < 5; row++) {
-        Spawn_peashooter(1, row, start_ms);
+        spawn_peashooter(1, row, start_ms);
     }
-    Spawn_peashooter(2, 0, start_ms); 
+    spawn_peashooter(2, 0, start_ms); 
 
     // --- Zombie Spawning Block ---
     // Spawn a test zombie in row 0
