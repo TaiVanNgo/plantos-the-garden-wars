@@ -9,7 +9,7 @@ SelectionState select_state = {
 GameState game = {.state = GAME_MENU, .score = 0, .level = LEVEL_HARD_ENUM};
 
 Plant plant_grid[GRID_ROWS][GRID_COLS];
-
+int prev_col, prev_row;
 void game_main()
 {
     while (1)
@@ -47,6 +47,15 @@ int check_occupied()
 
     return 1;
 }
+
+int check_clear() {
+    if (plant_grid[prev_row][prev_col].type != 255) {
+        uart_puts("Cell already occupied!\n");
+        return 1;
+    }
+    return 0; 
+}
+
 
 void game_menu()
 {
@@ -133,6 +142,7 @@ void start_level()
     }
 
     create_simulated_background(simulated_background, GARDEN, GARDEN_WIDTH, GARDEN_HEIGHT);
+    create_simulated_background(tmp,GARDEN, GARDEN_WIDTH, GARDEN_HEIGHT);
     draw_image(simulated_background, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
     draw_grid();
 
@@ -337,6 +347,8 @@ int handle_user_input(int *frame_counter)
     // Arrow keys
     if (key == '[' && select_state.current_plant != -1)
     {
+        prev_col= select_state.col;
+        prev_row= select_state.row;
         uart_puts("selected _ plant\n");
         uart_dec(select_state.current_plant);
         uart_puts("\n");
@@ -358,6 +370,7 @@ int handle_user_input(int *frame_counter)
     return 0; // Key wasn't handled
 }
 
+
 void handle_remove_plant()
 {
     select_state.selected_card = 9;
@@ -374,16 +387,22 @@ void handle_plant_selection(int plant_type)
     if (select_state.mode == 2)
     {
         grid_to_pixel(select_state.col, select_state.row, &x_card, &y_card);
-        restore_background_area(x_card, y_card, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0, 0);
+        restore_background_area(x_card, y_card, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0, 0, 0);
         draw_plant(select_state.current_plant, select_state.col, select_state.row);
         return;
     }
 
     if (select_state.current_plant != -1)
     {
-        grid_to_pixel(select_state.col, select_state.row, &x_card, &y_card);
-        restore_background_area(x_card, y_card, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0, 0);
-        draw_plant(select_state.current_plant, select_state.col, select_state.row);
+        int taken= check_clear() ? 1: 0; 
+        clear_plant_from_background(prev_col,prev_row, 0, taken);
+        // grid_to_pixel(select_state.col, select_state.row, &x_card, &y_card);
+        place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
+        // restore_background_area(x_card, y_card, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0, 0);
+        // draw_plant(select_state.current_plant, select_state.col, select_state.row);
+        
+        // update_framebuffer_region(x_card, y_card, PLANT_WIDTH, PLANT_HEIGHT);
+        // place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, tmp);
     }
 }
 
@@ -434,8 +453,16 @@ void handle_arrow_keys()
     // Update display if a plant is selected
     if (select_state.current_plant != -1)
     {
-        restore_background_area(x_card, y_card, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0, 0);
-        draw_plant(select_state.current_plant, select_state.col, select_state.row);
+        int taken= check_clear() ? 1: 0; 
+
+        clear_plant_from_background(prev_col,prev_row, 0, taken);
+        // clear_plant_from_background(prev_col, prev_row, 1);
+        // place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
+        // place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, tmp);
+        place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
+        // update_framebuffer_region(x_card, y_card, PLANT_WIDTH, PLANT_HEIGHT);
+        // draw_plant(select_state.current_plant, select_state.col, select_state.row);
+       
     }
 
     // Debug output
@@ -452,7 +479,7 @@ void handle_enter_key(int frame_counter)
     {
         int x, y;
         plant_grid[select_state.row][select_state.col].type = 255;
-        clear_plant_from_background(select_state.col, select_state.row);
+        clear_plant_from_background(select_state.col, select_state.row, 0, 0);
         select_state.mode = 1;
         select_state.selected_card = -1;
         select_state.current_plant = -1;
@@ -472,6 +499,7 @@ void handle_enter_key(int frame_counter)
     if (select_state.mode == 0)
     {
         place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
+        place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, tmp);
         Plant new_plant = create_plant(select_state.current_plant, select_state.col, select_state.row);
         plant_grid[select_state.row][select_state.col] = new_plant;
 
@@ -491,7 +519,7 @@ void handle_enter_key(int frame_counter)
             chillies_detonate(select_state.row, frame_counter);
             // Clear the chilli plant from the grid and background
             plant_grid[select_state.row][select_state.col].type = 255;
-            clear_plant_from_background(select_state.col, select_state.row);
+            clear_plant_from_background(select_state.col, select_state.row, 0, 0);
         }
 
         select_state.selected_card = -1;
@@ -506,7 +534,9 @@ void handle_enter_key(int frame_counter)
     }
     else if (select_state.mode == 1)
     {
+        
         place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
+        // place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, tmp);
         Plant new_plant = create_plant(select_state.current_plant, select_state.col, select_state.row);
         plant_grid[select_state.row][select_state.col] = new_plant;
 
@@ -526,7 +556,7 @@ void handle_enter_key(int frame_counter)
             chillies_detonate(select_state.row, frame_counter);
             
             plant_grid[select_state.row][select_state.col].type = 255;
-            clear_plant_from_background(select_state.col, select_state.row);
+            clear_plant_from_background(select_state.col, select_state.row, 0, 0);
         }
 
         select_state.mode = 0;

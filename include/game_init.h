@@ -73,6 +73,7 @@ void handle_plant_selection(int plant_type);
 void handle_remove_plant();
 void handle_arrow_keys();
 void handle_enter_key();
+
 // void set_zombie_types_level(int level, int zombie_types[10]);
 
 // allow access to the selection state from other files
