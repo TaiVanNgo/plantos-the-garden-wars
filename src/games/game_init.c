@@ -605,13 +605,13 @@ void victory_screen()
     draw_image(VICTORY, 100, 50, 600, 400, 0);
 
     // Create buttons
-    Button home_button;
+    Button back_button;
     Button next_round;
 
-    button_init(&home_button, 100, 450, 230, 100, HOME);
-    button_init(&next_round, 450, 450, 200, 100, RETRY);
+    button_init(&back_button, 100, 350, 200, 200, BACK_BUTTON);
+    button_init(&next_round, 450, 350, 200, 200, NEXTROUND);
 
-    Button *buttons[2] = {&home_button, &next_round};
+    Button *buttons[2] = {&back_button, &next_round};
     int current_selection = 0;
     int previous_selection = current_selection;
 
