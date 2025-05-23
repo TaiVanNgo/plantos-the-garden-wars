@@ -33,7 +33,20 @@ const Zombie default_zombie_helmet = {
     .y = 0,
     .row = 0,
     .health = 300,
-    .max_health = 250,
+    .max_health = 300,
+    .speed = 1,
+    .damage = 15,
+    .attack_speed = 10,
+    .is_frozen = 0,
+    .active = 1};
+
+const Zombie default_zombie_football = {
+    .type = ZOMBIE_FOOTBALL,
+    .x = 800,
+    .y = 0,
+    .row = 0,
+    .health = 350,
+    .max_health = 350,
     .speed = 1,
     .damage = 15,
     .attack_speed = 10,
@@ -53,6 +66,9 @@ Zombie create_zombie(uint8_t type, uint8_t row)
     break;
   case ZOMBIE_HELMET:
     new_zombie = default_zombie_helmet;
+    break;
+  case ZOMBIE_FOOTBALL:
+    new_zombie = default_zombie_football;
     break;
   default:
     break;
@@ -80,8 +96,10 @@ Zombie spawn_zombie(uint8_t type, uint8_t row)
   case ZOMBIE_HELMET:
     draw_image(ZOMBIE_HELMET_SPRITE, new_zombie.x, new_zombie.y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);
     break;
+  case ZOMBIE_FOOTBALL:
+    draw_image(ZOMBIE_FOOTBALL_SPRITE, new_zombie.x, new_zombie.y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);
+    break;
   default:
-    // Fallback to normal zombie if type is unknown    draw_image(ZOMBIE_NORMAL_SPRITE, new_zombie.x, new_zombie.y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);
     break;
   }
   return new_zombie;
@@ -171,13 +189,16 @@ void update_zombie_position(Zombie *zombie)
     switch (zombie->type)
     {
     case ZOMBIE_NORMAL:
-      draw_image(ZOMBIE_NORMAL_SPRITE, zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 1);
+      draw_image(ZOMBIE_NORMAL_SPRITE, zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);
       break;
     case ZOMBIE_BUCKET:
-      draw_image(ZOMBIE_BUCKET_SPRITE, zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 1);
+      draw_image(ZOMBIE_BUCKET_SPRITE, zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);
       break;
     case ZOMBIE_HELMET:
-      draw_image(ZOMBIE_HELMET_SPRITE, zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 1);
+      draw_image(ZOMBIE_HELMET_SPRITE, zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);
+      break;
+    case ZOMBIE_FOOTBALL:
+      draw_image(ZOMBIE_FOOTBALL_SPRITE, zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);
       break;
     }
 
@@ -201,13 +222,16 @@ void update_zombie_position(Zombie *zombie)
     switch (zombie->type)
     {
     case ZOMBIE_NORMAL:
-      draw_image(ZOMBIE_NORMAL_SPRITE, zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 1);
+      draw_image(ZOMBIE_NORMAL_SPRITE, zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);
       break;
     case ZOMBIE_BUCKET:
-      draw_image(ZOMBIE_BUCKET_SPRITE, zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 1);
+      draw_image(ZOMBIE_BUCKET_SPRITE, zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);
       break;
     case ZOMBIE_HELMET:
-      draw_image(ZOMBIE_HELMET_SPRITE, zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 1);
+      draw_image(ZOMBIE_HELMET_SPRITE, zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);
+      break;
+    case ZOMBIE_FOOTBALL:
+      draw_image(ZOMBIE_FOOTBALL_SPRITE, zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);
       break;
     default:
       break;
@@ -230,19 +254,6 @@ int is_reached_plant(Zombie *zombie)
 
   return 0;
 }
-
-// void update_zombie_in_global_array(Zombie *zombie)
-// {
-//   // Removed row check and global array update logic
-//   // This function now does nothing, allowing multiple zombies to be spawned without interference
-// }
-
-// // Add new function to check if any zombie is on a given row
-// int is_zombie_on_row(int row)
-// {
-//   // This function is no longer valid with the new implementation
-//   return 0;
-// }
 
 /*//////////////////////////////////////////////////////////////
                               DEV_ONLY
@@ -312,8 +323,5 @@ void dev_test_zombie()
       update_zombie_position(&zombie5);
     }
     cnt++;
-
-    // Wait until the 100ms timer expires
-    // set_wait_timer(0, 0); // Second parameter is ignored in wait mode
   }
 }
