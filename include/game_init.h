@@ -98,6 +98,11 @@ void handle_arrow_keys();
 void handle_enter_key();
 // void set_zombie_types_level(int level, int zombie_types[10]);
 
+// allow access to the selection state from other files
+int get_selection_current_plant(void);
+int get_selection_row(void);
+int get_selection_col(void);
+
 // External global variables
 extern GameState game;
 extern SelectionState select_state;
