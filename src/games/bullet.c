@@ -31,7 +31,7 @@ void bullet_system_init(unsigned long start_ms, int fire_interval_ms) {
     plant_count = 0;
     bullet_fire_interval = fire_interval_ms;
     last_bullet_move_time = start_ms;
-    target_x = PHYSICAL_WIDTH - 100;
+    target_x = PHYSICAL_WIDTH - 50;
     target_y = GRID_TOP_MARGIN + GRID_ROW_HEIGHT;
     game_over = 0;
 }
@@ -101,7 +101,6 @@ void register_zombie_on_row(int row, int active) {
     }
 }
 
-// Update bullet firing and movement
 void bullet_update(unsigned long current_time_ms) {
     for (int i = 0; i < plant_count; i++) {
         if (is_living_zombie_on_row(plants[i].row) && bullet_should_fire(plants[i].last_fire_time, current_time_ms, bullet_fire_interval)) {
@@ -116,18 +115,13 @@ void bullet_update(unsigned long current_time_ms) {
                 bullets[i].prev_x = bullets[i].x;
                 bullets[i].prev_y = bullets[i].y;
                 bullets[i].x += bullet_speed;
-                int target_width = 40, target_height = 70;
-                if (bullets[i].x < target_x + target_width &&
-                    bullets[i].x + BULLET_WIDTH > target_x &&
-                    bullets[i].y < target_y + target_height &&
-                    bullets[i].y + BULLET_HEIGHT > target_y) {
-                    // Restore background before deactivating
+                
+                if (bullets[i].x > PHYSICAL_WIDTH - 50) {
                     restore_background(bullets[i].x, bullets[i].y, i);
                     bullets[i].active = 0;
-                    uart_puts("Bullet hit target\n");
                 }
+                
                 if (bullets[i].x > PHYSICAL_WIDTH) {
-                    // Restore background before deactivating
                     restore_background(bullets[i].x, bullets[i].y, i);
                     bullets[i].active = 0;
                     uart_puts("Bullet out of bounds\n");
