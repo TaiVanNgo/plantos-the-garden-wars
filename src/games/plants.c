@@ -230,7 +230,6 @@ void place_plant_on_background(int plant_type, int grid_col, int grid_row, unsig
 
     int x, y;
     grid_to_pixel(grid_col, grid_row, &x, &y);
-
     draw_on_simulated_background(
         sim_bg,
         plant,
@@ -241,4 +240,8 @@ void place_plant_on_background(int plant_type, int grid_col, int grid_row, unsig
         GARDEN_WIDTH);
 
     // draw_image(GARDEN, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
+    // clear_plant_from_background(grid_col,grid_row,1);
+    
+     draw_plant(plant,grid_col, grid_row);
+     restore_background_area(x,y,PLANT_WIDTH,PHYSICAL_HEIGHT,0,0,0);
 }

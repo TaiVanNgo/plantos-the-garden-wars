@@ -119,7 +119,7 @@ int move_zombie(Zombie *zombie)
       {
         uart_puts("[Zombie] Plant is Destroyed!\n");
         plant_grid[zombie->row][zombie_col].type = 255; // Mark as empty
-        clear_plant_from_background(zombie_col, zombie->row);
+        clear_plant_from_background(zombie_col, zombie->row, 0);
       }
     }
 
@@ -159,7 +159,7 @@ void update_zombie_position(Zombie *zombie)
   int old_y = zombie->y;
 
   // Restore background from old position
-  restore_background_area(old_x, old_y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0, 0);
+  restore_background_area(old_x, old_y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0, 0,0);
 
   // Move zombie left (update position)
   int status = move_zombie(zombie);
