@@ -1,39 +1,22 @@
 #ifndef VIDEO_H
 #define VIDEO_H
 
+#include "framebf.h"
+#include "utils.h"
+#include "../assets/backgrounds/background.h"
+
 #define FRAME_WIDTH 640
 #define FRAME_HEIGHT 360
-#define FRAME_DELAY 100000
+#define MAX_FRAMES 30
 
-// Define in frames.c
-extern const unsigned int FRAME1[];
-extern const unsigned int FRAME2[];
-extern const unsigned int FRAME3[];
-extern const unsigned int FRAME4[];
-extern const unsigned int FRAME5[];
-extern const unsigned int FRAME6[];
-extern const unsigned int FRAME7[];
-extern const unsigned int FRAME8[];
-extern const unsigned int FRAME9[];
-extern const unsigned int FRAME10[];
-extern const unsigned int FRAME11[];
-extern const unsigned int FRAME12[];
-extern const unsigned int FRAME13[];
-extern const unsigned int FRAME14[];
-extern const unsigned int FRAME15[];
-extern const unsigned int FRAME16[];
-extern const unsigned int FRAME17[];
-extern const unsigned int FRAME18[];
-extern const unsigned int FRAME19[];
-extern const unsigned int FRAME20[];
-extern const unsigned int FRAME21[];
+extern const unsigned int *frame_data[MAX_FRAMES];
 
 // Video structure definition
 typedef struct
 {
-    const unsigned int *frames[30];
     int current_frame;
     int total_frames;
+    const unsigned int **frames;
 } Video;
 
 const unsigned int *video_get_current_frame(Video *video);

@@ -42,13 +42,13 @@ endif
 #//////////////////////////////////////////////////////////////
 
 # Build all files
-all: clean uart1_build build_core build_video $(IMAGE)_video run1
+all: clean uart0_build build_core build_video $(IMAGE)_video run0
 
 # Build basic OS without video
 basic: clean uart0_build build_core build_game $(IMAGE) run0
 
 # Build OS including video
-video: clean uart1_build build_core build_video $(IMAGE)_video run1
+video: clean uart0_build build_core build_video $(IMAGE)_video run0
 
 # # UART targets
 # uart1: clean uart1_build $(IMAGE) run1
