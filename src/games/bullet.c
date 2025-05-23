@@ -300,12 +300,12 @@ static void restore_background(int x, int y, int index) {
     }
 }
 
-// Clear the previous positions of all bullets
-static void clear_bullet_area() {
-    for (int i = 0; i < MAX_BULLETS; i++) {
-        restore_background(bullets[i].prev_x, bullets[i].prev_y, i);
-    }
-}
+// // Clear the previous positions of all bullets
+// static void clear_bullet_area() {
+//     for (int i = 0; i < MAX_BULLETS; i++) {
+//         restore_background(bullets[i].prev_x, bullets[i].prev_y, i);
+//     }
+// }
 
 void reset_zombie_counts(void) {
     for (int i = 0; i < GRID_ROWS; i++) {
