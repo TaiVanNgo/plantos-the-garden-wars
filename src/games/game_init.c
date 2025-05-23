@@ -478,3 +478,15 @@ void set_zombie_types_level(int level, int zombie_types[10]) {
         }
     }
 }
+
+int get_selection_current_plant(void) {
+    return select_state.current_plant;
+}
+
+int get_selection_row(void) {
+    return select_state.row;
+}
+
+int get_selection_col(void) {
+    return select_state.col;
+}

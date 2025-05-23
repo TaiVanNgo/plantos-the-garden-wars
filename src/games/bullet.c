@@ -117,13 +117,11 @@ void bullet_update(unsigned long current_time_ms) {
                 bullets[i].x += bullet_speed;
                 
                 if (bullets[i].x > PHYSICAL_WIDTH - 50) {
-                    restore_background(bullets[i].x, bullets[i].y, i);
-                    bullets[i].active = 0;
+                    bullets[i].active = 0;  
                 }
                 
                 if (bullets[i].x > PHYSICAL_WIDTH) {
-                    restore_background(bullets[i].x, bullets[i].y, i);
-                    bullets[i].active = 0;
+                    bullets[i].active = 0;  
                     uart_puts("Bullet out of bounds\n");
                 }
             }
@@ -133,14 +131,49 @@ void bullet_update(unsigned long current_time_ms) {
 }
 
 void bullet_draw(void) {
+    int current_plant = get_selection_current_plant();
+    int preview_x = 0, preview_y = 0;
+    int preview_width = PLANT_WIDTH, preview_height = PLANT_HEIGHT;
+    int has_preview = (current_plant != -1);
+    
+    // Get plant preview position if active
+    if (has_preview) {
+        grid_to_pixel(get_selection_col(), get_selection_row(), &preview_x, &preview_y);
+        int offset_x, offset_y;
+        calculate_grid_center_offset(preview_width, preview_height, &offset_x, &offset_y);
+        preview_x += offset_x;
+        preview_y += offset_y;
+    }
+
+    // First, restore all bullet backgrounds
     for (int i = 0; i < MAX_BULLETS; i++) {
         if (bullets[i].prev_x > 0 || bullets[i].prev_y > 0) {
             restore_background(bullets[i].prev_x, bullets[i].prev_y, i);
         }
-        
+    }
+    
+    // Then draw all active bullets
+    for (int i = 0; i < MAX_BULLETS; i++) {
         if (bullets[i].active) {
-            draw_image(bullet_green, bullets[i].x, bullets[i].y, BULLET_WIDTH, BULLET_HEIGHT, 0);
+            // Check if bullet overlaps with plant preview
+            if (has_preview && 
+                bullets[i].x < preview_x + preview_width &&
+                bullets[i].x + BULLET_WIDTH > preview_x &&
+                bullets[i].y < preview_y + preview_height &&
+                bullets[i].y + BULLET_HEIGHT > preview_y) {
+                
+                // Don't draw the bullet while it's behind the preview
+                // It will continue moving in bullet_update and reappear after passing the preview
+            } else {
+                // Normal case - draw the full bullet
+                draw_image(bullet_green, bullets[i].x, bullets[i].y, BULLET_WIDTH, BULLET_HEIGHT, 0);
+            }
         }
+    }
+    
+    // Always redraw the plant preview on top at the end
+    if (has_preview) {
+        draw_plant(current_plant, get_selection_col(), get_selection_row());
     }
 }
 
@@ -286,14 +319,39 @@ void apply_bullet_damage(Bullet *bullet, Zombie *zombie) {
 
 // Restore the background under a bullet
 static void restore_background(int x, int y, int index) {
+    int preview_x = 0, preview_y = 0;
+    int preview_width = PLANT_WIDTH, preview_height = PLANT_HEIGHT;
+    int has_preview = 0;
+    int current_plant = get_selection_current_plant();
+    
+    // Calculate preview area if a plant is selected
+    if (current_plant != -1) {
+        has_preview = 1;
+        grid_to_pixel(get_selection_col(), get_selection_row(), &preview_x, &preview_y);
+        int offset_x, offset_y;
+        calculate_grid_center_offset(preview_width, preview_height, &offset_x, &offset_y);
+        preview_x += offset_x;
+        preview_y += offset_y;
+    }
+    
+    // Restore background pixel by pixel, skipping the preview area
     for (int i = 0; i < BULLET_HEIGHT; i++) {
         int bg_y = y + i;
         if (bg_y < 0 || bg_y >= GARDEN_HEIGHT) continue;
+        
         for (int j = 0; j < BULLET_WIDTH; j++) {
             int bg_x = x + j;
             if (bg_x < 0 || bg_x >= GARDEN_WIDTH) continue;
+            
+            // Skip restoration if this pixel is in the preview area
+            if (has_preview &&
+                bg_x >= preview_x && bg_x < preview_x + preview_width &&
+                bg_y >= preview_y && bg_y < preview_y + preview_height) {
+                continue;
+            }
+            
+            // Restore this pixel from the simulated background
             if (bg_x < PHYSICAL_WIDTH && bg_y < PHYSICAL_HEIGHT) {
-                // Use the simulated background instead of the saved background
                 draw_pixel(bg_x, bg_y, simulated_background[bg_y * GARDEN_WIDTH + bg_x]);
             }
         }
