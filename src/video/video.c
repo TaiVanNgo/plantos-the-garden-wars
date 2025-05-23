@@ -114,6 +114,41 @@ void video_next_frame(Video *video)
 	video->current_frame = (video->current_frame + 1) % video->total_frames;
 }
 
+// void play_video(Video *video, int pos_x, int pox_y, int max_frames)
+// {
+// 	static unsigned int prev_frame[FRAME_WIDTH * FRAME_HEIGHT] = {0};
+
+// 	for (int i = 0; i < video->total_frames && i < max_frames; i++)
+// 	{
+// 		// Get current frame
+// 		const unsigned int *frame = video_get_current_frame(video);
+
+// 		uart_puts("Playing frame: ");
+// 		char current_frame_str[12];
+// 		int_to_str(i, current_frame_str);
+// 		uart_puts(current_frame_str);
+// 		uart_puts("\n");
+
+// 		for (int y = 0; y < FRAME_HEIGHT; y++)
+// 		{
+// 			for (int x = 0; x < FRAME_WIDTH; x++)
+// 			{
+// 				int idx = y * FRAME_WIDTH + x;
+// 				if (prev_frame[idx] != frame[idx])
+// 				{
+// 					draw_pixel(pos_x + x, pox_y + y, frame[idx]);
+// 					prev_frame[idx] = frame[idx];
+// 				}
+// 			}
+// 		}
+
+// 		// Move to next frame
+// 		video_next_frame(video);
+// 		// delay between frames
+// 		delay_ms(100);
+// 	}
+// }
+
 void play_video(Video *video, int pos_x, int pos_y, int max_frames)
 {
 	char total_frames_str[12];
@@ -137,7 +172,7 @@ void play_video(Video *video, int pos_x, int pos_y, int max_frames)
 		video_next_frame(video);
 
 		// Add a delay between frames (e.g., 700ms)
-		delay_ms(600);
+		delay_ms(100);
 	}
 
 	// After all frames have been displayed, print completion message
