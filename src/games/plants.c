@@ -1,8 +1,5 @@
-#include "../../include/plants.h"
-#include "../../include/grid.h"
-#include "../../include/zombies.h"
-#include "../assets/button/button.h"
-#include "gpio.h"
+#include "plants.h"
+
 
 // Add static counter array at the top of the file
 static int flame_counters[GRID_ROWS] = {0};

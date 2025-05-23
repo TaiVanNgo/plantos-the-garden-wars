@@ -13,6 +13,7 @@
 #include "../assets/button/button.h"
 #include "plants.h"
 #include "grid.h"
+#include "sun.h"
 
 #define ROWS 4
 #define COLS 9

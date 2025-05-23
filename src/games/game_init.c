@@ -154,6 +154,8 @@ void start_level()
     unsigned long start_ms = start_counter * 1000 / freq;
     bullet_system_init(start_ms, 1000); // Initialize with 1 second fire interval
 
+    sun_system_init(start_ms);
+
     /* Zombie settings */
     // Define individual zombies instead of an array
     Zombie zombie1, zombie2, zombie3, zombie4, zombie5;
@@ -195,6 +197,10 @@ void start_level()
         // Update bullets
         bullet_update(current_time_ms);
         bullet_draw();
+
+        // Update suns
+        update_suns(frame_counter);
+        draw_suns();
 
         // Update flame effects with current frame
         update_flame_effects(frame_counter);
@@ -486,6 +492,11 @@ void handle_enter_key(int frame_counter)
             unsigned long current_time_ms = current_counter * 1000 / freq;
             bullet_spawn_plant(select_state.col, select_state.row, current_time_ms);
         }
+        else if (select_state.current_plant == PLANT_SUNFLOWER)
+        {
+            // Register sunflower for sun generation
+            register_sunflower(select_state.col, select_state.row, frame_counter);
+        }
         else if (select_state.current_plant == PLANT_CHILLIES)
         {
             chillies_detonate(select_state.row, frame_counter);
@@ -520,6 +531,11 @@ void handle_enter_key(int frame_counter)
             asm volatile("mrs %0, cntfrq_el0" : "=r"(freq));
             unsigned long current_time_ms = current_counter * 1000 / freq;
             bullet_spawn_plant(select_state.col, select_state.row, current_time_ms);
+        }
+        else if (select_state.current_plant == PLANT_SUNFLOWER)
+        {
+            // Register sunflower for sun generation
+            register_sunflower(select_state.col, select_state.row, frame_counter);
         }
         else if (select_state.current_plant == PLANT_CHILLIES)
         {
