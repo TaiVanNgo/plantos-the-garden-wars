@@ -47,7 +47,7 @@ const Zombie default_zombie_football = {
     .row = 0,
     .health = 350,
     .max_health = 350,
-    .speed = 1,
+    .speed = 2,
     .damage = 15,
     .attack_speed = 10,
     .is_frozen = 0,
@@ -123,21 +123,23 @@ int move_zombie(Zombie *zombie)
     {
       attack_counter = 0;
 
-      // cause damage on the plant
-      plant_grid[zombie->row][zombie_col].health -= zombie->damage;
-
-      uart_puts("[Zombie] Attacking Plant: damage=");
-      uart_dec(zombie->damage);
-      uart_puts(", Plant health=");
-      uart_dec(plant_grid[zombie->row][zombie_col].health);
-      uart_puts("\n");
-
-      // Check if plant is destroyed
-      if (plant_grid[zombie->row][zombie_col].health <= 0)
+      // if the plant's health is lower than zombie damage => Destroy the plan
+      if (plant_grid[zombie->row][zombie_col].health <= zombie->damage)
       {
+        plant_grid[zombie->row][zombie_col].health = 0;
         uart_puts("[Zombie] Plant is Destroyed!\n");
         plant_grid[zombie->row][zombie_col].type = 255; // Mark as empty
         clear_plant_from_background(zombie_col, zombie->row);
+      }
+      else // plant's health still enough to get zombie damage
+      {
+        plant_grid[zombie->row][zombie_col].health -= zombie->damage;
+
+        uart_puts("[Zombie] Attacking Plant: damage=");
+        uart_dec(zombie->damage);
+        uart_puts(", Plant health=");
+        uart_dec(plant_grid[zombie->row][zombie_col].health);
+        uart_puts("\n");
       }
     }
 
