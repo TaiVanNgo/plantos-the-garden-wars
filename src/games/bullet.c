@@ -88,7 +88,6 @@ void bullet_update(unsigned long current_time_ms) {
         }
     }
     if ((current_time_ms - last_bullet_move_time) >= bullet_move_interval) {
-        clear_bullet_area();
         for (int i = 0; i < MAX_BULLETS; i++) {
             if (bullets[i].active) {
                 bullets[i].prev_x = bullets[i].x;
@@ -99,10 +98,14 @@ void bullet_update(unsigned long current_time_ms) {
                     bullets[i].x + BULLET_WIDTH > target_x &&
                     bullets[i].y < target_y + target_height &&
                     bullets[i].y + BULLET_HEIGHT > target_y) {
+                    // Restore background before deactivating
+                    restore_background(bullets[i].x, bullets[i].y, i);
                     bullets[i].active = 0;
                     uart_puts("Bullet hit target\n");
                 }
                 if (bullets[i].x > PHYSICAL_WIDTH) {
+                    // Restore background before deactivating
+                    restore_background(bullets[i].x, bullets[i].y, i);
                     bullets[i].active = 0;
                     uart_puts("Bullet out of bounds\n");
                 }
@@ -116,7 +119,9 @@ void bullet_update(unsigned long current_time_ms) {
 void bullet_draw(void) {
     for (int i = 0; i < MAX_BULLETS; i++) {
         if (bullets[i].active) {
-            save_background(bullets[i].x, bullets[i].y, i);
+            // First restore the background at the previous position
+            restore_background(bullets[i].prev_x, bullets[i].prev_y, i);
+            // Then draw the bullet at the new position
             draw_image(bullet_green, bullets[i].x, bullets[i].y, BULLET_WIDTH, BULLET_HEIGHT, 0);
         }
     }
@@ -267,8 +272,10 @@ static void restore_background(int x, int y, int index) {
         for (int j = 0; j < BULLET_WIDTH; j++) {
             int bg_x = x + j;
             if (bg_x < 0 || bg_x >= GARDEN_WIDTH) continue;
-            if (bg_x < PHYSICAL_WIDTH && bg_y < PHYSICAL_HEIGHT)
-                draw_pixel(bg_x, bg_y, background_buffer[index][i * BULLET_WIDTH + j]);
+            if (bg_x < PHYSICAL_WIDTH && bg_y < PHYSICAL_HEIGHT) {
+                // Use the simulated background instead of the saved background
+                draw_pixel(bg_x, bg_y, simulated_background[bg_y * GARDEN_WIDTH + bg_x]);
+            }
         }
     }
 }
