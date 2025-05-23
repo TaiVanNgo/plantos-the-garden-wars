@@ -6,6 +6,8 @@ extern const unsigned int QUIT[];
 extern const unsigned int ARROW[];
 extern const unsigned int HOME[];
 extern const unsigned int RETRY[];
+const unsigned int NEXTROUND [];
+const unsigned int BACK_BUTTON [];
 // Button structure
 typedef struct
 {

@@ -3,7 +3,7 @@
 SelectionState select_state = {
     .mode = 0, .selected_card = -1, .row = 0, .col = 0, .current_plant = -1};
 
-GameState game = {.state = GAME_PLAYING, .score = 0, .level = LEVEL_HARD_ENUM};
+GameState game = {.state = GAME_OVER, .score = 0, .level = LEVEL_HARD_ENUM};
 
 void game_main()
 {
@@ -22,8 +22,7 @@ void game_main()
             // Handle pause menu
             break;
         case GAME_OVER:
-            // draw loose screen
-            game_over();
+            victory_screen();
             break;
         case GAME_QUIT:
             break;
@@ -308,7 +307,7 @@ void start_level()
             check_bullet_zombie_collisions(zombie_pointers[i]);
 
             // Check for game over
-            if (zombie_pointers[i]->x <= 200)
+            if (zombie_pointers[i]->x <= 500)
             {
                 game.state = GAME_OVER;
                 uart_puts("Game Over - Zombie reached house\n");
@@ -529,6 +528,90 @@ void game_over()
     button_init(&retry_button, 450, 450, 230, 100, RETRY);
 
     Button *buttons[2] = {&home_button, &retry_button};
+    int current_selection = 0;
+    int previous_selection = current_selection;
+
+    // Initially set the first button selected
+    button_set_state(buttons[current_selection], BUTTON_SELECTED);
+    button_draw_selection(buttons, current_selection, previous_selection,1);
+    
+    while (1)
+    {
+        char key = getUart();
+
+        if (key == '[')
+        {
+            char key2 = getUart();
+
+            // Handle left/right navigation between buttons
+            if (key2 == 'C') // Right arrow
+            {
+                previous_selection = current_selection;
+                button_set_state(buttons[current_selection], BUTTON_NORMAL);
+
+                current_selection++;
+                if (current_selection > 1)
+                {
+                    current_selection = 0;
+                }
+
+                button_set_state(buttons[current_selection], BUTTON_SELECTED);
+                button_draw_selection(buttons, current_selection, previous_selection, 0);
+            }
+            else if (key2 == 'D') // Left arrow
+            {
+                previous_selection = current_selection;
+                button_set_state(buttons[current_selection], BUTTON_NORMAL);
+
+                current_selection--;
+                if (current_selection < 0)
+                {
+                    current_selection = 1;
+                }
+
+                button_set_state(buttons[current_selection], BUTTON_SELECTED);
+                button_draw_selection(buttons, current_selection, previous_selection, 0);
+            }
+
+            // Add inside the key handling code
+            uart_puts("Selected button: ");
+            uart_dec(current_selection);
+            uart_puts("\n");
+        }
+
+        // Handle button press (Enter key)
+        if (key == '\n')
+        {
+            if (current_selection == 0) // Home button
+            {
+                clear_screen();
+                game.state = GAME_MENU;
+                return;
+            }
+            else if (current_selection == 1) // Retry button
+            {
+                clear_screen();
+                game.state = GAME_PLAYING;
+                return;
+            }
+        }
+    }
+}
+
+
+void victory_screen()
+{
+    // clear_screen();
+    draw_image(VICTORY, 100, 50, 600, 400, 0);
+
+    // Create buttons
+    Button home_button;
+    Button next_round;
+
+    button_init(&home_button, 100, 450, 230, 100, HOME);
+    button_init(&next_round, 450, 450, 200, 100, RETRY);
+
+    Button *buttons[2] = {&home_button, &next_round};
     int current_selection = 0;
     int previous_selection = current_selection;
 

@@ -100,7 +100,7 @@ int handle_user_input(int *frame_counter);
 void handle_plant_selection(int plant_type);
 void handle_arrow_keys();
 void handle_enter_key();
-
+void victory_screen();
 // External global variables
 extern GameState game;
 extern SelectionState select_state;
