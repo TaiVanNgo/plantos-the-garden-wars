@@ -242,3 +242,20 @@ void place_plant_on_background(int plant_type, int grid_col, int grid_row, unsig
 
     // draw_image(GARDEN, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
 }
+
+void chillies_firing_animation(int grid_col, int grid_row)
+{
+    int x, y;
+    grid_to_pixel(grid_col, grid_row, &x, &y);
+}
+
+void draw_flames_on_row(int row)
+{
+    int x, y;
+    // Start from the left edge of the garden
+    x = GRID_LEFT_MARGIN;
+    grid_to_pixel(0, row, &x, &y);
+
+    // Draw the flames effect across the entire row
+    draw_image_both(FLAMES_EFFECT, x, y, FLAMES_EFFECT_WIDTH, FLAMES_EFFECT_HEIGHT, 0);
+}

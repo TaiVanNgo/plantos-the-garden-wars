@@ -494,6 +494,10 @@ void handle_enter_key()
             unsigned long current_time_ms = current_counter * 1000 / freq;
             bullet_spawn_plant(select_state.col, select_state.row, current_time_ms);
         }
+        else if (select_state.current_plant == PLANT_CHILLIES)
+        {
+            draw_flames_on_row(select_state.row);
+        }
 
         select_state.mode = 0;
         select_state.selected_card = -1;
