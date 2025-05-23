@@ -374,7 +374,7 @@ void handle_plant_selection(int plant_type)
     if (select_state.mode == 2)
     {
         grid_to_pixel(select_state.col, select_state.row, &x_card, &y_card);
-        restore_background_area(x_card, y_card, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0, 0);
+        restore_background_area(x_card, y_card, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0, 0, 0);
         draw_plant(select_state.current_plant, select_state.col, select_state.row);
         return;
     }
@@ -382,7 +382,7 @@ void handle_plant_selection(int plant_type)
     if (select_state.current_plant != -1)
     {
         grid_to_pixel(select_state.col, select_state.row, &x_card, &y_card);
-        restore_background_area(x_card, y_card, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0, 0);
+        restore_background_area(x_card, y_card, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0, 0, 0);
         draw_plant(select_state.current_plant, select_state.col, select_state.row);
     }
 }
@@ -434,7 +434,7 @@ void handle_arrow_keys()
     // Update display if a plant is selected
     if (select_state.current_plant != -1)
     {
-        restore_background_area(x_card, y_card, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0, 0);
+        restore_background_area(x_card, y_card, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0, 0, 0);
         draw_plant(select_state.current_plant, select_state.col, select_state.row);
     }
 
@@ -452,7 +452,7 @@ void handle_enter_key(int frame_counter)
     {
         int x, y;
         plant_grid[select_state.row][select_state.col].type = 255;
-        clear_plant_from_background(select_state.col, select_state.row);
+        clear_plant_from_background(select_state.col, select_state.row, 0, 0);
         select_state.mode = 1;
         select_state.selected_card = -1;
         select_state.current_plant = -1;
@@ -491,7 +491,7 @@ void handle_enter_key(int frame_counter)
             chillies_detonate(select_state.row, frame_counter);
             // Clear the chilli plant from the grid and background
             plant_grid[select_state.row][select_state.col].type = 255;
-            clear_plant_from_background(select_state.col, select_state.row);
+            clear_plant_from_background(select_state.col, select_state.row, 0, 0);
         }
 
         select_state.selected_card = -1;
@@ -526,7 +526,7 @@ void handle_enter_key(int frame_counter)
             chillies_detonate(select_state.row, frame_counter);
             
             plant_grid[select_state.row][select_state.col].type = 255;
-            clear_plant_from_background(select_state.col, select_state.row);
+            clear_plant_from_background(select_state.col, select_state.row, 0, 0);
         }
 
         select_state.mode = 0;
