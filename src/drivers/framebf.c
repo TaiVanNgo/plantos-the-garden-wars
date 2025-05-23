@@ -518,5 +518,7 @@ void draw_selection_border(int selection)
   // Logging selection
   uart_puts("[Game State] Selected plant: ");
   uart_dec(selection);
-  uart_puts("\n");
+  uart_puts(" (");
+  uart_puts(get_plant_name(selection));
+  uart_puts(")\n");
 }
