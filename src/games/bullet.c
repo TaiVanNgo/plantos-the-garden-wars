@@ -253,7 +253,7 @@ void apply_bullet_damage(Bullet *bullet, Zombie *zombie) {
         zombie->health = 0; // Clamp to zero
         if (zombie->active) {
             zombie->active = 0;
-            restore_background_area(zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);
+            restore_background_area(zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0,0);
             uart_puts("Zombie removed\n");
         }
     }
