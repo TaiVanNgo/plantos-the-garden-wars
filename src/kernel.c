@@ -14,8 +14,8 @@
 
 // #include "background.c"
 //    #define TASK1
-//   #define TASK2_VID
-#define ZOMBIE_INIT
+#define TASK2_VID
+// #define ZOMBIE_INIT
 // #define PLANT_INIT
 // #define TASK3_BULLET
 
@@ -57,7 +57,7 @@ void main()
 
     Video vid;
     video_init(&vid);
-    play_video(&vid, 0, 0, vid.total_frames);
+    play_video(&vid, 80, 120, vid.total_frames);
     wipe_transition();
     display_team_members(0);
     // Run CLI
