@@ -27,11 +27,15 @@ static int bullet_should_fire(unsigned long last_fire_time,
 static int is_living_zombie_on_row(int row);
 
 // Remove a plant from the bullet system
-void bullet_remove_plant(int col, int row) {
-    for (int i = 0; i < plant_count; i++) {
-        if (plants[i].col == col && plants[i].row == row) {
+void bullet_remove_plant(int col, int row)
+{
+    for (int i = 0; i < plant_count; i++)
+    {
+        if (plants[i].col == col && plants[i].row == row)
+        {
             // Remove plant by shifting remaining plants
-            for (int j = i; j < plant_count - 1; j++) {
+            for (int j = i; j < plant_count - 1; j++)
+            {
                 plants[j] = plants[j + 1];
             }
             plant_count--;
@@ -188,7 +192,7 @@ void bullet_draw(void)
         if (bullets[i].prev_x > 0 || bullets[i].prev_y > 0)
         {
             restore_background_area(bullets[i].prev_x, bullets[i].prev_y,
-                                    BULLET_WIDTH, BULLET_HEIGHT, 0, 0, 0,0);
+                                    BULLET_WIDTH, BULLET_HEIGHT, 0, 0, 0, 0);
         }
 
         if (bullets[i].active)
@@ -311,6 +315,7 @@ void check_bullet_zombie_collisions(Zombie *zombie)
 {
     if (!zombie->active)
         return;
+
     for (int i = 0; i < MAX_BULLETS; i++)
     {
         if (bullets[i].active)
