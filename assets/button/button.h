@@ -31,3 +31,4 @@ void button_draw_selection(Button *button[], int current_selection, int prev_sel
 int button_is_selected(Button* button);
 
 #endif
+

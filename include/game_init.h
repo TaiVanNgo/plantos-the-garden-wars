@@ -13,6 +13,7 @@
 #include "../assets/button/button.h"
 #include "plants.h"
 #include "grid.h"
+#include "sun.h"
 
 #define ROWS 4
 #define COLS 9
@@ -46,6 +47,7 @@ typedef struct
   GAME_STATE state;
   int score;
   LEVEL_DIFFICULTY level;
+  int sun_count;
 } GameState;
 
 typedef struct

@@ -3,9 +3,12 @@
 
 #include "../assets/sprites/plants/plants_sprites.h"
 #include "../assets/backgrounds/garden.h"
+#include "../assets/button/button.h"
 #include "framebf.h"
 #include "grid.h"
 #include "zombies.h"
+#include "gpio.h"
+#include "sun.h"
 
 // Define plant types
 #define PLANT_TYPE_SUNFLOWER 1
