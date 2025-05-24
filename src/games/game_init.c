@@ -68,9 +68,9 @@ void game_start_difficulty(){
     draw_image(MAIN_SCREEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
 
     Button normal, medium, hard;
-    button_init(&normal, 240, 300, 300, 130, NORMAL);
-    button_init(&medium, 240, 400, 300, 130, MEDIUM);
-    button_init(&hard, 240, 500, 300, 130, HARD);
+    button_init(&normal, 240, 300, 300, 85, NORMAL);
+    button_init(&medium, 240, 400, 300, 85, MEDIUM);
+    button_init(&hard, 240, 500, 300, 85, HARD);
 
     Button *buttons[3] = {&normal, &medium, &hard};
     int current_selection = 0;
@@ -147,7 +147,7 @@ void game_menu()
     Button startButton;
     Button endButton;
     button_init(&startButton, 240, 300, 300, 85, START);
-    button_init(&endButton, 240, 400, 300, 85, QUIT);
+    button_init(&endButton, 240, 400, 300, 80, QUIT);
 
     Button *buttons[2] = {&startButton, &endButton};
     int current_selection = 0;
