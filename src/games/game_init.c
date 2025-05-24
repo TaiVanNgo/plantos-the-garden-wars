@@ -665,7 +665,7 @@ void handle_enter_key(int frame_counter) {
             }
 
             place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
-            // place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, tmp);
+            place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, tmp);
             Plant new_plant = create_plant(select_state.current_plant, select_state.col, select_state.row);
             plant_grid[select_state.row][select_state.col] = new_plant;
 
