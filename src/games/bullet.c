@@ -14,7 +14,7 @@ static int target_x, target_y;
 static int bullet_speed = 10;
 static int game_over;
 static unsigned int background_buffer[MAX_BULLETS][BULLET_WIDTH * BULLET_HEIGHT];
-static int zombies_on_row[GRID_ROWS] = {0, 0, 0, 0};
+int zombies_on_row[GRID_ROWS] = {0, 0, 0, 0};
 
 // --- Background/Utility Helpers ---
 static void save_background(int x, int y, int index);
