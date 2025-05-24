@@ -33,6 +33,9 @@ void game_main()
             // draw loose screen
             draw_image(LOSE_SCREEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
             break;
+        case GAME_VICTORY:
+            victory_screen();
+            break;
         case GAME_QUIT:
             break;
         default:
@@ -61,8 +64,6 @@ int check_clear() {
 }
 
 void game_start_difficulty(){
-    // restore_background_area(240,300,300,85,0,1,0);
-    // restore_background_area(240, 400, 300, 85,0 ,1,0);
     clear_screen();
     draw_image(MAIN_SCREEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
 
@@ -746,7 +747,7 @@ void victory_screen(){
 
     Button quit, start;
     button_init(&quit, 240, 300, 300, 130, QUIT);
-    button_init(&start, 240, 400, 300, 130, START);
+    button_init(&start, 240, 450, 300, 130, START);
 
     Button *buttons[] = {&quit, &start};
     int current_selection = 0;
