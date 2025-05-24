@@ -11,7 +11,7 @@ static unsigned int bullet_fire_interval = 1000; // ms, default 1 second
 static unsigned int bullet_move_interval = 30;   // ms
 static unsigned long last_bullet_move_time = 0;
 static int target_x, target_y;
-static int bullet_speed = 3;
+static int bullet_speed = 10;
 static int game_over;
 static unsigned int background_buffer[MAX_BULLETS][BULLET_WIDTH * BULLET_HEIGHT];
 static int zombies_on_row[GRID_ROWS] = {0, 0, 0, 0};
@@ -59,13 +59,14 @@ void bullet_system_init(unsigned long start_ms, int fire_interval_ms)
 }
 
 // Register a plant for bullet firing
-void bullet_spawn_plant(int col, int row, unsigned long start_ms)
+void bullet_spawn_plant(int col, int row, unsigned long start_ms, int plant_type)
 {
     if (plant_count < MAX_PLANTS)
     {
         plants[plant_count].col = col;
         plants[plant_count].row = row;
         plants[plant_count].last_fire_time = start_ms;
+        plants[plant_count].plant_type = plant_type;
         plant_count++;
         uart_puts("Plant spawned\n");
     }
@@ -74,6 +75,15 @@ void bullet_spawn_plant(int col, int row, unsigned long start_ms)
 // Fire a bullet from a plant's position
 static void fire_bullet_for_plant(int col, int row)
 {
+    // Find the plant instance to get its type
+    int plant_type = PLANT_PEASHOOTER; // Default to regular peashooter
+    for (int i = 0; i < plant_count; i++) {
+        if (plants[i].col == col && plants[i].row == row) {
+            plant_type = plants[i].plant_type;
+            break;
+        }
+    }
+
     for (int i = 0; i < MAX_BULLETS; i++)
     {
         if (!bullets[i].active)
@@ -89,8 +99,8 @@ static void fire_bullet_for_plant(int col, int row)
             bullets[i].prev_y = bullets[i].y;
             bullets[i].row = row;
             bullets[i].active = 1;
+            bullets[i].plant_type = plant_type;
             wait_msec(1);
-            bullets[i].plant_type = PLANT_TYPE_PEASHOOTER;
 
             save_background(bullets[i].x, bullets[i].y, i);
             break;
@@ -197,7 +207,9 @@ void bullet_draw(void)
 
         if (bullets[i].active)
         {
-            draw_image(bullet_green, bullets[i].x, bullets[i].y, BULLET_WIDTH,
+            const unsigned int *bullet_sprite = (bullets[i].plant_type == PLANT_FROZEN_PEASHOOTER) ? 
+                bullet_blue : bullet_green;
+            draw_image(bullet_sprite, bullets[i].x, bullets[i].y, BULLET_WIDTH,
                        BULLET_HEIGHT, 0);
         }
     }
@@ -337,6 +349,12 @@ void apply_bullet_damage(Bullet *bullet, Zombie *zombie)
     if (!zombie->active)
         return;
 
+    // Freeze zombie if hit by frozen peashooter bullet
+    if (bullet->plant_type == PLANT_FROZEN_PEASHOOTER) {
+        zombie->is_frozen = 1;
+        zombie->frozen_counter = 0;
+    }
+
     int dmg = get_plant_damage(bullet->plant_type);
 
     restore_background_area(bullet->x, bullet->y, BULLET_WIDTH, BULLET_HEIGHT, 0,
@@ -380,7 +398,7 @@ void spawn_peashooter(int col, int row, unsigned long current_time_ms)
     {
         bullet_system_init(current_time_ms, 1000); // 1 seconds default
     }
-    bullet_spawn_plant(col, row, current_time_ms);
+    bullet_spawn_plant(col, row, current_time_ms, PLANT_TYPE_PEASHOOTER);
 }
 
 void bullet_game()

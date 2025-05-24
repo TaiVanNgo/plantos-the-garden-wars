@@ -79,6 +79,7 @@ Zombie create_zombie(uint8_t type, uint8_t row)
   new_zombie.x = START_X_POS; // Spawn right of the screen
   new_zombie.y = GRID_TOP_MARGIN + (row * GRID_ROW_HEIGHT);
   new_zombie.active = 1;
+  new_zombie.frozen_counter = 0; // Initialize frozen counter
   return new_zombie;
 }
 
@@ -108,7 +109,6 @@ Zombie spawn_zombie(uint8_t type, uint8_t row)
 
 int move_zombie(Zombie *zombie)
 {
-  // if zombie is dead
   if (!zombie->active)
     return 0;
 
@@ -155,23 +155,29 @@ int move_zombie(Zombie *zombie)
     return 2;
   }
 
-  uint8_t actual_speed = zombie->is_frozen ? (zombie->speed / 2) : zombie->speed;
-
-  // Calculate new position
-  int new_x = zombie->x;
-  if (zombie->x > actual_speed)
-  {
-    new_x -= actual_speed;
-  }
-  else
-  {
-    // Zombie reached the left most edge of the screen
-    zombie->x = 0;
-    return 1; // zombie reached the edge
+  int should_move = 1;
+  if (zombie->is_frozen) {
+    zombie->frozen_counter++;
+    if (zombie->frozen_counter < 2) { // Only move every 2 frames
+      should_move = 0;
+    } else {
+      zombie->frozen_counter = 0;
+    }
+  } else {
+    zombie->frozen_counter = 0;
   }
 
-  // Update new position
-  zombie->x = new_x;
+  if (should_move) {
+    uint8_t actual_speed = zombie->speed;
+    int new_x = zombie->x;
+    if (zombie->x > actual_speed) {
+      new_x -= actual_speed;
+    } else {
+      zombie->x = 0;
+      return 1;
+    }
+    zombie->x = new_x;
+  }
 
   return 0;
 }

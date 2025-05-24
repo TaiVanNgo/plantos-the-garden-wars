@@ -29,11 +29,12 @@ typedef struct {
 typedef struct {
     int col, row;
     unsigned long last_fire_time;
+    int plant_type;
 } PlantInstance;
 
 // Function Declarations
 void bullet_system_init(unsigned long start_ms, int fire_interval_ms);
-void bullet_spawn_plant(int col, int row, unsigned long start_ms);
+void bullet_spawn_plant(int col, int row, unsigned long start_ms, int plant_type);
 void bullet_remove_plant(int col, int row);
 void bullet_update(unsigned long current_time_ms);
 void bullet_draw(void);
