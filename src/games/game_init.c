@@ -294,6 +294,9 @@ void start_level()
         // Update flame effects with current frame
         update_flame_effects(frame_counter);
 
+        // Draw cooldown overlays for all plant cards that are on cooldown
+        draw_all_plant_cooldowns();
+
         /*====== ZOMBIE LOGIC START ====== */
         for (int i = 0; i < 10; i++)
         {
@@ -462,7 +465,38 @@ void handle_remove_plant()
     select_state.mode = 2;
     handle_plant_selection(9);
 }
-// Handle plant selection with number keys
+
+// Add this function before handle_plant_selection
+void draw_plant_cooldown_text(int plant_type) {
+    // Card position constants
+    const int FIRST_CARD_X = 65; // X position of first card
+    const int CARDS_Y = 100;     // Y position of all cards
+    const int CARD_SPACING = 55; // Horizontal spacing between cards
+
+    if (plant_type >= 1 && plant_type <= 5) {
+        int card_x = FIRST_CARD_X + (plant_type - 1) * CARD_SPACING;
+        int cooldown = 0;
+        extern int is_plant_on_cooldown(int plant_type);
+        extern int get_plant_cooldown(int plant_type);
+        extern int plant_cooldowns[];
+        cooldown = plant_cooldowns[plant_type];
+        if (cooldown > 0) {
+            // Restore the background area behind the number (20x20 box)
+            restore_background_area(card_x + 15, CARDS_Y + 25, 20, 20, 0, 1, 0, 0);
+            // Decide what to display
+            const char* text = "";
+            if (cooldown > 120) {
+                text = "3s";
+            } else if (cooldown > 60) {
+                text = "2s";
+            } else if (cooldown > 0) {
+                text = "1s";
+            }
+            draw_string(card_x + 15, CARDS_Y + 25, text, 0x00FF69B4, 2);
+        }
+    }
+}
+
 void handle_plant_selection(int plant_type)
 {
     // Check if plant is on cooldown
@@ -470,6 +504,7 @@ void handle_plant_selection(int plant_type)
         if (is_plant_on_cooldown(plant_type)) {
             uart_puts("Plant is on cooldown! ");
             display_plant_cooldown(plant_type);
+            draw_plant_cooldown_text(plant_type);  // Draw cooldown text
             return;
         }
         display_plant_cooldown(plant_type);  
@@ -491,13 +526,7 @@ void handle_plant_selection(int plant_type)
     {
         int taken= check_clear() ? 1: 0; 
         clear_plant_from_background(prev_col,prev_row, 0, taken);
-        // grid_to_pixel(select_state.col, select_state.row, &x_card, &y_card);
         place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
-        // restore_background_area(x_card, y_card, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0, 0);
-        // draw_plant(select_state.current_plant, select_state.col, select_state.row);
-        
-        // update_framebuffer_region(x_card, y_card, PLANT_WIDTH, PLANT_HEIGHT);
-        // place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, tmp);
     }
 }
 
@@ -551,13 +580,7 @@ void handle_arrow_keys()
         int taken= check_clear() ? 1: 0; 
 
         clear_plant_from_background(prev_col,prev_row, 0, taken);
-        // clear_plant_from_background(prev_col, prev_row, 1);
-        // place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
-        // place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, tmp);
         place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
-        // update_framebuffer_region(x_card, y_card, PLANT_WIDTH, PLANT_HEIGHT);
-        // draw_plant(select_state.current_plant, select_state.col, select_state.row);
-       
     }
 
     // Debug output
@@ -807,6 +830,15 @@ void victory_screen(){
                 game.state = GAME_PLAYING;
                 return;
             }
+        }
+    }
+}
+
+// Draw cooldown overlays for all plant cards that are on cooldown
+void draw_all_plant_cooldowns() {
+    for (int i = 1; i <= 5; i++) {
+        if (plant_cooldowns[i] > 0) {
+            draw_plant_cooldown_text(i);
         }
     }
 }

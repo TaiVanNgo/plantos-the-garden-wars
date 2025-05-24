@@ -506,52 +506,70 @@ void clear_plant_from_background(int grid_col, int grid_row, int background, int
 /* Draw hight light selection for choosing plant */
 void draw_selection_border(int selection)
 {
-  // Card position
-  const int FIRST_CARD_X = 65; // X position of first card
-  const int CARDS_Y = 100;     // Y position of all cards
-  const int CARD_SPACING = 55; // Horizontal spacing between cards
+    // Card position
+    const int FIRST_CARD_X = 65; // X position of first card
+    const int CARDS_Y = 100;     // Y position of all cards
+    const int CARD_SPACING = 55; // Horizontal spacing between cards
+    const int SHOVEL_X = 460;    // X position of shovel
 
-  const int SHOVEL_X = 460; // X position of shovel
+    // Keep track previous selection
+    static int prev_selection = -1;
 
-  // Keep track previous selection
-  static int prev_selection = -1;
+    int prev_x = FIRST_CARD_X + (prev_selection - 1) * CARD_SPACING;
 
-  int prev_x = FIRST_CARD_X + (prev_selection - 1) * CARD_SPACING;
+    // remove the selection border & shovel border
+    restore_background_area(prev_x, CARDS_Y, SEL_BORDER_WIDTH, SEL_BORDER_HEIGHT, 0, 1, 0, 0);
+    restore_background_area(SHOVEL_X, CARDS_Y, SEL_BORDER_WIDTH, SEL_BORDER_HEIGHT, 0, 1, 0, 0);
 
-  // remove the selection border & shovel border
-  restore_background_area(prev_x, CARDS_Y, SEL_BORDER_WIDTH, SEL_BORDER_HEIGHT, 0, 1, 0, 0);
-  restore_background_area(
-      SHOVEL_X,
-      CARDS_Y,
-      SEL_BORDER_WIDTH,
-      SEL_BORDER_HEIGHT,
-      0,
-      1, 0, 0);
+    // update current selection for next time using
+    prev_selection = selection;
 
-  // update current selection for next time using
-  prev_selection = selection;
+    // invalid choose
+    if (selection < 1 || (selection > 5 && selection != 9))
+    {
+        return;
+    }
 
-  // invalid choose
-  if (selection < 1 || (selection > 5 && selection != 9))
-  {
-    return;
-  }
+    // Draw new selection border
+    if (selection >= 1 && selection <= 5)
+    {
+        int card_x = FIRST_CARD_X + (selection - 1) * CARD_SPACING;
+        draw_image(SELECTION_BORDER, card_x, CARDS_Y, SEL_BORDER_WIDTH, SEL_BORDER_HEIGHT, 0);
+        
+        // Check if plant is on cooldown and draw text if it is
+        if (is_plant_on_cooldown(selection)) {
+            draw_string(card_x + 5, CARDS_Y + 80, "COOLDOWN", 0x00FF0000, 1);
+        }
+    }
+    else
+    {
+        // draw shovel
+        draw_image(SELECTION_BORDER, SHOVEL_X, CARDS_Y, SEL_BORDER_WIDTH, SEL_BORDER_HEIGHT, 0);
+    }
 
-  // Draw new selection border
-  if (selection >= 1 && selection <= 5)
-  {
-    draw_image(SELECTION_BORDER, FIRST_CARD_X + (selection - 1) * CARD_SPACING, CARDS_Y, SEL_BORDER_WIDTH, SEL_BORDER_HEIGHT, 0);
-  }
-  else
-  {
-    // draw shovel
-    draw_image(SELECTION_BORDER, SHOVEL_X, CARDS_Y, SEL_BORDER_WIDTH, SEL_BORDER_HEIGHT, 0);
-  }
+    // Logging selection
+    uart_puts("[Game State] Selected plant: ");
+    uart_dec(selection);
+    uart_puts(" (");
+    uart_puts(get_plant_name(selection));
+    uart_puts(")\n");
+}
 
-  // Logging selection
-  uart_puts("[Game State] Selected plant: ");
-  uart_dec(selection);
-  uart_puts(" (");
-  uart_puts(get_plant_name(selection));
-  uart_puts(")\n");
+/* Draw cooldown text on plant cards */
+void draw_cooldown_on_cards(int plant_type) {
+    // Card position
+    const int FIRST_CARD_X = 65; // X position of first card
+    const int CARDS_Y = 100;     // Y position of all cards
+    const int CARD_SPACING = 55; // Horizontal spacing between cards
+
+    // Only draw for valid plant types (1-5)
+    if (plant_type < 1 || plant_type > 5) {
+        return;
+    }
+
+    // Calculate card position
+    int card_x = FIRST_CARD_X + (plant_type - 1) * CARD_SPACING;
+    
+    // Draw "COOLDOWN" text in red
+    draw_string(card_x + 5, CARDS_Y + 80, "COOLDOWN", 0x00FF0000, 1);
 }

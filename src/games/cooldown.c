@@ -1,7 +1,8 @@
 #include "../include/cooldown.h"
+#include "../include/game_init.h"  // Add this for select_state
 
 // Track cooldowns for each plant type
-static int plant_cooldowns[10] = {0};
+int plant_cooldowns[10] = {0};
 static int display_timer = 0;  // Timer for periodic display
 
 // Get cooldown time for a plant type (in frames)
@@ -80,15 +81,7 @@ void display_all_cooldowns() {
     uart_puts("----------------------\n");
 }
 
-
 void update_plant_cooldowns() {
-    // Update display timer
-    display_timer++;
-    if (display_timer >= 60) {  
-        display_all_cooldowns();
-        display_timer = 0;
-    }
-
     // Update cooldowns
     for (int i = 1; i <= 5; i++) {  
         if (plant_cooldowns[i] > 0) {
@@ -106,6 +99,15 @@ void update_plant_cooldowns() {
                 };
                 uart_puts(plant_names[i]);
                 uart_puts("\n");
+
+                // Clear the cooldown overlay by restoring the background
+                const int FIRST_CARD_X = 65;
+                const int CARDS_Y = 100;
+                const int CARD_SPACING = 55;
+                int card_x = FIRST_CARD_X + (i - 1) * CARD_SPACING;
+                
+                // Restore the background where the cooldown overlay was
+                restore_background_area(card_x, CARDS_Y, 50, 70, 0, 1, 0, 0);
             }
         }
     }
