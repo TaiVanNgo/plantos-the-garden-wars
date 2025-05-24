@@ -471,45 +471,6 @@ void handle_remove_plant()
     handle_plant_selection(9);
 }
 
-// Add this function before handle_plant_selection
-void draw_plant_cooldown_text(int plant_type)
-{
-    // Card position constants
-    const int FIRST_CARD_X = 65; // X position of first card
-    const int CARDS_Y = 100;     // Y position of all cards
-    const int CARD_SPACING = 55; // Horizontal spacing between cards
-
-    if (plant_type >= 1 && plant_type <= 5)
-    {
-        int card_x = FIRST_CARD_X + (plant_type - 1) * CARD_SPACING;
-        int cooldown = 0;
-        extern int is_plant_on_cooldown(int plant_type);
-        extern int get_plant_cooldown(int plant_type);
-        extern int plant_cooldowns[];
-        cooldown = plant_cooldowns[plant_type];
-        if (cooldown > 0)
-        {
-            // Restore the background area behind the number (20x20 box)
-            restore_background_area(card_x + 15, CARDS_Y + 25, 20, 20, 0, 1, 0, 0);
-            // Decide what to display
-            const char *text = "";
-            if (cooldown > 120)
-            {
-                text = "3";
-            }
-            else if (cooldown > 60)
-            {
-                text = "2";
-            }
-            else if (cooldown > 0)
-            {
-                text = "1";
-            }
-            draw_string(card_x + 15, CARDS_Y + 25, text, RED, 2);
-        }
-    }
-}
-
 void handle_plant_selection(int plant_type)
 {
     // Check if plant is on cooldown
@@ -519,7 +480,6 @@ void handle_plant_selection(int plant_type)
         {
             uart_puts("Plant is on cooldown! ");
             display_plant_cooldown(plant_type);
-            draw_plant_cooldown_text(plant_type); // Draw cooldown text
             return;
         }
         display_plant_cooldown(plant_type);

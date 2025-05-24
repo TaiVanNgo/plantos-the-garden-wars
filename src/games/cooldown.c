@@ -36,15 +36,8 @@ void start_plant_cooldown(int plant_type)
             plant_cooldowns[plant_type] = 0; // Skip cooldown if zero or negative
             return;
         }
-        uart_puts("Started cooldown for ");
-        const char *plant_names[] = {
-            "None",
-            "Sunflower",
-            "Peashooter",
-            "Frozen Peashooter",
-            "Wall-nut",
-            "Chillies"};
-        uart_puts(plant_names[plant_type]);
+        uart_puts("[[CD]] Started cooldown for plant ");
+        uart_dec(plant_type);
         uart_puts("\n");
     }
 }
@@ -63,18 +56,11 @@ void display_plant_cooldown(int plant_type)
     if (plant_type < 1 || plant_type > 5)
         return;
 
-    const char *plant_names[] = {
-        "None",
-        "Sunflower",
-        "Peashooter",
-        "Frozen Peashooter",
-        "Wall-nut",
-        "Chillies"};
-
-    uart_puts(plant_names[plant_type]);
+    uart_puts("[[CD]] Plant ");
+    uart_dec(plant_type);
     uart_puts(" cooldown: ");
-    uart_dec(plant_cooldowns[plant_type] / 60); // Show in seconds
-    uart_puts(" seconds\n");
+    uart_dec(plant_cooldowns[plant_type] / 60);
+    uart_puts("s\n");
 }
 
 // Display all active cooldowns
@@ -102,15 +88,8 @@ void update_plant_cooldowns()
             if (plant_cooldowns[i] <= 0)
             {
                 plant_cooldowns[i] = 0;
-                uart_puts("Cooldown finished for ");
-                const char *plant_names[] = {
-                    "None",
-                    "Sunflower",
-                    "Peashooter",
-                    "Frozen Peashooter",
-                    "Wall-nut",
-                    "Chillies"};
-                uart_puts(plant_names[i]);
+                uart_puts("[[CD]] Cooldown finished for plant ");
+                uart_dec(i);
                 uart_puts("\n");
 
                 // Clear the cooldown overlay by restoring the background
@@ -122,6 +101,40 @@ void update_plant_cooldowns()
                 // Restore the background where the cooldown overlay was
                 restore_background_area(card_x, CARDS_Y, 50, 70, 0, 1, 0, 0);
             }
+        }
+    }
+}
+
+void draw_plant_cooldown_text(int plant_type)
+{
+    // Card position constants
+    const int FIRST_CARD_X = 65; // X position of first card
+    const int CARDS_Y = 100;     // Y position of all cards
+    const int CARD_SPACING = 55; // Horizontal spacing between cards
+
+    if (plant_type >= 1 && plant_type <= 5)
+    {
+        int card_x = FIRST_CARD_X + (plant_type - 1) * CARD_SPACING;
+        int cooldown = plant_cooldowns[plant_type];
+        if (cooldown > 0)
+        {
+            // Restore the background area behind the number (20x20 box)
+            restore_background_area(card_x + 25, CARDS_Y + 25, 20, 20, 0, 1, 0, 0);
+            // Decide what to display
+            const char *text = "";
+            if (cooldown > 120)
+            {
+                text = "3";
+            }
+            else if (cooldown > 60)
+            {
+                text = "2";
+            }
+            else if (cooldown > 0)
+            {
+                text = "1";
+            }
+            draw_string(card_x + 25, CARDS_Y + 25, text, RED, 2);
         }
     }
 }
