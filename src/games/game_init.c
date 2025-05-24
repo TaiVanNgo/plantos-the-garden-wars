@@ -22,6 +22,9 @@ void game_main()
         case GAME_PLAYING:
             start_level();
             break;
+        case GAME_DIFFICULTY:
+            game_start_difficulty();
+            break;
         case GAME_PAUSED:
             // Handle pause menu
             break;
@@ -56,7 +59,82 @@ int check_clear() {
     return 0; 
 }
 
+void game_start_difficulty(){
+    // restore_background_area(240,300,300,85,0,1,0);
+    // restore_background_area(240, 400, 300, 85,0 ,1,0);
+    clear_screen();
+    draw_image(MAIN_SCREEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
 
+    Button normal, medium, hard;
+    button_init(&normal, 240, 300, 300, 130, NORMAL);
+    button_init(&medium, 240, 400, 300, 130, MEDIUM);
+    button_init(&hard, 240, 500, 300, 130, HARD);
+
+    Button *buttons[3] = {&normal, &medium, &hard};
+    int current_selection = 0;
+    int previous_selection = current_selection;
+
+    button_set_state(buttons[current_selection], BUTTON_SELECTED);
+    button_draw_selection(buttons, current_selection, previous_selection);
+
+    while (1)
+    {
+        char key = getUart();
+        if (key == '[')
+        {
+            char key2 = getUart();
+            if ((key2 == 'A'))
+            {
+                // 'up arrow' button
+                int previous_selection = current_selection;
+                button_set_state(buttons[current_selection], BUTTON_NORMAL);
+                current_selection--;
+                if (current_selection < 0)
+                {
+                    current_selection = 2;
+                }
+
+                button_set_state(buttons[current_selection], BUTTON_SELECTED);
+                button_draw_selection(buttons, current_selection, previous_selection);
+            }
+            else if ((key2 == 'B'))
+            {
+                // 'down arrow' button
+                int previous_selection = current_selection;
+                button_set_state(buttons[current_selection], BUTTON_NORMAL);
+
+                current_selection++;
+                if (current_selection > 2)
+                {
+                    current_selection = 0;
+                }
+
+                button_set_state(buttons[current_selection], BUTTON_SELECTED);
+                button_draw_selection(buttons, current_selection, previous_selection);
+            }
+        }
+
+        if (key == '\n')
+        {
+            if (current_selection == 0)
+            {
+                // clear_screen();
+                
+                // game.state = GAME_PLAYING;
+                // game_menu();
+                return;
+            }
+            else if (current_selection == 1)
+            {
+                // uart_puts("Quit Game ");
+                // game.state = GAME_QUIT;
+                return;
+            }else if(current_selection == 3){
+
+            }
+        }
+    }
+}
 void game_menu()
 {
     draw_image(MAIN_SCREEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
@@ -114,8 +192,10 @@ void game_menu()
         {
             if (current_selection == 0)
             {
-                clear_screen();
-                game.state = GAME_PLAYING;
+                // clear_screen();
+                // game.state = GAME_PLAYING;
+                game.state= GAME_DIFFICULTY;
+                
                 return;
             }
             else if (current_selection == 1)

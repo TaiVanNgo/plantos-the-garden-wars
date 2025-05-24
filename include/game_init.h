@@ -25,6 +25,7 @@ extern Plant plant_grid[GRID_ROWS][GRID_COLS];
 typedef enum
 {
   GAME_MENU,
+  GAME_DIFFICULTY,
   GAME_PLAYING,
   GAME_QUIT,
   GAME_PAUSED,
