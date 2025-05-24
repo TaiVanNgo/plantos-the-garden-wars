@@ -433,16 +433,6 @@ int handle_user_input(int *frame_counter) {
         return 1;
     }
 
-    // Check for sun collection
-    if (key == 'S' || key == 's') {
-        if (collect_sun_at_position(select_state.col, select_state.row)) {
-            uart_puts("[Sun] Collected sun! Current sun count: ");
-            uart_dec(game.sun_count);
-            uart_puts("\n");
-            return 1;
-        }
-    }
-
     // Enter key (confirm selection/placement)
     if (key == '\n') {
         handle_enter_key(*frame_counter);
@@ -557,9 +547,14 @@ void handle_arrow_keys() {
         // Restore old cell background first
         restore_background_area(x_old, y_old, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0, 0, 1, 0);
 
-
-        // Restore background at new position
-        // restore_background_area(x_new, y_new, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0, 0, 1, 0);
+        // Automatically collect sun at the new position
+        if (collect_sun_at_position(select_state.col, select_state.row)) {
+            uart_puts("[Sun] Auto-collected sun at (");
+            uart_dec(select_state.col);
+            uart_puts(", ");
+            uart_dec(select_state.row);
+            uart_puts(")\n");
+        }
 
         // Draw at new position
         if (select_state.current_plant != -1) {
@@ -570,7 +565,7 @@ void handle_arrow_keys() {
             place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
         } else {
             // Draw regular cursor
-            draw_image(cursor, x_new, y_new, CURSOR_WIDTH, CURSOR_HEIGHT, 0);
+            draw_image(cursor, x_new + 5, y_new + 7, CURSOR_WIDTH, CURSOR_HEIGHT, 0);
         }
 
         // Debug output
@@ -926,7 +921,7 @@ void draw_cursor() {
     // Otherwise draw normal cursor
     else {
         // Draw cursor in the top-left of the cell
-        draw_image(cursor, x, y, CURSOR_WIDTH, CURSOR_HEIGHT, 0);
+        draw_image(cursor, x + 5, y + 7, CURSOR_WIDTH, CURSOR_HEIGHT, 0);
     }
 }
 
