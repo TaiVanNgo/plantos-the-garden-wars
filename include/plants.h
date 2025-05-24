@@ -43,7 +43,7 @@ typedef struct
     uint8_t attack_speed;  // Attacks per time unit
 } Plant;
 
-extern Plant plant_grid[GRID_ROWS][GRID_COLS];
+extern Plant plant_grid[4][9];
 
 void draw_plant(int plant_type, int col, int row);
 Plant create_plant(uint8_t type, uint8_t col, uint8_t row);
