@@ -18,7 +18,6 @@ const Plant default_sunflower = {
     .col = 0,
     .row = 0,
     .attack_damage = 0, // Sunflowers don't attack
-    .cost = 50,
     .attack_speed = 0, // Sunflowers don't attack
 };
 
@@ -30,7 +29,6 @@ const Plant default_peashooter = {
     .col = 0,
     .row = 0,
     .attack_damage = 20,
-    .cost = 100,
     .attack_speed = 5, // Fires 5 peas per time unit
 };
 
@@ -42,7 +40,6 @@ const Plant default_frozen_peashooter = {
     .col = 0,
     .row = 0,
     .attack_damage = 15, // Slightly less damage than regular peashooter
-    .cost = 175,         // More expensive due to freezing ability
     .attack_speed = 4,   // Fires 4 peas per time unit
 };
 
@@ -54,7 +51,6 @@ const Plant default_walnut = {
     .col = 0,
     .row = 0,
     .attack_damage = 0, // Walnuts don't attack
-    .cost = 50,
     .attack_speed = 0, // Walnuts don't attack
 };
 
@@ -66,7 +62,6 @@ const Plant default_chillies = {
     .col = 0,
     .row = 0,
     .attack_damage = 255, // High damage as it's an explosive plant
-    .cost = 125,
     .attack_speed = 1,
 };
 
@@ -252,7 +247,7 @@ void place_plant_on_background(int plant_type, int grid_col, int grid_row, unsig
 
     // draw_image(GARDEN, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
     // clear_plant_from_background(grid_col,grid_row,1);
-
+    
     draw_plant(plant, grid_col, grid_row);
     restore_background_area(x, y, PLANT_WIDTH, PHYSICAL_HEIGHT, 0, 0, 0, 0);
 }
@@ -336,5 +331,25 @@ const char *get_plant_name(int type)
         return "Shovel";
     default:
         return "Unknown";
+    }
+}
+
+// get plant cost
+int get_plant_cost(int type)
+{
+    switch (type)
+    {
+    case PLANT_TYPE_SUNFLOWER:
+        return PLANT_SUNFLOWER_COST;
+    case PLANT_TYPE_PEASHOOTER:
+        return PLANT_PEASHOOTER_COST;
+    case PLANT_TYPE_FROZEN_PEASHOOTER:
+        return PLANT_FROZEN_PEASHOOTER_COST;
+    case PLANT_TYPE_WALLNUT:
+        return PLANT_WALNUT_COST;
+    case PLANT_TYPE_CHILLIES:
+        return PLANT_CHILLIES_COST;
+    default:
+        return 0; // Invalid plant type
     }
 }

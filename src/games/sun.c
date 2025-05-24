@@ -110,7 +110,7 @@ void update_suns(int current_frame) {
             // Check if the sun has expired
             if (current_frame - suns[i].frame_created >= SUN_LIFETIME) {
                 // Remove the sun from the display
-                restore_background_area(suns[i].x, suns[i].y, SUN_WIDTH, SUN_HEIGHT, 0, 0);
+                restore_background_area(suns[i].x, suns[i].y, SUN_WIDTH, SUN_HEIGHT, 0, 0, 0, 0);
                 suns[i].active = 0;
                 uart_puts("[Sun] Sun disappeared\n");
             }
@@ -149,10 +149,9 @@ int collect_sun_at_position(int col, int row) {
             
             // Sun overlaps with the cell - collect it
             game.sun_count += SUN_VALUE;
-            
             // Remove the sun from the display
-            restore_background_area(suns[i].x, suns[i].y, SUN_WIDTH, SUN_HEIGHT, 0, 0);
-            
+            restore_background_area(suns[i].x, suns[i].y, SUN_WIDTH, SUN_HEIGHT, 0, 0, 0, 0);
+
             // Mark the sun as inactive
             suns[i].active = 0;
             
