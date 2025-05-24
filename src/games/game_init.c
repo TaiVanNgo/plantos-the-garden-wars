@@ -18,7 +18,7 @@ void game_main()
         switch (game.state)
         {
         case GAME_MENU:
-            victory_screen();
+            game_menu();
             break;
         case GAME_PLAYING:
             start_level();
@@ -30,8 +30,7 @@ void game_main()
             // Handle pause menu
             break;
         case GAME_OVER:
-            // draw loose screen
-            draw_image(LOSE_SCREEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
+            game_over();
             break;
         case GAME_VICTORY:
             victory_screen();
@@ -790,6 +789,76 @@ void victory_screen(){
 
                 button_set_state(buttons[current_selection], BUTTON_SELECTED);
                 button_draw_selection(buttons, current_selection, previous_selection, 1);
+            }
+        }
+
+        if (key == '\n')
+        {
+            if (current_selection == 0)
+            {
+                clear_screen();
+                game.state = GAME_MENU;
+                return;
+            }
+            else if (current_selection == 1)
+            {
+                clear_screen();
+                game.state = GAME_PLAYING;
+                return;
+            }
+        }
+    }
+}
+
+void game_over(){
+
+    draw_image(simulated_background, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
+
+
+    Button quit, retry;
+    button_init(&quit, 240, 300, 300, 130, HARD);
+    button_init(&retry, 240, 450, 300, 130, START);
+
+    Button *buttons[] = {&quit, &retry};
+    int current_selection = 0;
+    int previous_selection = current_selection;
+
+    button_set_state(buttons[current_selection], BUTTON_SELECTED);
+    button_draw_selection(buttons, current_selection, previous_selection, 1);
+
+    while (1)
+    {
+        char key = getUart();
+        if (key == '[')
+        {
+            char key2 = getUart();
+            if ((key2 == 'A'))
+            {
+                int previous_selection = current_selection;
+                button_set_state(buttons[current_selection], BUTTON_NORMAL);
+                current_selection--;
+                if (current_selection < 0)
+                {
+                    current_selection = 1;
+                }
+
+                button_set_state(buttons[current_selection], BUTTON_SELECTED);
+                button_draw_selection(buttons, current_selection, previous_selection, 1);
+            }
+            else if ((key2 == 'B'))
+            {
+                // 'down arrow' button
+                int previous_selection = current_selection;
+                button_set_state(buttons[current_selection], BUTTON_NORMAL);
+
+                current_selection++;
+                if (current_selection > 1)
+                {
+                    current_selection = 0;
+                }
+
+                button_set_state(buttons[current_selection], BUTTON_SELECTED);
+                button_draw_selection(buttons, current_selection, previous_selection, 0);
             }
         }
 
