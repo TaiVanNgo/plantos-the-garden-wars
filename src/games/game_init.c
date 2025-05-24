@@ -1,13 +1,18 @@
-#include "../../include/game_init.h"
+#include "../include/game_init.h"
+#include "../include/bullet.h"
+#include "../include/cooldown.h"  // Add cooldown include
+
+extern int flame_active[GRID_ROWS];  // Add external declaration
 
 SelectionState select_state = {
     .mode = 0, .selected_card = -1, .row = 0, .col = 0, .current_plant = -1};
 
-GameState game = {.state = GAME_VICTORY, .score = 0, .level = LEVEL_HARD_ENUM};
+GameState game = {.state = GAME_MENU, .score = 0, .level = LEVEL_HARD_ENUM};
 
+Plant plant_grid[GRID_ROWS][GRID_COLS];
+int prev_col, prev_row;
 void game_main()
 {
-
     while (1)
     {
         switch (game.state)
@@ -18,14 +23,16 @@ void game_main()
         case GAME_PLAYING:
             start_level();
             break;
+        case GAME_DIFFICULTY:
+            game_start_difficulty();
+            break;
         case GAME_PAUSED:
             // Handle pause menu
             break;
         case GAME_OVER:
-            game_over();
+            // draw loose screen
+            draw_image(LOSE_SCREEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
             break;
-        case GAME_VICTORY:
-            victory_screen();
         case GAME_QUIT:
             break;
         default:
@@ -34,6 +41,104 @@ void game_main()
     }
 }
 
+int check_occupied()
+{
+    if (plant_grid[select_state.row][select_state.col].type != 255)
+    {
+        uart_puts("Cell already occupied!\n");
+        return 0;
+    }
+
+    return 1;
+}
+
+int check_clear() {
+    if (plant_grid[prev_row][prev_col].type != 255) {
+        uart_puts("Cell already occupied!\n");
+        return 1;
+    }
+    return 0; 
+}
+
+void game_start_difficulty(){
+    // restore_background_area(240,300,300,85,0,1,0);
+    // restore_background_area(240, 400, 300, 85,0 ,1,0);
+    clear_screen();
+    draw_image(MAIN_SCREEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
+
+    Button normal, medium, hard;
+    button_init(&normal, 240, 300, 300, 130, NORMAL);
+    button_init(&medium, 240, 400, 300, 130, MEDIUM);
+    button_init(&hard, 240, 500, 300, 130, HARD);
+
+    Button *buttons[3] = {&normal, &medium, &hard};
+    int current_selection = 0;
+    int previous_selection = current_selection;
+
+    button_set_state(buttons[current_selection], BUTTON_SELECTED);
+    button_draw_selection(buttons, current_selection, previous_selection);
+
+    while (1)
+    {
+        char key = getUart();
+        if (key == '[')
+        {
+            char key2 = getUart();
+            if ((key2 == 'A'))
+            {
+                // 'up arrow' button
+                int previous_selection = current_selection;
+                button_set_state(buttons[current_selection], BUTTON_NORMAL);
+                current_selection--;
+                if (current_selection < 0)
+                {
+                    current_selection = 2;
+                }
+
+                button_set_state(buttons[current_selection], BUTTON_SELECTED);
+                button_draw_selection(buttons, current_selection, previous_selection);
+            }
+            else if ((key2 == 'B'))
+            {
+                // 'down arrow' button
+                int previous_selection = current_selection;
+                button_set_state(buttons[current_selection], BUTTON_NORMAL);
+
+                current_selection++;
+                if (current_selection > 2)
+                {
+                    current_selection = 0;
+                }
+
+                button_set_state(buttons[current_selection], BUTTON_SELECTED);
+                button_draw_selection(buttons, current_selection, previous_selection);
+            }
+        }
+
+        if (key == '\n')
+        {
+            if (current_selection == 0)
+            {
+                clear_screen();
+                game.state = GAME_PLAYING;
+                game.level= LEVEL_NORMAL_ENUM;
+                return;
+            }
+            else if (current_selection == 1)
+            {
+                clear_screen();
+                game.state = GAME_PLAYING;
+                game.level= LEVEL_MEDIUM_ENUM;
+                return;
+            }else if(current_selection == 2){
+                clear_screen();
+                game.state = GAME_PLAYING;
+                game.level= LEVEL_HARD_ENUM;
+                return;
+            }
+        }
+    }
+}
 void game_menu()
 {
     draw_image(MAIN_SCREEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
@@ -48,7 +153,7 @@ void game_menu()
     int previous_selection = current_selection;
     // Initially set the first button selected
     button_set_state(buttons[current_selection], BUTTON_SELECTED);
-    button_draw_selection(buttons, current_selection, previous_selection, 1);
+    button_draw_selection(buttons, current_selection, previous_selection);
 
     while (1)
     {
@@ -68,7 +173,7 @@ void game_menu()
                 }
 
                 button_set_state(buttons[current_selection], BUTTON_SELECTED);
-                button_draw_selection(buttons, current_selection, previous_selection, 1);
+                button_draw_selection(buttons, current_selection, previous_selection);
             }
             else if ((key2 == 'B'))
             {
@@ -83,7 +188,7 @@ void game_menu()
                 }
 
                 button_set_state(buttons[current_selection], BUTTON_SELECTED);
-                button_draw_selection(buttons, current_selection, previous_selection, 1);
+                button_draw_selection(buttons, current_selection, previous_selection);
             }
         }
 
@@ -91,8 +196,7 @@ void game_menu()
         {
             if (current_selection == 0)
             {
-                clear_screen();
-                game.state = GAME_PLAYING;
+                game.state= GAME_DIFFICULTY;
                 return;
             }
             else if (current_selection == 1)
@@ -105,70 +209,22 @@ void game_menu()
     }
 }
 
-void draw_selection(int row, int col)
-{
-    static int prev_row = -1;
-    static int prev_col = -1;
-    static int prev_mode = -1;
-
-    // If we have a previous selection, restore that area
-    if (prev_row != -1 && prev_col != -1)
-    {
-        if (prev_mode == 0)
-        {
-            // Restore card selection area
-            int x = CARD_START_X + prev_col * CARD_WIDTH;
-            int y = CARD_START_Y;
-            restore_background_area(x - 4, y - 4, CARD_WIDTH + 8, CARD_HEIGHT + 8, 0);
-        }
-        else
-        {
-            // Restore grid cell area
-            int x = GRID_LEFT_MARGIN + prev_col * GRID_COL_WIDTH;
-            int y = GRID_TOP_MARGIN + prev_row * GRID_ROW_HEIGHT;
-            restore_background_area(x - 4, y - 4, GRID_COL_WIDTH + 8, GRID_ROW_HEIGHT + 8, 0);
-        }
-    }
-
-    // Draw new selection
-    if (select_state.mode == 0)
-    {
-        // Draw selection around a plant card
-        int x = CARD_START_X + col * CARD_WIDTH;
-        int y = CARD_START_Y;
-
-        // Draw a yellow highlight around the card
-        draw_rect(x - 3, y - 3, CARD_WIDTH + 6, CARD_HEIGHT + 6, 0xFFFF00, 0);
-    }
-    else
-    {
-        // Draw selection on grid for placement
-        int x = GRID_LEFT_MARGIN + col * GRID_COL_WIDTH;
-        int y = GRID_TOP_MARGIN + row * GRID_ROW_HEIGHT;
-
-        // Draw a white semi-transparent rectangle to show valid placement
-        draw_rect(x, y, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0x80FFFFFF, 0);
-
-        // If we have a selected card, show the plant preview
-        if (select_state.selected_card >= 0)
-        {
-            // This would show a preview of the plant
-            // You'll need plant sprites for this
-            // For now, just draw a colored rectangle
-            draw_rect(x + 15, y + 15, 50, 50, 0x8000FF00, 1);
-        }
-    }
-
-    // Remember current selection for next time
-    prev_row = row;
-    prev_col = col;
-    prev_mode = select_state.mode;
-}
-
 void start_level()
 {
+    reset_zombie_counts(); // Reset zombie tracking
+
     // draw background first
-    draw_image(GARDEN, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
+    for (int i = 0; i < GRID_ROWS; i++)
+    {
+        for (int j = 0; j < GRID_COLS; j++)
+        {
+            plant_grid[i][j].type = -1;
+        }
+    }
+
+    create_simulated_background(simulated_background, GARDEN, GARDEN_WIDTH, GARDEN_HEIGHT);
+    create_simulated_background(tmp,GARDEN, GARDEN_WIDTH, GARDEN_HEIGHT);
+    draw_image(simulated_background, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
     draw_grid();
 
     /* Plant Setting*/
@@ -187,11 +243,7 @@ void start_level()
     unsigned long start_counter;
     asm volatile("mrs %0, cntpct_el0" : "=r"(start_counter));
     unsigned long start_ms = start_counter * 1000 / freq;
-    bullet_system_init(start_ms, 1000); // Initialize with 1 second fire interval
-
-    // Spawn a peashooter in the first row
-    Spawn_peashooter(1, 0, start_ms);
-    Spawn_peashooter(2, 0, start_ms);
+    bullet_system_init(start_ms, 5000); // Initialize with 1 second fire interval
 
     /* Zombie settings */
     // Define individual zombies instead of an array
@@ -216,6 +268,7 @@ void start_level()
     while (1)
     {
         set_wait_timer(1, 50);
+
         /*====== USER LOGIC START ====== */
         if (uart_isReadByteReady())
         {
@@ -223,19 +276,29 @@ void start_level()
         }
         /*====== USER LOGIC END ====== */
 
+        // Update cooldowns
+        update_plant_cooldowns();
+
         // Update bullet system
         unsigned long current_counter;
         asm volatile("mrs %0, cntpct_el0" : "=r"(current_counter));
+        unsigned long freq;
+        asm volatile("mrs %0, cntfrq_el0" : "=r"(freq));
         unsigned long current_time_ms = current_counter * 1000 / freq;
+
+        // Update bullets
         bullet_update(current_time_ms);
         bullet_draw();
+
+        // Update flame effects with current frame
+        update_flame_effects(frame_counter);
 
         /*====== ZOMBIE LOGIC START ====== */
         for (int i = 0; i < 10; i++)
         {
             if (frame_counter == spawn_times[i] && !zombie_spawned[i])
             {
-                uart_puts("Spawning zombie ");
+                uart_puts("[Zombie] Spawning zombie ");
                 uart_dec(i + 1);
                 uart_puts(" of type ");
                 uart_dec(zombie_types[i]);
@@ -281,6 +344,7 @@ void start_level()
                     break;
                 }
 
+                register_zombie_on_row(zombie_rows[i], 1);
                 zombie_spawned[i] = 1;
             }
         }
@@ -291,10 +355,10 @@ void start_level()
             if (!zombie_spawned[i] || !zombie_pointers[i]->active)
                 continue;
 
-            // Print zombie position in per 30 frame counts
-            if (frame_counter % 30 == 0)
+            // Print zombie position in per 100 frame counts
+            if (frame_counter % 100 == 0)
             {
-                uart_puts("Updating zombie ");
+                uart_puts("[Zombie] Updating zombie ");
                 uart_dec(i + 1);
                 uart_puts(" at position x=");
                 uart_dec(zombie_pointers[i]->x);
@@ -308,22 +372,28 @@ void start_level()
             // Check for bullet collisions
             check_bullet_zombie_collisions(zombie_pointers[i]);
 
+            // Check for chilli damage if flames are active on this row
+            if (flame_active[zombie_pointers[i]->row]) {
+                apply_chilli_damage(zombie_pointers[i]);
+            }
+
             // Check for game over
-            if (zombie_pointers[i]->x <= 500)
+            if (zombie_pointers[i]->x <= 50)
             {
                 game.state = GAME_OVER;
-                uart_puts("Game Over - Zombie reached house\n");
+                uart_puts("[Game State] Game Over - Zombie reached house\n");
                 return;
             }
 
             // Check if killed
-            if (zombie_pointers[i]->health <= 0)
+            if (zombie_pointers[i]->health <= 0 && zombie_pointers[i]->active)
             {
                 zombie_pointers[i]->active = 0;
+                register_zombie_on_row(zombie_pointers[i]->row, 0);
                 zombies_killed++;
                 game.score += ZOMBIE_KILL_REWARD;
 
-                uart_puts("Kill Zombie + ");
+                uart_puts("[Plant] Kill Zombie + ");
                 uart_dec(ZOMBIE_KILL_REWARD);
                 uart_puts(" ,Total Score: ");
                 uart_dec(game.score);
@@ -334,7 +404,6 @@ void start_level()
             if (zombies_killed >= 10)
             {
                 delay_ms(2000);
-
                 game.state = GAME_VICTORY;
                 return;
             }
@@ -360,44 +429,84 @@ int handle_user_input(int *frame_counter)
     }
 
     // Arrow keys
-    if (key == '[')
+    if (key == '[' && select_state.current_plant != -1)
     {
+        prev_col= select_state.col;
+        prev_row= select_state.row;
+        uart_puts("selected _ plant\n");
+        uart_dec(select_state.current_plant);
+        uart_puts("\n");
         handle_arrow_keys();
         return 1;
     }
 
+    if (key == 'P' || key == 'p')
+    {
+        handle_remove_plant();
+    }
     // Enter key (confirm selection/placement)
     if (key == '\n')
     {
-        handle_enter_key();
+        handle_enter_key(*frame_counter);
         return 1;
     }
 
     return 0; // Key wasn't handled
 }
 
+
+void handle_remove_plant()
+{
+    select_state.selected_card = 9;
+    select_state.mode = 2;
+    handle_plant_selection(9);
+}
 // Handle plant selection with number keys
 void handle_plant_selection(int plant_type)
-
 {
+    // Check if plant is on cooldown
+    if (plant_type >= 1 && plant_type <= 5) {
+        if (is_plant_on_cooldown(plant_type)) {
+            uart_puts("Plant is on cooldown! ");
+            display_plant_cooldown(plant_type);
+            return;
+        }
+        display_plant_cooldown(plant_type);  
+    }
+
     int x_card = 0, y_card = 0;
     select_state.current_plant = plant_type;
 
-    if (select_state.current_plant != -1)
+    draw_selection_border(plant_type);
+    if (select_state.mode == 2)
     {
         grid_to_pixel(select_state.col, select_state.row, &x_card, &y_card);
-        restore_background_area(x_card, y_card, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0);
+        restore_background_area(x_card, y_card, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0, 0, 0);
         draw_plant(select_state.current_plant, select_state.col, select_state.row);
+        return;
+    }
+
+    if (select_state.current_plant != -1)
+    {
+        int taken= check_clear() ? 1: 0; 
+        clear_plant_from_background(prev_col,prev_row, 0, taken);
+        // grid_to_pixel(select_state.col, select_state.row, &x_card, &y_card);
+        place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
+        // restore_background_area(x_card, y_card, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0, 0);
+        // draw_plant(select_state.current_plant, select_state.col, select_state.row);
+        
+        // update_framebuffer_region(x_card, y_card, PLANT_WIDTH, PLANT_HEIGHT);
+        // place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, tmp);
     }
 }
 
-// Handle arrow key navigation
+
 void handle_arrow_keys()
 {
     int x_card = 0, y_card = 0;
     char key2 = getUart();
 
-    // Get current position for potential restoration
+
     grid_to_pixel(select_state.col, select_state.row, &x_card, &y_card);
 
     // Process direction
@@ -411,7 +520,7 @@ void handle_arrow_keys()
         break;
 
     case 'B': // Down arrow
-        if (select_state.row < 4)
+        if (select_state.row < 3)
         {
             select_state.row++;
         }
@@ -438,8 +547,16 @@ void handle_arrow_keys()
     // Update display if a plant is selected
     if (select_state.current_plant != -1)
     {
-        restore_background_area(x_card, y_card, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0);
-        draw_plant(select_state.current_plant, select_state.col, select_state.row);
+        int taken= check_clear() ? 1: 0; 
+
+        clear_plant_from_background(prev_col,prev_row, 0, taken);
+        // clear_plant_from_background(prev_col, prev_row, 1);
+        // place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
+        // place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, tmp);
+        place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
+        // update_framebuffer_region(x_card, y_card, PLANT_WIDTH, PLANT_HEIGHT);
+        // draw_plant(select_state.current_plant, select_state.col, select_state.row);
+       
     }
 
     // Debug output
@@ -450,235 +567,175 @@ void handle_arrow_keys()
     uart_puts(")\n");
 }
 
-// Handle Enter key press
-void handle_enter_key()
+void handle_enter_key(int frame_counter)
 {
+    if (select_state.mode == 2)
+    {
+        int x, y;
+        plant_grid[select_state.row][select_state.col].type = 255;
+        clear_plant_from_background(select_state.col, select_state.row, 0, 0);
+        select_state.mode = 1;
+        select_state.selected_card = -1;
+        select_state.current_plant = -1;
+
+        // clear selection border
+        draw_selection_border(-1);
+
+        select_state.row = 0;
+        select_state.col = 0;
+        return;
+    }
+
+    if (!check_occupied())
+    {
+        return;
+    }
     if (select_state.mode == 0)
     {
-        // Select this plant card
-        select_state.selected_card = select_state.col;
+        // Start cooldown when plant is placed
+        if (select_state.current_plant >= 1 && select_state.current_plant <= 5) {
+            start_plant_cooldown(select_state.current_plant);
+        }
 
-        // Switch to grid placement mode
+        place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
+        place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, tmp);
+        Plant new_plant = create_plant(select_state.current_plant, select_state.col, select_state.row);
+        plant_grid[select_state.row][select_state.col] = new_plant;
+
+        // Register plant with bullet system if it's a shooting plant
+        if (select_state.current_plant == PLANT_PEASHOOTER ||
+            select_state.current_plant == PLANT_FROZEN_PEASHOOTER)
+        {
+            unsigned long current_counter;
+            asm volatile("mrs %0, cntpct_el0" : "=r"(current_counter));
+            unsigned long freq;
+            asm volatile("mrs %0, cntfrq_el0" : "=r"(freq));
+            unsigned long current_time_ms = current_counter * 1000 / freq;
+            bullet_spawn_plant(select_state.col, select_state.row, current_time_ms);
+        }
+        else if (select_state.current_plant == PLANT_CHILLIES)
+        {
+            chillies_detonate(select_state.row, frame_counter);
+            // Clear the chilli plant from the grid and background
+            plant_grid[select_state.row][select_state.col].type = 255;
+            clear_plant_from_background(select_state.col, select_state.row, 0, 0);
+        }
+
+        select_state.selected_card = -1;
+        select_state.current_plant = -1;
+
+        // clear selection border
+        draw_selection_border(-1);
+
         select_state.mode = 1;
         select_state.row = 0;
         select_state.col = 0;
-        draw_selection(select_state.row, select_state.col);
     }
-    else
+    else if (select_state.mode == 1)
     {
-        // Place the plant at the selected grid position
-        // place_plant(selected_card, selected_row, selected_col);
+        // Start cooldown when plant is placed
+        if (select_state.current_plant >= 1 && select_state.current_plant <= 5) {
+            start_plant_cooldown(select_state.current_plant);
+        }
 
-        // Return to card selection mode
+        place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
+        // place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, tmp);
+        Plant new_plant = create_plant(select_state.current_plant, select_state.col, select_state.row);
+        plant_grid[select_state.row][select_state.col] = new_plant;
+
+        // Register plant with bullet system if it's a shooting plant
+        if (select_state.current_plant == PLANT_PEASHOOTER ||
+            select_state.current_plant == PLANT_FROZEN_PEASHOOTER)
+        {
+            unsigned long current_counter;
+            asm volatile("mrs %0, cntpct_el0" : "=r"(current_counter));
+            unsigned long freq;
+            asm volatile("mrs %0, cntfrq_el0" : "=r"(freq));
+            unsigned long current_time_ms = current_counter * 1000 / freq;
+            bullet_spawn_plant(select_state.col, select_state.row, current_time_ms);
+        }
+        else if (select_state.current_plant == PLANT_CHILLIES)
+        {
+            chillies_detonate(select_state.row, frame_counter);
+            
+            plant_grid[select_state.row][select_state.col].type = 255;
+            clear_plant_from_background(select_state.col, select_state.row, 0, 0);
+        }
+
         select_state.mode = 0;
         select_state.selected_card = -1;
+        select_state.current_plant = -1;
+
+        draw_selection_border(-1);
+
+        select_state.row = 0;
         select_state.col = 0;
-        draw_selection(select_state.row, select_state.col);
     }
 }
 
 void set_zombie_types_level(int level, int zombie_types[10])
 {
-    if (level == LEVEL_EASY_ENUM)
+    if (level == LEVEL_NORMAL_ENUM )
     {
-        for (int i = 0; i < 8; i++)
+        // easy level: 5 normal zombie + 3 bucket zombies + 2 helmet zombies
+        for (int i = 0; i < 5; i++)
         {
             zombie_types[i] = ZOMBIE_NORMAL;
         }
 
-        zombie_types[8] = ZOMBIE_BUCKET;
-        zombie_types[9] = ZOMBIE_HELMET;
-    }
-    else if (level == LEVEL_INTERMEDIATE_ENUM)
-    {
-        // Intermediate level - 3 normal + 5 bucket + 2 helmet
-        for (int i = 0; i < 3; i++)
-        {
-            zombie_types[i] = ZOMBIE_NORMAL;
-        }
-        for (int i = 3; i < 8; i++)
+        for (int i = 5; i < 8; i++)
         {
             zombie_types[i] = ZOMBIE_BUCKET;
         }
+
         zombie_types[8] = ZOMBIE_HELMET;
         zombie_types[9] = ZOMBIE_HELMET;
     }
-    else
+    else if (level == LEVEL_MEDIUM_ENUM)
     {
-        // Hard level - mix of bucket and helmet zombies
-        for (int i = 0; i < 5; i++)
+        // Intermediate level - 3 normal + 3 bucket + 4 helmet
+        for (int i = 0; i < 3; i++)
+    {
+            zombie_types[i] = ZOMBIE_NORMAL;
+    }
+        for (int i = 3; i < 6; i++)
         {
             zombie_types[i] = ZOMBIE_BUCKET;
         }
-        for (int i = 5; i < 10; i++)
+        for (int i = 6; i < 10; i++)
         {
             zombie_types[i] = ZOMBIE_HELMET;
         }
     }
-}
-
-void game_over()
-{
-    // clear_screen();
-    draw_image(LOSE_SCREEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
-
-    // Create buttons
-    Button home_button;
-    Button retry_button;
-
-    button_init(&home_button, 100, 450, 230, 100, HOME);
-    button_init(&retry_button, 450, 450, 230, 100, RETRY);
-
-    Button *buttons[2] = {&home_button, &retry_button};
-    int current_selection = 0;
-    int previous_selection = current_selection;
-
-    // Initially set the first button selected
-    button_set_state(buttons[current_selection], BUTTON_SELECTED);
-    button_draw_selection(buttons, current_selection, previous_selection, 1);
-
-    while (1)
+    else
     {
-        char key = getUart();
-
-        if (key == '[')
+        // Hard level- 4 buckets + 3 helmet + 3 footballs
+        for (int i = 0; i < 4; i++)
         {
-            char key2 = getUart();
-
-            // Handle left/right navigation between buttons
-            if (key2 == 'C') // Right arrow
-            {
-                previous_selection = current_selection;
-                button_set_state(buttons[current_selection], BUTTON_NORMAL);
-
-                current_selection++;
-                if (current_selection > 1)
-                {
-                    current_selection = 0;
-                }
-
-                button_set_state(buttons[current_selection], BUTTON_SELECTED);
-                button_draw_selection(buttons, current_selection, previous_selection, 0);
-            }
-            else if (key2 == 'D') // Left arrow
-            {
-                previous_selection = current_selection;
-                button_set_state(buttons[current_selection], BUTTON_NORMAL);
-
-                current_selection--;
-                if (current_selection < 0)
-                {
-                    current_selection = 1;
-                }
-
-                button_set_state(buttons[current_selection], BUTTON_SELECTED);
-                button_draw_selection(buttons, current_selection, previous_selection, 0);
-            }
-
-            // Add inside the key handling code
-            uart_puts("Selected button: ");
-            uart_dec(current_selection);
-            uart_puts("\n");
+            zombie_types[i] = ZOMBIE_BUCKET;
         }
-
-        // Handle button press (Enter key)
-        if (key == '\n')
+        for (int i = 4; i < 7; i++)
         {
-            if (current_selection == 0) // Home button
-            {
-                clear_screen();
-                game.state = GAME_MENU;
-                return;
-            }
-            else if (current_selection == 1) // Retry button
-            {
-                clear_screen();
-                game.state = GAME_PLAYING;
-                return;
-            }
+            zombie_types[i] = ZOMBIE_HELMET;
+        }
+        for (int i = 7; i < 10; i++)
+        {
+            zombie_types[i] = ZOMBIE_FOOTBALL;
         }
     }
 }
 
-void victory_screen()
+int get_selection_current_plant(void)
 {
-    // clear_screen();
-    draw_image(VICTORY_SCREEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
+    return select_state.current_plant;
+}
 
-    // Create buttons
-    Button back_button;
-    Button next_round;
+int get_selection_row(void)
+{
+    return select_state.row;
+}
 
-    button_init(&back_button, 100, 350, 200, 200, BACK_BUTTON);
-    button_init(&next_round, 450, 350, 200, 200, NEXTROUND);
-
-    Button *buttons[2] = {&back_button, &next_round};
-    int current_selection = 0;
-    int previous_selection = current_selection;
-
-    // Initially set the first button selected
-    button_set_state(buttons[current_selection], BUTTON_SELECTED);
-    button_draw_selection(buttons, current_selection, previous_selection, 1);
-
-    while (1)
-    {
-        char key = getUart();
-
-        if (key == '[')
-        {
-            char key2 = getUart();
-
-            // Handle left/right navigation between buttons
-            if (key2 == 'C') // Right arrow
-            {
-                previous_selection = current_selection;
-                button_set_state(buttons[current_selection], BUTTON_NORMAL);
-
-                current_selection++;
-                if (current_selection > 1)
-                {
-                    current_selection = 0;
-                }
-
-                button_set_state(buttons[current_selection], BUTTON_SELECTED);
-                button_draw_selection(buttons, current_selection, previous_selection, 0);
-            }
-            else if (key2 == 'D') // Left arrow
-            {
-                previous_selection = current_selection;
-                button_set_state(buttons[current_selection], BUTTON_NORMAL);
-
-                current_selection--;
-                if (current_selection < 0)
-                {
-                    current_selection = 1;
-                }
-
-                button_set_state(buttons[current_selection], BUTTON_SELECTED);
-                button_draw_selection(buttons, current_selection, previous_selection, 0);
-            }
-
-            // Add inside the key handling code
-            uart_puts("Selected button: ");
-            uart_dec(current_selection);
-            uart_puts("\n");
-        }
-
-        // Handle button press (Enter key)
-        if (key == '\n')
-        {
-            if (current_selection == 0) // Home button
-            {
-                clear_screen();
-                game.state = GAME_MENU;
-                return;
-            }
-            else if (current_selection == 1) // Retry button
-            {
-                clear_screen();
-                game.state = GAME_PLAYING;
-                return;
-            }
-        }
-    }
+int get_selection_col(void)
+{
+    return select_state.col;
 }

@@ -4,6 +4,8 @@
 #include "gpio.h"
 #include "framebf.h"
 #include "grid.h"
+#include "plants.h"
+
 #include "../assets/sprites/zombies/zombie_sprite.h"
 
 #define START_X_POS 700
@@ -14,6 +16,7 @@ enum ZombieType
   ZOMBIE_NORMAL = 1,
   ZOMBIE_BUCKET = 2,
   ZOMBIE_HELMET = 3,
+  ZOMBIE_FOOTBALL = 4,
 };
 
 typedef struct
@@ -30,7 +33,6 @@ typedef struct
   uint8_t attack_speed; // Attack rate (ticks between attacks)
   uint8_t is_frozen;    // Frozen status (1 = yes, 0 = no)
   uint8_t active;       // 1 = alive and moving, 0 = dead
-
 } Zombie;
 
 extern const Zombie default_zombie_normal;
@@ -38,6 +40,7 @@ Zombie create_zombie(uint8_t type, uint8_t row); // update zombie data
 Zombie spawn_zombie(uint8_t type, uint8_t row);  // Draw zombie on screen
 int move_zombie(Zombie *zombie);                 // Returns 1 if reached edge, 0 otherwise
 void update_zombie_position(Zombie *zombie);
+int is_reached_plant(Zombie *zombie);
 
 // Add after the existing function declarations
 int is_zombie_on_row(int row); // Returns 1 if any active zombie is on the given row

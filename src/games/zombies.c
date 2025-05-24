@@ -1,4 +1,5 @@
 #include "../../include/zombies.h"
+#include "../../include/bullet.h"
 
 // Default Zombie Basic
 const Zombie default_zombie_normal = {
@@ -19,11 +20,11 @@ const Zombie default_zombie_bucket = {
     .x = 800,
     .y = 0,
     .row = 0,
-    .health = 150,
-    .max_health = 150,
+    .health = 200,
+    .max_health = 200,
     .speed = 1,
     .damage = 10,
-    .attack_speed = 8,
+    .attack_speed = 5,
     .is_frozen = 0,
     .active = 1};
 
@@ -32,11 +33,24 @@ const Zombie default_zombie_helmet = {
     .x = 800,
     .y = 0,
     .row = 0,
-    .health = 250,
-    .max_health = 250,
+    .health = 300,
+    .max_health = 300,
     .speed = 1,
     .damage = 15,
-    .attack_speed = 8,
+    .attack_speed = 10,
+    .is_frozen = 0,
+    .active = 1};
+
+const Zombie default_zombie_football = {
+    .type = ZOMBIE_FOOTBALL,
+    .x = 800,
+    .y = 0,
+    .row = 0,
+    .health = 350,
+    .max_health = 350,
+    .speed = 2,
+    .damage = 15,
+    .attack_speed = 10,
     .is_frozen = 0,
     .active = 1};
 
@@ -53,6 +67,9 @@ Zombie create_zombie(uint8_t type, uint8_t row)
     break;
   case ZOMBIE_HELMET:
     new_zombie = default_zombie_helmet;
+    break;
+  case ZOMBIE_FOOTBALL:
+    new_zombie = default_zombie_football;
     break;
   default:
     break;
@@ -80,8 +97,10 @@ Zombie spawn_zombie(uint8_t type, uint8_t row)
   case ZOMBIE_HELMET:
     draw_image(ZOMBIE_HELMET_SPRITE, new_zombie.x, new_zombie.y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);
     break;
+  case ZOMBIE_FOOTBALL:
+    draw_image(ZOMBIE_FOOTBALL_SPRITE, new_zombie.x, new_zombie.y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);
+    break;
   default:
-    // Fallback to normal zombie if type is unknown    draw_image(ZOMBIE_NORMAL_SPRITE, new_zombie.x, new_zombie.y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);
     break;
   }
   return new_zombie;
@@ -92,6 +111,49 @@ int move_zombie(Zombie *zombie)
   // if zombie is dead
   if (!zombie->active)
     return 0;
+
+  if (is_reached_plant(zombie))
+  {
+    int zombie_col = (zombie->x - GRID_LEFT_MARGIN) / GRID_COL_WIDTH;
+
+    // Apply damage to plant
+    static int attack_counter = 0;
+    attack_counter++;
+
+    if (attack_counter >= zombie->attack_speed)
+    {
+      attack_counter = 0;
+
+      // if the plant's health is lower than zombie damage => Destroy the plan
+      if (plant_grid[zombie->row][zombie_col].health <= zombie->damage)
+      {
+        plant_grid[zombie->row][zombie_col].health = 0;
+        uart_puts("[Zombie] Plant is Destroyed!\n");
+        
+        // Remove plant from bullet system if it's a shooting plant
+        if (plant_grid[zombie->row][zombie_col].type == PLANT_PEASHOOTER ||
+            plant_grid[zombie->row][zombie_col].type == PLANT_FROZEN_PEASHOOTER) {
+            bullet_remove_plant(zombie_col, zombie->row);
+        }
+        
+        plant_grid[zombie->row][zombie_col].type = 255; // Mark as empty
+        clear_plant_from_background(zombie_col, zombie->row, 0, 0);
+      }
+      else // plant's health still enough to get zombie damage
+      {
+        plant_grid[zombie->row][zombie_col].health -= zombie->damage;
+
+        uart_puts("[Zombie] Attacking Plant: damage=");
+        uart_dec(zombie->damage);
+        uart_puts(", Plant health=");
+        uart_dec(plant_grid[zombie->row][zombie_col].health);
+        uart_puts("\n");
+      }
+    }
+
+    // code 2: Attacking plant
+    return 2;
+  }
 
   uint8_t actual_speed = zombie->is_frozen ? (zombie->speed / 2) : zombie->speed;
 
@@ -125,40 +187,83 @@ void update_zombie_position(Zombie *zombie)
   int old_y = zombie->y;
 
   // Restore background from old position
-  restore_background_area(old_x, old_y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);
+  restore_background_area(old_x, old_y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0, 0, 0);
 
   // Move zombie left (update position)
-  move_zombie(zombie);
+  int status = move_zombie(zombie);
 
-  // Draw the zombie at its current position
-  switch (zombie->type)
+  // zombie is attacking
+  if (status == 2)
   {
-  case ZOMBIE_NORMAL:
-    draw_image(ZOMBIE_NORMAL_SPRITE, zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 1);
-    break;
-  case ZOMBIE_BUCKET:
-    draw_image(ZOMBIE_BUCKET_SPRITE, zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 1);
-    break;
-  case ZOMBIE_HELMET:
-    draw_image(ZOMBIE_HELMET_SPRITE, zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 1);
-    break;
-  default:
-    break;
+    // Draw with attack animation
+    switch (zombie->type)
+    {
+    case ZOMBIE_NORMAL:
+      draw_image(ZOMBIE_NORMAL_SPRITE, zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);
+      break;
+    case ZOMBIE_BUCKET:
+      draw_image(ZOMBIE_BUCKET_SPRITE, zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);
+      break;
+    case ZOMBIE_HELMET:
+      draw_image(ZOMBIE_HELMET_SPRITE, zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);
+      break;
+    case ZOMBIE_FOOTBALL:
+      draw_image(ZOMBIE_FOOTBALL_SPRITE, zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);
+      break;
+    }
+
+    // Calculate plant position in the col, row
+    int zombie_col = (zombie->x - GRID_LEFT_MARGIN) / GRID_COL_WIDTH;
+    int plant_x, plant_y;
+    // Get pixel coordinates for the grid cell
+    grid_to_pixel(zombie_col, zombie->row, &plant_x, &plant_y);
+
+    // Center the scar on the plant
+    int scar_x = plant_x + (GRID_COL_WIDTH - SCAR_WIDTH) / 2;
+    int scar_y = plant_y + (GRID_ROW_HEIGHT - SCAR_HEIGHT) / 2;
+
+    // Draw attack scar on the plant
+    draw_image(SCAR_SPRITE, scar_x, scar_y, SCAR_WIDTH, SCAR_HEIGHT, 0);
+  }
+  // Normal movement
+  else
+  {
+    // Draw the zombie at its current position
+    switch (zombie->type)
+    {
+    case ZOMBIE_NORMAL:
+      draw_image(ZOMBIE_NORMAL_SPRITE, zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);
+      break;
+    case ZOMBIE_BUCKET:
+      draw_image(ZOMBIE_BUCKET_SPRITE, zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);
+      break;
+    case ZOMBIE_HELMET:
+      draw_image(ZOMBIE_HELMET_SPRITE, zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);
+      break;
+    case ZOMBIE_FOOTBALL:
+      draw_image(ZOMBIE_FOOTBALL_SPRITE, zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);
+      break;
+    default:
+      break;
+    }
   }
 }
 
-// void update_zombie_in_global_array(Zombie *zombie)
-// {
-//   // Removed row check and global array update logic
-//   // This function now does nothing, allowing multiple zombies to be spawned without interference
-// }
+int is_reached_plant(Zombie *zombie)
+{
+  int zombie_col = (zombie->x - GRID_LEFT_MARGIN) / GRID_COL_WIDTH;
 
-// // Add new function to check if any zombie is on a given row
-// int is_zombie_on_row(int row)
-// {
-//   // This function is no longer valid with the new implementation
-//   return 0;
-// }
+  if (zombie_col >= 0 && zombie_col < GRID_COLS)
+  {
+    if (plant_grid[zombie->row][zombie_col].type != -1 &&
+        plant_grid[zombie->row][zombie_col].type != 255)
+    {
+      return 1; // Plant found
+    }
+  }
+
+  return 0;
+}
 
 /*//////////////////////////////////////////////////////////////
                               DEV_ONLY
@@ -228,8 +333,5 @@ void dev_test_zombie()
       update_zombie_position(&zombie5);
     }
     cnt++;
-
-    // Wait until the 100ms timer expires
-    // set_wait_timer(0, 0); // Second parameter is ignored in wait mode
   }
 }

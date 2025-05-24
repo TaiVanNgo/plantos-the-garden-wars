@@ -469,13 +469,13 @@ void cmd_handshake(char *args)
     if (strcmp(args, "on") == 0)
     {
         uart_puts("\nCTS/RTS handshaking enabled.\n");
-        uart_toggle_rts_cts();  // Toggle to enable RTS/CTS
+        RTS_CTS_init();// Toggle to enable RTS/CTS
     }
     else if (strcmp(args, "off") == 0)
     {
         // Disable CTS/RTS handshaking
         uart_puts("\nCTS/RTS handshaking disabled.\n");
-        uart_toggle_rts_cts();  // Toggle to disable RTS/CTS
+        uart_init(); // Toggle to disable RTS/CTS
     }
     else
     {

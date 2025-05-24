@@ -3,7 +3,7 @@
 #include "../include/mbox.h"
 #include "../include/framebf.h"
 #include "../include/cmd.h"
-#include "../include/video.h"
+// #include "../include/video.h"
 #include "../include/utils.h"
 #include "../include/zombies.h"
 #include "../include/plants.h"
@@ -14,7 +14,7 @@
 
 // #include "background.c"
 //    #define TASK1
-//   #define TASK2_VID
+// #define TASK2_VID
 #define ZOMBIE_INIT
 // #define PLANT_INIT
 // #define TASK3_BULLET
@@ -57,14 +57,19 @@ void main()
 
     Video vid;
     video_init(&vid);
-    play_video(&vid, 0, 0, vid.total_frames);
-    wipe_transition();
-    display_team_members(0);
+    play_video(&vid, 80, 120, vid.total_frames);
+    // wipe_transition();
+    // display_team_members(0);
     // Run CLI
     while (1)
     {
         char c = uart_getc();
         uart_sendc(c);
+
+        if (c == 'c')
+        {
+            play_video(&vid, 80, 120, vid.total_frames);
+        }
     }
 }
 #elif defined(ZOMBIE_INIT)
