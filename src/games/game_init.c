@@ -814,10 +814,10 @@ void game_over(){
     // clear_screen();
     draw_image(LOSE_SCREEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
 
-
+    // REPLACE BUTTON ui BY REAL ONE
     Button quit, retry;
     button_init(&quit, 100, 450, 300, 130, HARD);
-    button_init(&retry, 500, 450, 300, 130, START);
+    button_init(&retry, 470, 450, 300, 130, NORMAL);
 
     Button *buttons[] = {&quit, &retry};
     int current_selection = 0;
