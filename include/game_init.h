@@ -35,7 +35,7 @@ typedef enum
 
 typedef enum
 {
-  LEVE_NORMAL_ENUM,
+  LEVEL_NORMAL_ENUM,
   LEVEL_MEDIUM_ENUM,
   LEVEL_HARD_ENUM,
 } LEVEL_DIFFICULTY;
