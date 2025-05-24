@@ -25,6 +25,7 @@ extern Plant plant_grid[GRID_ROWS][GRID_COLS];
 typedef enum
 {
   GAME_MENU,
+  GAME_DIFFICULTY,
   GAME_PLAYING,
   GAME_QUIT,
   GAME_PAUSED,
@@ -34,8 +35,8 @@ typedef enum
 
 typedef enum
 {
-  LEVEL_EASY_ENUM,
-  LEVEL_INTERMEDIATE_ENUM,
+  LEVE_NORMAL_ENUM,
+  LEVEL_MEDIUM_ENUM,
   LEVEL_HARD_ENUM,
 } LEVEL_DIFFICULTY;
 

@@ -23,6 +23,9 @@ void game_main()
         case GAME_PLAYING:
             start_level();
             break;
+        case GAME_DIFFICULTY:
+            game_start_difficulty();
+            break;
         case GAME_PAUSED:
             // Handle pause menu
             break;
@@ -57,7 +60,85 @@ int check_clear() {
     return 0; 
 }
 
+void game_start_difficulty(){
+    // restore_background_area(240,300,300,85,0,1,0);
+    // restore_background_area(240, 400, 300, 85,0 ,1,0);
+    clear_screen();
+    draw_image(MAIN_SCREEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
 
+    Button normal, medium, hard;
+    button_init(&normal, 240, 300, 300, 130, NORMAL);
+    button_init(&medium, 240, 400, 300, 130, MEDIUM);
+    button_init(&hard, 240, 500, 300, 130, HARD);
+
+    Button *buttons[3] = {&normal, &medium, &hard};
+    int current_selection = 0;
+    int previous_selection = current_selection;
+
+    button_set_state(buttons[current_selection], BUTTON_SELECTED);
+    button_draw_selection(buttons, current_selection, previous_selection);
+
+    while (1)
+    {
+        char key = getUart();
+        if (key == '[')
+        {
+            char key2 = getUart();
+            if ((key2 == 'A'))
+            {
+                // 'up arrow' button
+                int previous_selection = current_selection;
+                button_set_state(buttons[current_selection], BUTTON_NORMAL);
+                current_selection--;
+                if (current_selection < 0)
+                {
+                    current_selection = 2;
+                }
+
+                button_set_state(buttons[current_selection], BUTTON_SELECTED);
+                button_draw_selection(buttons, current_selection, previous_selection);
+            }
+            else if ((key2 == 'B'))
+            {
+                // 'down arrow' button
+                int previous_selection = current_selection;
+                button_set_state(buttons[current_selection], BUTTON_NORMAL);
+
+                current_selection++;
+                if (current_selection > 2)
+                {
+                    current_selection = 0;
+                }
+
+                button_set_state(buttons[current_selection], BUTTON_SELECTED);
+                button_draw_selection(buttons, current_selection, previous_selection);
+            }
+        }
+
+        if (key == '\n')
+        {
+            if (current_selection == 0)
+            {
+                clear_screen();
+                game.state = GAME_PLAYING;
+                game.level= LEVE_NORMAL_ENUM;
+                return;
+            }
+            else if (current_selection == 1)
+            {
+                clear_screen();
+                game.state = GAME_PLAYING;
+                game.level= LEVEL_MEDIUM_ENUM;
+                return;
+            }else if(current_selection == 2){
+                clear_screen();
+                game.state = GAME_PLAYING;
+                game.level= LEVEL_HARD_ENUM;
+                return;
+            }
+        }
+    }
+}
 void game_menu()
 {
     draw_image(MAIN_SCREEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
@@ -115,8 +196,7 @@ void game_menu()
         {
             if (current_selection == 0)
             {
-                clear_screen();
-                game.state = GAME_PLAYING;
+                game.state= GAME_DIFFICULTY;
                 return;
             }
             else if (current_selection == 1)
@@ -440,7 +520,7 @@ void handle_arrow_keys()
         break;
 
     case 'B': // Down arrow
-        if (select_state.row < 4)
+        if (select_state.row < 3)
         {
             select_state.row++;
         }
@@ -595,7 +675,7 @@ void handle_enter_key(int frame_counter)
 
 void set_zombie_types_level(int level, int zombie_types[10])
 {
-    if (level == LEVEL_EASY_ENUM)
+    if (level == LEVE_NORMAL_ENUM )
     {
         // easy level: 5 normal zombie + 3 bucket zombies + 2 helmet zombies
         for (int i = 0; i < 5; i++)
@@ -611,7 +691,7 @@ void set_zombie_types_level(int level, int zombie_types[10])
         zombie_types[8] = ZOMBIE_HELMET;
         zombie_types[9] = ZOMBIE_HELMET;
     }
-    else if (level == LEVEL_INTERMEDIATE_ENUM)
+    else if (level == LEVEL_MEDIUM_ENUM)
     {
         // Intermediate level - 3 normal + 3 bucket + 4 helmet
         for (int i = 0; i < 3; i++)

@@ -5,6 +5,9 @@ extern const unsigned int START[];
 extern const unsigned int QUIT[];
 extern const unsigned int ARROW[];
 extern const unsigned int shovel[];
+const unsigned int HARD[] ;
+const unsigned int MEDIUM[];
+const unsigned int NORMAL[];
 // Button structure
 typedef struct {
     int x;             
