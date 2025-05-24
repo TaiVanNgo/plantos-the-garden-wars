@@ -1,8 +1,9 @@
 #include "../include/game_init.h"
 
 #include "../include/bullet.h"
+#include "../include/cooldown.h" // Add cooldown include
 
-extern int flame_active[GRID_ROWS];  // Add external declaration
+extern int flame_active[GRID_ROWS]; // Add external declaration
 
 SelectionState select_state = {
     .mode = 0, .selected_card = -1, .row = 0, .col = 0, .current_plant = -1};
@@ -10,27 +11,33 @@ SelectionState select_state = {
 GameState game = {.state = GAME_MENU, .score = 0, .level = LEVEL_HARD_ENUM, .sun_count = 2000};
 
 Plant plant_grid[GRID_ROWS][GRID_COLS];
-
-void game_main() {
-    while (1) {
-        switch (game.state) {
-            case GAME_MENU:
-                game_menu();
-                break;
-            case GAME_PLAYING:
-                start_level();
-                break;
-            case GAME_PAUSED:
-                // Handle pause menu
-                break;
-            case GAME_OVER:
-                // draw loose screen
-                draw_image(LOSE_SCREEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
-                break;
-            case GAME_QUIT:
-                break;
-            default:
-                break;
+int prev_col, prev_row;
+void game_main()
+{
+    while (1)
+    {
+        switch (game.state)
+        {
+        case GAME_MENU:
+            game_menu();
+            break;
+        case GAME_PLAYING:
+            start_level();
+            break;
+        case GAME_DIFFICULTY:
+            game_start_difficulty();
+            break;
+        case GAME_PAUSED:
+            // Handle pause menu
+            break;
+        case GAME_OVER:
+            // draw loose screen
+            draw_image(LOSE_SCREEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
+            break;
+        case GAME_QUIT:
+            break;
+        default:
+            break;
         }
     }
 }
@@ -44,7 +51,100 @@ int check_occupied() {
     return 1;
 }
 
-void game_menu() {
+int check_clear()
+{
+    if (plant_grid[prev_row][prev_col].type != 255)
+    {
+        uart_puts("Cell already occupied!\n");
+        return 1;
+    }
+    return 0;
+}
+
+void game_start_difficulty()
+{
+    // restore_background_area(240,300,300,85,0,1,0);
+    // restore_background_area(240, 400, 300, 85,0 ,1,0);
+    clear_screen();
+    draw_image(MAIN_SCREEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
+
+    Button normal, medium, hard;
+    button_init(&normal, 240, 300, 300, 130, NORMAL);
+    button_init(&medium, 240, 400, 300, 130, MEDIUM);
+    button_init(&hard, 240, 500, 300, 130, HARD);
+
+    Button *buttons[3] = {&normal, &medium, &hard};
+    int current_selection = 0;
+    int previous_selection = current_selection;
+
+    button_set_state(buttons[current_selection], BUTTON_SELECTED);
+    button_draw_selection(buttons, current_selection, previous_selection);
+
+    while (1)
+    {
+        char key = getUart();
+        if (key == '[')
+        {
+            char key2 = getUart();
+            if ((key2 == 'A'))
+            {
+                // 'up arrow' button
+                int previous_selection = current_selection;
+                button_set_state(buttons[current_selection], BUTTON_NORMAL);
+                current_selection--;
+                if (current_selection < 0)
+                {
+                    current_selection = 2;
+                }
+
+                button_set_state(buttons[current_selection], BUTTON_SELECTED);
+                button_draw_selection(buttons, current_selection, previous_selection);
+            }
+            else if ((key2 == 'B'))
+            {
+                // 'down arrow' button
+                int previous_selection = current_selection;
+                button_set_state(buttons[current_selection], BUTTON_NORMAL);
+
+                current_selection++;
+                if (current_selection > 2)
+                {
+                    current_selection = 0;
+                }
+
+                button_set_state(buttons[current_selection], BUTTON_SELECTED);
+                button_draw_selection(buttons, current_selection, previous_selection);
+            }
+        }
+
+        if (key == '\n')
+        {
+            if (current_selection == 0)
+            {
+                clear_screen();
+                game.state = GAME_PLAYING;
+                game.level = LEVEL_NORMAL_ENUM;
+                return;
+            }
+            else if (current_selection == 1)
+            {
+                clear_screen();
+                game.state = GAME_PLAYING;
+                game.level = LEVEL_MEDIUM_ENUM;
+                return;
+            }
+            else if (current_selection == 2)
+            {
+                clear_screen();
+                game.state = GAME_PLAYING;
+                game.level = LEVEL_HARD_ENUM;
+                return;
+            }
+        }
+    }
+}
+void game_menu()
+{
     draw_image(MAIN_SCREEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
 
     Button startButton;
@@ -89,10 +189,11 @@ void game_menu() {
             }
         }
 
-        if (key == '\n') {
-            if (current_selection == 0) {
-                clear_screen();
-                game.state = GAME_PLAYING;
+        if (key == '\n')
+        {
+            if (current_selection == 0)
+            {
+                game.state = GAME_DIFFICULTY;
                 return;
             } else if (current_selection == 1) {
                 uart_puts("Quit Game ");
@@ -114,6 +215,7 @@ void start_level() {
     }
 
     create_simulated_background(simulated_background, GARDEN, GARDEN_WIDTH, GARDEN_HEIGHT);
+    create_simulated_background(tmp, GARDEN, GARDEN_WIDTH, GARDEN_HEIGHT);
     draw_image(simulated_background, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
     draw_grid();
     draw_sun_count(game.sun_count);
@@ -135,7 +237,7 @@ void start_level() {
     unsigned long start_counter;
     asm volatile("mrs %0, cntpct_el0" : "=r"(start_counter));
     unsigned long start_ms = start_counter * 1000 / freq;
-    bullet_system_init(start_ms, 1000);  // Initialize with 1 second fire interval
+    bullet_system_init(start_ms, 2000);  // Initialize with 1 second fire interval
 
     sun_system_init(start_ms);
 
@@ -167,6 +269,9 @@ void start_level() {
             handle_user_input(&frame_counter);
         }
         /*====== USER LOGIC END ====== */
+
+        // Update cooldowns
+        update_plant_cooldowns();
 
         // Update bullet system
         unsigned long current_counter;
@@ -261,7 +366,8 @@ void start_level() {
             check_bullet_zombie_collisions(zombie_pointers[i]);
 
             // Check for chilli damage if flames are active on this row
-            if (flame_active[zombie_pointers[i]->row]) {
+            if (flame_active[zombie_pointers[i]->row])
+            {
                 apply_chilli_damage(zombie_pointers[i]);
             }
 
@@ -283,6 +389,8 @@ void start_level() {
                 uart_dec(ZOMBIE_KILL_REWARD);
                 uart_puts(" ,Total Score: ");
                 uart_dec(game.score);
+                uart_puts(", Total Zombie Killed: ");
+                uart_dec(zombies_killed);
                 uart_puts("\n");
             }
 
@@ -311,8 +419,14 @@ int handle_user_input(int *frame_counter) {
         return 1;
     }
 
-    // Arrow keys - removed the condition that required a plant to be selected
-    if (key == '[') {
+    // Arrow keys
+    if (key == '[' && select_state.current_plant != -1)
+    {
+        prev_col = select_state.col;
+        prev_row = select_state.row;
+        uart_puts("selected _ plant\n");
+        uart_dec(select_state.current_plant);
+        uart_puts("\n");
         handle_arrow_keys();
         return 1;
     }
@@ -362,8 +476,21 @@ void handle_remove_plant() {
     handle_plant_selection(9);
 }
 // Handle plant selection with number keys
-// Update handle_plant_selection to use the cursor function
-void handle_plant_selection(int plant_type) {
+void handle_plant_selection(int plant_type)
+{
+    // Check if plant is on cooldown
+    if (plant_type >= 1 && plant_type <= 5)
+    {
+        if (is_plant_on_cooldown(plant_type))
+        {
+            uart_puts("Plant is on cooldown! ");
+            display_plant_cooldown(plant_type);
+            return;
+        }
+        display_plant_cooldown(plant_type);
+    }
+
+    int x_card = 0, y_card = 0;
     select_state.current_plant = plant_type;
     draw_selection_border(plant_type);
 
@@ -420,7 +547,7 @@ void handle_arrow_keys() {
     // Only redraw if position changed
     if (old_row != select_state.row || old_col != select_state.col) {
         // Restore old cell background first
-        restore_background_area(x_old, y_old, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0, 0);
+        restore_background_area(x_old, y_old, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0, 0, 0);
         
         // Redraw any existing plant at the old position
         if (plant_grid[old_row][old_col].type != 255 && plant_grid[old_row][old_col].type != -1) {
@@ -444,7 +571,7 @@ void handle_enter_key(int frame_counter) {
         // Shovel mode
         int x, y;
         plant_grid[select_state.row][select_state.col].type = 255;
-        clear_plant_from_background(select_state.col, select_state.row);
+        clear_plant_from_background(select_state.col, select_state.row, 0, 0);
         select_state.mode = 1;
         select_state.selected_card = -1;
         select_state.current_plant = -1;
@@ -475,7 +602,16 @@ void handle_enter_key(int frame_counter) {
 
     // Plant placement logic
     if (select_state.mode == 0 || select_state.mode == 1) {
+    if (select_state.mode == 0)
+    {
+        // Start cooldown when plant is placed
+        if (select_state.current_plant >= 1 && select_state.current_plant <= 5)
+        {
+            start_plant_cooldown(select_state.current_plant);
+        }
+
         place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
+        place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, tmp);
         Plant new_plant = create_plant(select_state.current_plant, select_state.col, select_state.row);
         plant_grid[select_state.row][select_state.col] = new_plant;
 
@@ -495,7 +631,7 @@ void handle_enter_key(int frame_counter) {
             chillies_detonate(select_state.row, frame_counter);
             // Clear the chilli plant from the grid and background
             plant_grid[select_state.row][select_state.col].type = 255;
-            clear_plant_from_background(select_state.col, select_state.row);
+            clear_plant_from_background(select_state.col, select_state.row, 0, 0);
         }
 
         // Reset selection state
@@ -514,9 +650,12 @@ void handle_enter_key(int frame_counter) {
         draw_cursor();
     }
 }
+}
 
-void set_zombie_types_level(int level, int zombie_types[10]) {
-    if (level == LEVEL_EASY_ENUM) {
+void set_zombie_types_level(int level, int zombie_types[10])
+{
+    if (level == LEVEL_NORMAL_ENUM)
+    {
         // easy level: 5 normal zombie + 3 bucket zombies + 2 helmet zombies
         for (int i = 0; i < 5; i++) {
             zombie_types[i] = ZOMBIE_NORMAL;
@@ -528,9 +667,12 @@ void set_zombie_types_level(int level, int zombie_types[10]) {
 
         zombie_types[8] = ZOMBIE_HELMET;
         zombie_types[9] = ZOMBIE_HELMET;
-    } else if (level == LEVEL_INTERMEDIATE_ENUM) {
+    }
+    else if (level == LEVEL_MEDIUM_ENUM)
+    {
         // Intermediate level - 3 normal + 3 bucket + 4 helmet
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 3; i++)
+        {
             zombie_types[i] = ZOMBIE_NORMAL;
         }
         for (int i = 3; i < 6; i++) {
@@ -573,7 +715,7 @@ void draw_cursor() {
     grid_to_pixel(select_state.col, select_state.row, &x, &y);
 
     // Restore background first to avoid artifacts
-    restore_background_area(x, y, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0, 0);
+    restore_background_area(x, y, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0, 0, 0);
 
     // If a plant is selected, draw the plant preview
     if (select_state.current_plant != -1 && select_state.current_plant != 9) {

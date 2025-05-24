@@ -1,4 +1,5 @@
 #include "../../include/zombies.h"
+#include "../../include/bullet.h"
 
 // Default Zombie Basic
 const Zombie default_zombie_normal = {
@@ -128,8 +129,15 @@ int move_zombie(Zombie *zombie)
       {
         plant_grid[zombie->row][zombie_col].health = 0;
         uart_puts("[Zombie] Plant is Destroyed!\n");
+        
+        // Remove plant from bullet system if it's a shooting plant
+        if (plant_grid[zombie->row][zombie_col].type == PLANT_PEASHOOTER ||
+            plant_grid[zombie->row][zombie_col].type == PLANT_FROZEN_PEASHOOTER) {
+            bullet_remove_plant(zombie_col, zombie->row);
+        }
+        
         plant_grid[zombie->row][zombie_col].type = 255; // Mark as empty
-        clear_plant_from_background(zombie_col, zombie->row);
+        clear_plant_from_background(zombie_col, zombie->row, 0, 0);
       }
       else // plant's health still enough to get zombie damage
       {
@@ -179,7 +187,7 @@ void update_zombie_position(Zombie *zombie)
   int old_y = zombie->y;
 
   // Restore background from old position
-  restore_background_area(old_x, old_y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0, 0);
+  restore_background_area(old_x, old_y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0, 0, 0);
 
   // Move zombie left (update position)
   int status = move_zombie(zombie);
