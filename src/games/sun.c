@@ -127,20 +127,27 @@ void draw_suns() {
     }
 }
 
-// Function to check if a sun can be collected at position
 int collect_sun_at_position(int col, int row) {
-    int x, y;
-    grid_to_pixel(col, row, &x, &y);
+    int cell_x, cell_y;
+    grid_to_pixel(col, row, &cell_x, &cell_y);
+    
+    // Define the grid cell boundaries
+    int cell_right = cell_x + GRID_COL_WIDTH;
+    int cell_bottom = cell_y + GRID_ROW_HEIGHT;
     
     // Check all active suns to see if they're at this position
     for (int i = 0; i < MAX_SUNS; i++) {
         if (!suns[i].active) continue;
         
-        // Check if the click is within the sun's area
-        if (x >= suns[i].x && x < suns[i].x + SUN_WIDTH &&
-            y >= suns[i].y && y < suns[i].y + SUN_HEIGHT) {
+        // Define the sun boundaries
+        int sun_right = suns[i].x + SUN_WIDTH;
+        int sun_bottom = suns[i].y + SUN_HEIGHT;
+        
+        // Check if the sun overlaps with the grid cell
+        if (!(cell_x > sun_right || cell_right < suns[i].x || 
+              cell_y > sun_bottom || cell_bottom < suns[i].y)) {
             
-            // Collect the sun
+            // Sun overlaps with the cell - collect it
             game.sun_count += SUN_VALUE;
             
             // Remove the sun from the display
@@ -152,6 +159,11 @@ int collect_sun_at_position(int col, int row) {
             // Update the sun count display
             draw_sun_count(game.sun_count);
             
+            uart_puts("[Sun] Collected sun! +50 sun resources\n");
+            uart_puts("[Sun] New sun count: ");
+            uart_dec(game.sun_count);
+            uart_puts("\n");
+            
             return 1; // Sun collected successfully
         }
     }
@@ -159,9 +171,41 @@ int collect_sun_at_position(int col, int row) {
     return 0; // No sun collected
 }
 
-// Function to display the current sun count
 void draw_sun_count(int count) {
-    // Display the sun count
+    // Clear the previous display area
+    draw_rect(SUN_COUNT_X, SUN_COUNT_Y, SUN_COUNT_X + 120, SUN_COUNT_Y + 30, BLACK, 1);
+    
+    // Draw the sun icon
+    draw_image(sun, SUN_COUNT_X, SUN_COUNT_Y, SUN_WIDTH, SUN_HEIGHT, 0);
+    
+    // Convert the count to a string
+    char count_str[10];
+    int i = 0;
+    int temp = count;
+    
+    // Handle the case of zero
+    if (temp == 0) {
+        count_str[i++] = '0';
+    } else {
+        // Convert number to string in reverse
+        while (temp > 0) {
+            count_str[i++] = '0' + (temp % 10);
+            temp /= 10;
+        }
+    }
+    count_str[i] = '\0';
+    
+    // Reverse the string
+    for (int j = 0; j < i/2; j++) {
+        char tmp = count_str[j];
+        count_str[j] = count_str[i-j-1];
+        count_str[i-j-1] = tmp;
+    }
+    
+    // Draw the count string
+    draw_string(SUN_COUNT_X + SUN_WIDTH + 10, SUN_COUNT_Y + 5, count_str, WHITE, 1);
+    
+    // Log the sun count
     uart_puts("[Sun] Current sun count: ");
     uart_dec(count);
     uart_puts("\n");
