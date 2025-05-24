@@ -202,7 +202,8 @@ int get_plant_damage(int plant_type)
 
 void place_plant_on_background(int plant_type, int grid_col, int grid_row, unsigned int *sim_bg)
 {
-    if(plant_grid[grid_row][grid_col].type != 255){
+    if (plant_grid[grid_row][grid_col].type != 255)
+    {
         return;
     }
     const unsigned int *plant;
@@ -251,9 +252,9 @@ void place_plant_on_background(int plant_type, int grid_col, int grid_row, unsig
 
     // draw_image(GARDEN, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
     // clear_plant_from_background(grid_col,grid_row,1);
-    
-     draw_plant(plant,grid_col, grid_row);
-     restore_background_area(x,y,PLANT_WIDTH,PHYSICAL_HEIGHT,0,0,0);
+
+    draw_plant(plant, grid_col, grid_row);
+    restore_background_area(x, y, PLANT_WIDTH, PHYSICAL_HEIGHT, 0, 0, 0);
 }
 
 void draw_flames_on_row(int row)
@@ -262,7 +263,7 @@ void draw_flames_on_row(int row)
     grid_to_pixel(0, row, &x, &y);
     x = GRID_LEFT_MARGIN;
     y = GRID_TOP_MARGIN + (row * GRID_ROW_HEIGHT) + ((GRID_ROW_HEIGHT - FLAMES_EFFECT_HEIGHT) / 2);
-    
+
     // Draw the flames effect across the entire row
     draw_image(FLAMES_EFFECT, x, y, FLAMES_EFFECT_WIDTH, FLAMES_EFFECT_HEIGHT, 0);
 }
@@ -273,47 +274,47 @@ void clear_flames_on_row(int row)
     grid_to_pixel(0, row, &x, &y);
     x = GRID_LEFT_MARGIN;
     y = GRID_TOP_MARGIN + (row * GRID_ROW_HEIGHT) + ((GRID_ROW_HEIGHT - FLAMES_EFFECT_HEIGHT) / 2);
-    
+
     // Restore the background where flames were
     restore_background_area(x, y, FLAMES_EFFECT_WIDTH, FLAMES_EFFECT_HEIGHT, 0, 0, 0);
 }
 
-void chillies_detonate(int row, int current_frame) {
+void chillies_detonate(int row, int current_frame)
+{
     flame_active[row] = 1;
     flame_start_frames[row] = current_frame;
 }
 
-void update_flame_effects(int current_frame) {
-    for (int row = 0; row < GRID_ROWS; row++) {
-        if (flame_active[row]) {
+void update_flame_effects(int current_frame)
+{
+    for (int row = 0; row < GRID_ROWS; row++)
+    {
+        if (flame_active[row])
+        {
             // If 30 frames have passed since start, clear the flames
-            if (current_frame - flame_start_frames[row] >= 30) {
+            if (current_frame - flame_start_frames[row] >= 30)
+            {
                 clear_flames_on_row(row);
                 flame_active[row] = 0;
-            } else {
+            }
+            else
+            {
                 draw_flames_on_row(row);
             }
         }
     }
 }
 
-void apply_chilli_damage(Zombie *zombie) {
-    if (!zombie->active) return;
-    int dmg = default_chillies.attack_damage;
-    
-    // Check if damage would cause overflow
-    if (dmg >= zombie->health) {
-        zombie->health = 0;
-        zombie->active = 0;
-        register_zombie_on_row(zombie->row, 0);
-        restore_background_area(zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0, 0, 0);
-        uart_puts("Zombie removed by chilli\n");
-    } else {
-        zombie->health -= dmg;
-        uart_puts("Zombie health after chilli: ");
-        uart_dec(zombie->health);
-        uart_puts("\n");
-    }
+void apply_chilli_damage(Zombie *zombie)
+{
+    if (!zombie->active)
+        return;
+
+    zombie->health = 0;
+    zombie->active = 0;
+    register_zombie_on_row(zombie->row, 0);
+    restore_background_area(zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0, 0, 0);
+    uart_puts("Zombie killby chilli\n");
 }
 
 // get plant name
