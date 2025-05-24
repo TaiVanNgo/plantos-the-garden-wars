@@ -744,8 +744,8 @@ void victory_screen()
     draw_image(VICTORY_SCREEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
 
     Button quit, start;
-    button_init(&quit, 240, 300, 300, 130, QUIT);
-    button_init(&start, 240, 450, 300, 130, START);
+    button_init(&quit, 240, 300, 300, 85, QUIT);
+    button_init(&start, 240, 400, 300, 85, NEXTROUND);
 
     Button *buttons[] = {&quit, &start};
     int current_selection = 0;
