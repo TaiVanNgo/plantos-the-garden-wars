@@ -2,12 +2,12 @@
 #include "../../include/grid.h"
 #include "../../include/zombies.h"
 #include "../assets/button/button.h"
-// #include "../../include/game_init.h"
+#include "../../include/game_init.h"
 #include "gpio.h"
 
 // Add static counter array at the top of the file
 static int flame_counters[GRID_ROWS] = {0};
-static int flame_start_frames[GRID_ROWS] = {0};
+int flame_start_frames[GRID_ROWS] = {0};
 int flame_active[GRID_ROWS] = {0};
 
 // Default Sunflower
@@ -287,12 +287,23 @@ void chillies_detonate(int row, int current_frame)
 
 void update_flame_effects(int current_frame)
 {
+    // Check if game is over or player has won
+    if (game.state == GAME_OVER || game.state == GAME_VICTORY) {
+        for (int row = 0; row < GRID_ROWS; row++) {
+            if (flame_active[row]) {
+                clear_flames_on_row(row);
+                flame_active[row] = 0;
+            }
+        }
+        return;
+    }
+
     for (int row = 0; row < GRID_ROWS; row++)
     {
         if (flame_active[row])
         {
-            // If 30 frames have passed since start, clear the flames
-            if (current_frame - flame_start_frames[row] >= 30)
+            // If 10 frames have passed since start, clear the flames
+            if (current_frame - flame_start_frames[row] >= 10)
             {
                 clear_flames_on_row(row);
                 flame_active[row] = 0;
