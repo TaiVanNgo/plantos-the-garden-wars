@@ -248,7 +248,7 @@ void start_level()
     unsigned long start_counter;
     asm volatile("mrs %0, cntpct_el0" : "=r"(start_counter));
     unsigned long start_ms = start_counter * 1000 / freq;
-    bullet_system_init(start_ms, 1000); // Initialize with 1 second fire interval
+    bullet_system_init(start_ms, 5000); // Initialize with 1 second fire interval
 
     /* Zombie settings */
     // Define individual zombies instead of an array
@@ -480,7 +480,7 @@ void handle_plant_selection(int plant_type)
             display_plant_cooldown(plant_type);
             return;
         }
-        display_plant_cooldown(plant_type); // Show cooldown even if not on cooldown
+        display_plant_cooldown(plant_type);
     }
 
     int x_card = 0, y_card = 0;
@@ -509,13 +509,11 @@ void handle_plant_selection(int plant_type)
     }
 }
 
-// Handle arrow key navigation
 void handle_arrow_keys()
 {
     int x_card = 0, y_card = 0;
     char key2 = getUart();
 
-    // Get current position for potential restoration
     grid_to_pixel(select_state.col, select_state.row, &x_card, &y_card);
 
     // Process direction
