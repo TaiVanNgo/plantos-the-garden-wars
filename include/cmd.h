@@ -15,6 +15,8 @@
 #include "uart1.h"
 #include "mbox.h"
 #include "framebf.h"
+#include "utils.h"
+#include "game_init.h" // Added for game start command
 
 // Define NULL for our use (since we're not using the standard library)
 #ifndef NULL
@@ -22,7 +24,7 @@
 #endif
 
 // CLI configuration constants
-#define MAX_CMD_SIZE 100 // Maximum length of a command string
+#define MAX_CMD_SIZE 128 // Maximum length of a command string
 #define MAX_HISTORY 10   // Maximum number of commands to store in history
 #define PROMPT "PlantOS> " // CLI prompt displayed to the user
 
@@ -59,5 +61,6 @@ void cmd_baudrate(char *args);  // Change UART baudrate (not implemented)
 void cmd_handshake(char *args); // Toggle UART handshaking (not implemented)
 void cmd_kaboom(char *args);   // Display an ASCII explosion animation (not implemented)
 void os_welcome(void);
+void cmd_game(char *args); // New command to start the game
 
 #endif // CLI_H
