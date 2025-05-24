@@ -746,8 +746,11 @@ void victory_screen()
     draw_image(VICTORY_SCREEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
 
     Button quit, start;
-    button_init(&quit, 240, 300, 300, 85, QUIT);
-    button_init(&start, 240, 400, 300, 85, NEXTROUND);
+    button_init(&quit, 240, 350, 300, 85, HOME);
+    if(game.level != LEVEL_HARD_ENUM){
+        button_init(&start, 240, 450, 300, 85, NEXTROUND);
+    }
+   
 
     Button *buttons[] = {&quit, &start};
     int current_selection = 0;
@@ -805,6 +808,15 @@ void victory_screen()
             {
                 clear_screen();
                 game.state = GAME_PLAYING;
+                if(game.level == LEVEL_EASY_ENUM){
+                    uart_puts("\nMoving to Medium\n");
+                    game.level= LEVEL_MEDIUM_ENUM;
+                }else if (game.level == LEVEL_MEDIUM_ENUM){
+                    uart_puts("\nMoving to HARD\n");
+                    game.level= LEVEL_HARD_ENUM;
+                }else{
+                    game.level= LEVEL_EASY_ENUM;
+                }
                 return;
             }
         }

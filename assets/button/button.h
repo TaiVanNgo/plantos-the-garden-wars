@@ -13,6 +13,7 @@ extern const unsigned int MEDIUM[];
 extern const unsigned int NEXTROUND[];
 extern const unsigned int NORMAL[];
 extern const unsigned int RETRY[];
+extern const unsigned int HOME [];
 // Button structure
 typedef struct
 {
