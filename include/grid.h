@@ -2,6 +2,8 @@
 #define GARDEN_H
 
 #include "framebf.h"
+#include "../assets/sprites/plants/plants_sprites.h"
+#include "../assets/sprites/cursor.h"
 
 // Grid parameters
 #define GARDEN_WIDTH 800
@@ -14,6 +16,8 @@
 #define GRID_ROWS 4
 #define GRID_COLS 9
 
+#define CURSOR_WIDTH 17
+#define CURSOR_HEIGHT 17
 void grid_to_pixel(uint8_t col, uint8_t row, int *x, int *y);
 void pixel_to_grid(int x, int y, uint8_t *col, uint8_t *row);
 void draw_grid(void);

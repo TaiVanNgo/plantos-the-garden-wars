@@ -44,6 +44,7 @@ typedef struct
   GAME_STATE state;
   int score;
   LEVEL_DIFFICULTY level;
+  int sun_count; 
 } GameState;
 
 typedef struct
