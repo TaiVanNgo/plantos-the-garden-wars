@@ -118,19 +118,22 @@ void game_start_difficulty(){
         {
             if (current_selection == 0)
             {
-                // clear_screen();
-                
-                // game.state = GAME_PLAYING;
-                // game_menu();
+                clear_screen();
+                game.state = GAME_PLAYING;
+                game.level= LEVE_NORMAL_ENUM;
                 return;
             }
             else if (current_selection == 1)
             {
-                // uart_puts("Quit Game ");
-                // game.state = GAME_QUIT;
+                clear_screen();
+                game.state = GAME_PLAYING;
+                game.level= LEVEL_MEDIUM_ENUM;
                 return;
-            }else if(current_selection == 3){
-
+            }else if(current_selection == 2){
+                clear_screen();
+                game.state = GAME_PLAYING;
+                game.level= LEVEL_HARD_ENUM;
+                return;
             }
         }
     }
@@ -192,10 +195,7 @@ void game_menu()
         {
             if (current_selection == 0)
             {
-                // clear_screen();
-                // game.state = GAME_PLAYING;
                 game.state= GAME_DIFFICULTY;
-                
                 return;
             }
             else if (current_selection == 1)
@@ -652,7 +652,7 @@ void handle_enter_key(int frame_counter)
 
 void set_zombie_types_level(int level, int zombie_types[10])
 {
-    if (level == LEVEL_EASY_ENUM)
+    if (level == LEVE_NORMAL_ENUM )
     {
         // easy level: 5 normal zombie + 3 bucket zombies + 2 helmet zombies
         for (int i = 0; i < 5; i++)
@@ -668,7 +668,7 @@ void set_zombie_types_level(int level, int zombie_types[10])
         zombie_types[8] = ZOMBIE_HELMET;
         zombie_types[9] = ZOMBIE_HELMET;
     }
-    else if (level == LEVEL_INTERMEDIATE_ENUM)
+    else if (level == LEVEL_MEDIUM_ENUM)
     {
         // Intermediate level - 3 normal + 3 bucket + 4 helmet
         for (int i = 0; i < 3; i++)
