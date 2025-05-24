@@ -497,7 +497,7 @@ void cmd_handshake(char *args)
  */
 void cmd_game(char *args)
 {
-    uart_puts("\nStarting Plants vs. Zombies game...\n");
+    uart_puts("\nStarting Garden Wars ...\n");
     game_main();
 }
 
