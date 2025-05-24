@@ -418,8 +418,8 @@ int handle_user_input(int *frame_counter) {
         return 1;  // Added return to indicate input was handled
     }
 
-    // Deselect with escape key (27 is ASCII for ESC)
-    if (key == 27) {
+    // Deselect plant
+    if (key == 'Q' || key == 'q') {
         // Reset selection state
         select_state.selected_card = -1;
         select_state.current_plant = -1;
@@ -482,9 +482,6 @@ void handle_plant_selection(int plant_type) {
         // clear_plant_from_background(select_state.col, select_state.row, 0, taken);
         place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
         restore_background_area(x, y, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0, 0, 0, 0);
-
-        // Draw the plant preview
-        // draw_plant(select_state.current_plant, select_state.col, select_state.row);
 
         // Debug output
         uart_puts("Plant preview shown: ");
@@ -578,7 +575,6 @@ void handle_arrow_keys() {
 }
 
 void handle_enter_key(int frame_counter) {
-    uart_puts("[DEBUG] Enter key pressed\n");
     if (select_state.mode == 2) {
         // Shovel mode
         int x, y;
@@ -593,13 +589,11 @@ void handle_enter_key(int frame_counter) {
 
         // Draw cursor at new position
         draw_cursor();
-        uart_puts("[DEBUG] Shovel used\n");
         return;
     }
 
     // Check if the cell is already occupied
     if (!check_occupied()) {
-        uart_puts("[DEBUG] Cell already occupied\n");
         return;
     }
 
@@ -607,22 +601,18 @@ void handle_enter_key(int frame_counter) {
     if (select_state.current_plant == -1) {
         // No plant selected, just show cursor
         draw_cursor();
-        uart_puts("[DEBUG] No plant selected\n");
         return;
     }
 
-    uart_puts("[DEBUG] Attempting to place plant\n");
 
     // Plant placement logic
     if (select_state.mode == 0 || select_state.mode == 1) {
         if (select_state.mode == 0) {
             // Start cooldown when plant is placed
             if (select_state.current_plant >= 1 && select_state.current_plant <= 5) {
-                uart_puts("[DEBUG] Starting cooldown\n");
                 start_plant_cooldown(select_state.current_plant);
             }
 
-            uart_puts("[DEBUG] Placing plant on background\n");
 
             place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
             place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, tmp);
@@ -636,14 +626,11 @@ void handle_enter_key(int frame_counter) {
             plant_grid[select_state.row][select_state.col].col = new_plant.col;
             plant_grid[select_state.row][select_state.col].row = new_plant.row;
 
-            uart_puts("[DEBUG] Plant assigned to grid successfully\n");
 
-            uart_puts("[DEBUG] Registering plant functionality\n");
 
             // Register plant with bullet system if it's a shooting plant
             if (select_state.current_plant == PLANT_PEASHOOTER ||
                 select_state.current_plant == PLANT_FROZEN_PEASHOOTER) {
-                uart_puts("[DEBUG] Registering shooter plant\n");
 
                 unsigned long current_counter;
                 asm volatile("mrs %0, cntpct_el0" : "=r"(current_counter));
@@ -661,8 +648,6 @@ void handle_enter_key(int frame_counter) {
                 clear_plant_from_background(select_state.col, select_state.row, 0, 0);
             }
 
-            uart_puts("[DEBUG] Resetting selection state\n");
-
             // Reset selection state
             select_state.selected_card = -1;
             select_state.current_plant = -1;
@@ -672,9 +657,6 @@ void handle_enter_key(int frame_counter) {
             draw_selection_border(-1);
 
             select_state.mode = 1;
-            select_state.row = 0;
-            select_state.col = 0;
-            uart_puts("[DEBUG] Plant placed successfully in mode 0!\n");
 
         } else if (select_state.mode == 1) {
             // Start cooldown when plant is placed
@@ -709,24 +691,10 @@ void handle_enter_key(int frame_counter) {
 
             draw_selection_border(-1);
 
-            // Reset cursor position to top-left
-            select_state.row = 0;
-            select_state.col = 0;
-
             // Draw cursor at the new position
             draw_cursor();
-            uart_puts("[DEBUG] Plant placed successfully in mode 1!\n");
         }
     }
-
-    // Inside handle_enter_key(), after plant placement logic
-    uart_puts("[DEBUG] Plant placed successfully! Type: ");
-    uart_dec(select_state.current_plant);
-    uart_puts(" at (");
-    uart_dec(select_state.col);
-    uart_puts(", ");
-    uart_dec(select_state.row);
-    uart_puts(")\n");
 }
 
 void set_zombie_types_level(int level, int zombie_types[10]) {
@@ -910,7 +878,6 @@ void draw_cursor() {
     // If a plant is selected, draw the plant preview
     if (select_state.current_plant != -1 && select_state.current_plant != 9) {
         int taken = check_clear() ? 1 : 0;
-        // draw_plant(select_state.current_plant, select_state.col, select_state.row);
         clear_plant_from_background(prev_col, prev_row, 0, taken);
         place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
     }
