@@ -11,6 +11,7 @@ extern const unsigned int shovel[];
 extern const unsigned int HARD[];
 extern const unsigned int MEDIUM[];
 extern const unsigned int NORMAL[];
+extern const unsigned int RETRY[];
 // Button structure
 typedef struct
 {

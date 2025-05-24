@@ -815,15 +815,15 @@ void game_over(){
 
     // REPLACE BUTTON ui BY REAL ONE
     Button quit, retry;
-    button_init(&quit, 100, 450, 300, 130, HARD);
-    button_init(&retry, 470, 450, 300, 130, NORMAL);
+    button_init(&quit, 100, 450, 300, 85, QUIT);
+    button_init(&retry, 470, 450, 300, 85, RETRY);
 
     Button *buttons[] = {&quit, &retry};
     int current_selection = 0;
     int previous_selection = current_selection;
 
     button_set_state(buttons[current_selection], BUTTON_SELECTED);
-    button_draw_selection(buttons, current_selection, previous_selection, 0, 0, 90, 20);
+    button_draw_selection(buttons, current_selection, previous_selection, 0, 0, 160, 20);
 
     while (1)
     {
