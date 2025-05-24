@@ -5,6 +5,7 @@
 #include "../assets/backgrounds/garden.h"
 #include "framebf.h"
 #include "grid.h"
+#include "zombies.h"
 
 // Define plant types
 #define PLANT_TYPE_SUNFLOWER 1

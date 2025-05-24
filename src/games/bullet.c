@@ -260,6 +260,7 @@ void apply_bullet_damage(Bullet *bullet, Zombie *zombie) {
     
     restore_background_area(bullet->x, bullet->y, BULLET_WIDTH, BULLET_HEIGHT, 0, 0,0);
     
+    
     if (zombie->health <= 0) {
         zombie->health = 0;
         if (zombie->active) {
