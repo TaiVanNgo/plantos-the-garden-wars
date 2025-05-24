@@ -16,4 +16,6 @@ void update_plant_cooldowns();
 void display_plant_cooldown(int plant_type);
 void display_all_cooldowns();
 
+extern int plant_cooldowns[10];
+
 #endif

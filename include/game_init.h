@@ -19,8 +19,6 @@
 #define MAX_ZOMBIES_PER_LEVEL 20
 #define ZOMBIE_KILL_REWARD 10
 
-extern Plant plant_grid[GRID_ROWS][GRID_COLS];
-
 // Enum for game states
 typedef enum
 {
@@ -65,6 +63,11 @@ typedef struct
   int spawn_times[MAX_ZOMBIES_PER_LEVEL];  // spawn time for each zombie
 } Level;
 
+// External global variables
+extern GameState game;
+extern SelectionState select_state;
+extern Plant plant_grid[GRID_ROWS][GRID_COLS];
+
 void game_main();
 void game_menu();
 void start_level();
@@ -79,8 +82,5 @@ void victory_screen();
 int get_selection_current_plant(void);
 int get_selection_row(void);
 int get_selection_col(void);
-// External global variables
-extern GameState game;
-extern SelectionState select_state;
 
 #endif
