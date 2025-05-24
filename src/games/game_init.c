@@ -1,8 +1,8 @@
 #include "../include/game_init.h"
 #include "../include/bullet.h"
-#include "../include/cooldown.h"  // Add cooldown include
+#include "../include/cooldown.h" 
 
-extern int flame_active[GRID_ROWS];  // Add external declaration
+extern int flame_active[GRID_ROWS]; 
 
 SelectionState select_state = {
     .mode = 0, .selected_card = -1, .row = 0, .col = 0, .current_plant = -1};
@@ -18,7 +18,7 @@ void game_main()
         switch (game.state)
         {
         case GAME_MENU:
-            game_menu();
+            victory_screen();
             break;
         case GAME_PLAYING:
             start_level();
@@ -738,4 +738,74 @@ int get_selection_row(void)
 int get_selection_col(void)
 {
     return select_state.col;
+}
+
+void victory_screen(){
+    clear_screen();
+    draw_image(VICTORY_SCREEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
+
+    Button quit, start;
+    button_init(&quit, 240, 300, 300, 130, QUIT);
+    button_init(&start, 240, 400, 300, 130, START);
+
+    Button *buttons[] = {&quit, &start};
+    int current_selection = 0;
+    int previous_selection = current_selection;
+
+    button_set_state(buttons[current_selection], BUTTON_SELECTED);
+    button_draw_selection(buttons, current_selection, previous_selection);
+
+    while (1)
+    {
+        char key = getUart();
+        if (key == '[')
+        {
+            char key2 = getUart();
+            if ((key2 == 'A'))
+            {
+                // 'up arrow' button
+                int previous_selection = current_selection;
+                button_set_state(buttons[current_selection], BUTTON_NORMAL);
+                current_selection--;
+                if (current_selection < 0)
+                {
+                    current_selection = 1;
+                }
+
+                button_set_state(buttons[current_selection], BUTTON_SELECTED);
+                button_draw_selection(buttons, current_selection, previous_selection);
+            }
+            else if ((key2 == 'B'))
+            {
+                // 'down arrow' button
+                int previous_selection = current_selection;
+                button_set_state(buttons[current_selection], BUTTON_NORMAL);
+
+                current_selection++;
+                if (current_selection > 1)
+                {
+                    current_selection = 0;
+                }
+
+                button_set_state(buttons[current_selection], BUTTON_SELECTED);
+                button_draw_selection(buttons, current_selection, previous_selection);
+            }
+        }
+
+        if (key == '\n')
+        {
+            if (current_selection == 0)
+            {
+                clear_screen();
+                game.state = GAME_MENU;
+                return;
+            }
+            else if (current_selection == 1)
+            {
+                clear_screen();
+                game.state = GAME_PLAYING;
+                return;
+            }
+        }
+    }
 }
