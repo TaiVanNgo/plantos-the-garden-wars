@@ -1,5 +1,6 @@
 #include "../include/game_init.h"
 #include "../include/bullet.h"
+#include "../include/cooldown.h"  // Add cooldown include
 
 extern int flame_active[GRID_ROWS];  // Add external declaration
 
@@ -195,6 +196,9 @@ void start_level()
         }
         /*====== USER LOGIC END ====== */
 
+        // Update cooldowns
+        update_plant_cooldowns();
+
         // Update bullet system
         unsigned long current_counter;
         asm volatile("mrs %0, cntpct_el0" : "=r"(current_counter));
@@ -380,6 +384,16 @@ void handle_remove_plant()
 // Handle plant selection with number keys
 void handle_plant_selection(int plant_type)
 {
+    // Check if plant is on cooldown
+    if (plant_type >= 1 && plant_type <= 5) {
+        if (is_plant_on_cooldown(plant_type)) {
+            uart_puts("Plant is on cooldown! ");
+            display_plant_cooldown(plant_type);
+            return;
+        }
+        display_plant_cooldown(plant_type);  // Show cooldown even if not on cooldown
+    }
+
     int x_card = 0, y_card = 0;
     select_state.current_plant = plant_type;
 
@@ -498,6 +512,11 @@ void handle_enter_key(int frame_counter)
     }
     if (select_state.mode == 0)
     {
+        // Start cooldown when plant is placed
+        if (select_state.current_plant >= 1 && select_state.current_plant <= 5) {
+            start_plant_cooldown(select_state.current_plant);
+        }
+
         place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
         place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, tmp);
         Plant new_plant = create_plant(select_state.current_plant, select_state.col, select_state.row);
@@ -534,7 +553,11 @@ void handle_enter_key(int frame_counter)
     }
     else if (select_state.mode == 1)
     {
-        
+        // Start cooldown when plant is placed
+        if (select_state.current_plant >= 1 && select_state.current_plant <= 5) {
+            start_plant_cooldown(select_state.current_plant);
+        }
+
         place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
         // place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, tmp);
         Plant new_plant = create_plant(select_state.current_plant, select_state.col, select_state.row);
