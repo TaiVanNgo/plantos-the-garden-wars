@@ -3,9 +3,12 @@
 
 #include "../assets/sprites/plants/plants_sprites.h"
 #include "../assets/backgrounds/garden.h"
+#include "../assets/button/button.h"
 #include "framebf.h"
 #include "grid.h"
 #include "zombies.h"
+#include "gpio.h"
+#include "sun.h"
 
 // Define plant types
 #define PLANT_TYPE_SUNFLOWER 1
@@ -21,6 +24,12 @@
 // Plant dimensions
 #define PLANT_WIDTH 70  // Default plant sprite width
 #define PLANT_HEIGHT 70 // Default plant sprite height
+
+#define PLANT_SUNFLOWER_COST 50
+#define PLANT_PEASHOOTER_COST 100
+#define PLANT_FROZEN_PEASHOOTER_COST 175
+#define PLANT_WALNUT_COST 50
+#define PLANT_CHILLIES_COST 150
 
 enum PlantType
 {
@@ -39,7 +48,6 @@ typedef struct
     uint8_t col;           // Column position on the game grid (0-based)
     uint8_t row;           // Row position on the game grid (0-based)
     uint8_t attack_damage; // Damage dealt to zombies
-    uint8_t cost;          // Resource cost to plant
     uint8_t attack_speed;  // Attacks per time unit
 } Plant;
 
