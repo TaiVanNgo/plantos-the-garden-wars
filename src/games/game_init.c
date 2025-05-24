@@ -487,10 +487,14 @@ void handle_plant_selection(int plant_type) {
     if (select_state.current_plant != -1) {
         int x, y;
         grid_to_pixel(select_state.col, select_state.row, &x, &y);
+        int taken = check_clear() ? 1 : 0;
+        clear_plant_from_background(prev_col, prev_row, 0, taken);
+        // clear_plant_from_background(select_state.col, select_state.row, 0, taken);
+        place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
         restore_background_area(x, y, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0, 0, 0, 0);
 
         // Draw the plant preview
-        draw_plant(select_state.current_plant, select_state.col, select_state.row);
+        // draw_plant(select_state.current_plant, select_state.col, select_state.row);
 
         // Debug output
         uart_puts("Plant preview shown: ");
@@ -553,18 +557,17 @@ void handle_arrow_keys() {
         // Restore old cell background first
         restore_background_area(x_old, y_old, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0, 0, 1, 0);
 
-        // Redraw any existing plant at the old position
-        if (plant_grid[old_row][old_col].type != 255 && plant_grid[old_row][old_col].type != -1) {
-            draw_plant(plant_grid[old_row][old_col].type, old_col, old_row);
-        }
 
         // Restore background at new position
-        restore_background_area(x_new, y_new, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0, 0, 1, 0);
+        // restore_background_area(x_new, y_new, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0, 0, 1, 0);
 
         // Draw at new position
         if (select_state.current_plant != -1) {
             // Draw plant preview
-            draw_plant(select_state.current_plant, select_state.col, select_state.row);
+            int taken = check_clear() ? 1 : 0;
+
+            clear_plant_from_background(prev_col, prev_row, 0, taken);
+            place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
         } else {
             // Draw regular cursor
             draw_image(cursor, x_new, y_new, CURSOR_WIDTH, CURSOR_HEIGHT, 0);
@@ -911,7 +914,10 @@ void draw_cursor() {
 
     // If a plant is selected, draw the plant preview
     if (select_state.current_plant != -1 && select_state.current_plant != 9) {
-        draw_plant(select_state.current_plant, select_state.col, select_state.row);
+        int taken = check_clear() ? 1 : 0;
+        // draw_plant(select_state.current_plant, select_state.col, select_state.row);
+        clear_plant_from_background(prev_col, prev_row, 0, taken);
+        place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
     }
     // If shovel is selected
     else if (select_state.mode == 2) {
