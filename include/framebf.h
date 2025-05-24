@@ -7,6 +7,7 @@
 #include "uart0.h"
 #include "uart1.h"
 #include "video.h"
+#include "cooldown.h"
 
 #define RED 0xFF0000
 #define SALMON_RED 0xFF6666

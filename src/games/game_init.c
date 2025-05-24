@@ -1,8 +1,8 @@
 #include "../include/game_init.h"
 #include "../include/bullet.h"
-#include "../include/cooldown.h" 
+#include "../include/cooldown.h"
 
-extern int flame_active[GRID_ROWS]; 
+extern int flame_active[GRID_ROWS];
 
 SelectionState select_state = {
     .mode = 0, .selected_card = -1, .row = 0, .col = 0, .current_plant = -1};
@@ -55,15 +55,18 @@ int check_occupied()
     return 1;
 }
 
-int check_clear() {
-    if (plant_grid[prev_row][prev_col].type != 255) {
+int check_clear()
+{
+    if (plant_grid[prev_row][prev_col].type != 255)
+    {
         uart_puts("Cell already occupied!\n");
         return 1;
     }
-    return 0; 
+    return 0;
 }
 
-void game_start_difficulty(){
+void game_start_difficulty()
+{
     clear_screen();
     draw_image(MAIN_SCREEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
 
@@ -122,19 +125,21 @@ void game_start_difficulty(){
             {
                 clear_screen();
                 game.state = GAME_PLAYING;
-                game.level= LEVEL_NORMAL_ENUM;
+                game.level = LEVEL_NORMAL_ENUM;
                 return;
             }
             else if (current_selection == 1)
             {
                 clear_screen();
                 game.state = GAME_PLAYING;
-                game.level= LEVEL_MEDIUM_ENUM;
+                game.level = LEVEL_MEDIUM_ENUM;
                 return;
-            }else if(current_selection == 2){
+            }
+            else if (current_selection == 2)
+            {
                 clear_screen();
                 game.state = GAME_PLAYING;
-                game.level= LEVEL_HARD_ENUM;
+                game.level = LEVEL_HARD_ENUM;
                 return;
             }
         }
@@ -197,7 +202,7 @@ void game_menu()
         {
             if (current_selection == 0)
             {
-                game.state= GAME_DIFFICULTY;
+                game.state = GAME_DIFFICULTY;
                 return;
             }
             else if (current_selection == 1)
@@ -224,7 +229,7 @@ void start_level()
     }
 
     create_simulated_background(simulated_background, GARDEN, GARDEN_WIDTH, GARDEN_HEIGHT);
-    create_simulated_background(tmp,GARDEN, GARDEN_WIDTH, GARDEN_HEIGHT);
+    create_simulated_background(tmp, GARDEN, GARDEN_WIDTH, GARDEN_HEIGHT);
     draw_image(simulated_background, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
     draw_grid();
 
@@ -293,6 +298,9 @@ void start_level()
 
         // Update flame effects with current frame
         update_flame_effects(frame_counter);
+
+        // Draw cooldown overlays for all plant cards that are on cooldown
+        draw_all_plant_cooldowns();
 
         /*====== ZOMBIE LOGIC START ====== */
         for (int i = 0; i < 10; i++)
@@ -374,7 +382,8 @@ void start_level()
             check_bullet_zombie_collisions(zombie_pointers[i]);
 
             // Check for chilli damage if flames are active on this row
-            if (flame_active[zombie_pointers[i]->row]) {
+            if (flame_active[zombie_pointers[i]->row])
+            {
                 apply_chilli_damage(zombie_pointers[i]);
             }
 
@@ -432,8 +441,8 @@ int handle_user_input(int *frame_counter)
     // Arrow keys
     if (key == '[' && select_state.current_plant != -1)
     {
-        prev_col= select_state.col;
-        prev_row= select_state.row;
+        prev_col = select_state.col;
+        prev_row = select_state.row;
         uart_puts("selected _ plant\n");
         uart_dec(select_state.current_plant);
         uart_puts("\n");
@@ -455,24 +464,25 @@ int handle_user_input(int *frame_counter)
     return 0; // Key wasn't handled
 }
 
-
 void handle_remove_plant()
 {
     select_state.selected_card = 9;
     select_state.mode = 2;
     handle_plant_selection(9);
 }
-// Handle plant selection with number keys
+
 void handle_plant_selection(int plant_type)
 {
     // Check if plant is on cooldown
-    if (plant_type >= 1 && plant_type <= 5) {
-        if (is_plant_on_cooldown(plant_type)) {
+    if (plant_type >= 1 && plant_type <= 5)
+    {
+        if (is_plant_on_cooldown(plant_type))
+        {
             uart_puts("Plant is on cooldown! ");
             display_plant_cooldown(plant_type);
             return;
         }
-        display_plant_cooldown(plant_type);  
+        display_plant_cooldown(plant_type);
     }
 
     int x_card = 0, y_card = 0;
@@ -489,24 +499,16 @@ void handle_plant_selection(int plant_type)
 
     if (select_state.current_plant != -1)
     {
-        int taken= check_clear() ? 1: 0; 
-        clear_plant_from_background(prev_col,prev_row, 0, taken);
-        // grid_to_pixel(select_state.col, select_state.row, &x_card, &y_card);
+        int taken = check_clear() ? 1 : 0;
+        clear_plant_from_background(prev_col, prev_row, 0, taken);
         place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
-        // restore_background_area(x_card, y_card, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0, 0);
-        // draw_plant(select_state.current_plant, select_state.col, select_state.row);
-        
-        // update_framebuffer_region(x_card, y_card, PLANT_WIDTH, PLANT_HEIGHT);
-        // place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, tmp);
     }
 }
-
 
 void handle_arrow_keys()
 {
     int x_card = 0, y_card = 0;
     char key2 = getUart();
-
 
     grid_to_pixel(select_state.col, select_state.row, &x_card, &y_card);
 
@@ -548,16 +550,10 @@ void handle_arrow_keys()
     // Update display if a plant is selected
     if (select_state.current_plant != -1)
     {
-        int taken= check_clear() ? 1: 0; 
+        int taken = check_clear() ? 1 : 0;
 
-        clear_plant_from_background(prev_col,prev_row, 0, taken);
-        // clear_plant_from_background(prev_col, prev_row, 1);
-        // place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
-        // place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, tmp);
+        clear_plant_from_background(prev_col, prev_row, 0, taken);
         place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
-        // update_framebuffer_region(x_card, y_card, PLANT_WIDTH, PLANT_HEIGHT);
-        // draw_plant(select_state.current_plant, select_state.col, select_state.row);
-       
     }
 
     // Debug output
@@ -594,7 +590,8 @@ void handle_enter_key(int frame_counter)
     if (select_state.mode == 0)
     {
         // Start cooldown when plant is placed
-        if (select_state.current_plant >= 1 && select_state.current_plant <= 5) {
+        if (select_state.current_plant >= 1 && select_state.current_plant <= 5)
+        {
             start_plant_cooldown(select_state.current_plant);
         }
 
@@ -635,7 +632,8 @@ void handle_enter_key(int frame_counter)
     else if (select_state.mode == 1)
     {
         // Start cooldown when plant is placed
-        if (select_state.current_plant >= 1 && select_state.current_plant <= 5) {
+        if (select_state.current_plant >= 1 && select_state.current_plant <= 5)
+        {
             start_plant_cooldown(select_state.current_plant);
         }
 
@@ -658,7 +656,7 @@ void handle_enter_key(int frame_counter)
         else if (select_state.current_plant == PLANT_CHILLIES)
         {
             chillies_detonate(select_state.row, frame_counter);
-            
+
             plant_grid[select_state.row][select_state.col].type = 255;
             clear_plant_from_background(select_state.col, select_state.row, 0, 0);
         }
@@ -676,7 +674,7 @@ void handle_enter_key(int frame_counter)
 
 void set_zombie_types_level(int level, int zombie_types[10])
 {
-    if (level == LEVEL_NORMAL_ENUM )
+    if (level == LEVEL_NORMAL_ENUM)
     {
         // easy level: 5 normal zombie + 3 bucket zombies + 2 helmet zombies
         for (int i = 0; i < 5; i++)
@@ -696,9 +694,9 @@ void set_zombie_types_level(int level, int zombie_types[10])
     {
         // Intermediate level - 3 normal + 3 bucket + 4 helmet
         for (int i = 0; i < 3; i++)
-    {
+        {
             zombie_types[i] = ZOMBIE_NORMAL;
-    }
+        }
         for (int i = 3; i < 6; i++)
         {
             zombie_types[i] = ZOMBIE_BUCKET;
@@ -741,7 +739,8 @@ int get_selection_col(void)
     return select_state.col;
 }
 
-void victory_screen(){
+void victory_screen()
+{
     clear_screen();
     draw_image(VICTORY_SCREEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
 
@@ -807,6 +806,18 @@ void victory_screen(){
                 game.state = GAME_PLAYING;
                 return;
             }
+        }
+    }
+}
+
+// Draw cooldown overlays for all plant cards that are on cooldown
+void draw_all_plant_cooldowns()
+{
+    for (int i = 1; i <= 5; i++)
+    {
+        if (plant_cooldowns[i] > 0)
+        {
+            draw_plant_cooldown_text(i);
         }
     }
 }
