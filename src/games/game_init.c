@@ -243,7 +243,7 @@ void start_level()
     unsigned long start_counter;
     asm volatile("mrs %0, cntpct_el0" : "=r"(start_counter));
     unsigned long start_ms = start_counter * 1000 / freq;
-    bullet_system_init(start_ms, 1000); // Initialize with 1 second fire interval
+    bullet_system_init(start_ms, 5000); // Initialize with 1 second fire interval
 
     /* Zombie settings */
     // Define individual zombies instead of an array
