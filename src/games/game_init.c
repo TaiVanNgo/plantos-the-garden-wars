@@ -7,7 +7,7 @@ extern int flame_active[GRID_ROWS];
 SelectionState select_state = {
     .mode = 0, .selected_card = -1, .row = 0, .col = 0, .current_plant = -1};
 
-GameState game = {.state = GAME_MENU, .score = 0, .level = LEVEL_HARD_ENUM};
+GameState game = {.state = GAME_MENU, .score = 0, .level = LEVEL_EASY_ENUM};
 
 Plant plant_grid[GRID_ROWS][GRID_COLS];
 int prev_col, prev_row;
@@ -99,7 +99,7 @@ void game_start_difficulty()
                 }
 
                 button_set_state(buttons[current_selection], BUTTON_SELECTED);
-                button_draw_selection(buttons, current_selection, previous_selection, 0, 1, 150,20);
+                button_draw_selection(buttons, current_selection, previous_selection, 0, 1, 150, 20);
             }
             else if ((key2 == 'B'))
             {
@@ -124,7 +124,7 @@ void game_start_difficulty()
             {
                 clear_screen();
                 game.state = GAME_PLAYING;
-                game.level = LEVEL_NORMAL_ENUM;
+                game.level = LEVEL_EASY_ENUM;
                 return;
             }
             else if (current_selection == 1)
@@ -395,7 +395,7 @@ void start_level()
             }
 
             // Check if killed
-            if (zombie_pointers[i]->health <= 0 && zombie_pointers[i]->active)
+            if (zombie_pointers[i]->health <= 0 && !zombie_pointers[i]->active)
             {
                 zombie_pointers[i]->active = 0;
                 register_zombie_on_row(zombie_pointers[i]->row, 0);
@@ -409,11 +409,13 @@ void start_level()
                 uart_puts("\n");
             }
 
-            // Check for level completion
+            // Check for level completion (victory)
             if (zombies_killed >= 10)
             {
                 delay_ms(2000);
                 game.state = GAME_VICTORY;
+                uart_puts("[Game State] Plants win. Zombies defeated, Score:  \n");
+                uart_dec(game.score);
                 return;
             }
         }
@@ -673,7 +675,7 @@ void handle_enter_key(int frame_counter)
 
 void set_zombie_types_level(int level, int zombie_types[10])
 {
-    if (level == LEVEL_NORMAL_ENUM)
+    if (level == LEVEL_EASY_ENUM)
     {
         // easy level: 5 normal zombie + 3 bucket zombies + 2 helmet zombies
         for (int i = 0; i < 5; i++)
@@ -809,7 +811,8 @@ void victory_screen()
     }
 }
 
-void game_over(){
+void game_over()
+{
     // clear_screen();
     draw_image(LOSE_SCREEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
 

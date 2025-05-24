@@ -36,7 +36,7 @@ void start_plant_cooldown(int plant_type)
             plant_cooldowns[plant_type] = 0; // Skip cooldown if zero or negative
             return;
         }
-        uart_puts("[[CD]] Started cooldown for plant ");
+        uart_puts("[Cooldown] Started cooldown for plant ");
         uart_dec(plant_type);
         uart_puts("\n");
     }
@@ -56,7 +56,7 @@ void display_plant_cooldown(int plant_type)
     if (plant_type < 1 || plant_type > 5)
         return;
 
-    uart_puts("[[CD]] Plant ");
+    uart_puts("[Cooldown] Plant ");
     uart_dec(plant_type);
     uart_puts(" cooldown: ");
     uart_dec(plant_cooldowns[plant_type] / 60);
@@ -88,7 +88,7 @@ void update_plant_cooldowns()
             if (plant_cooldowns[i] <= 0)
             {
                 plant_cooldowns[i] = 0;
-                uart_puts("[[CD]] Cooldown finished for plant ");
+                uart_puts("[Cooldown] Cooldown finished for plant ");
                 uart_dec(i);
                 uart_puts("\n");
 
