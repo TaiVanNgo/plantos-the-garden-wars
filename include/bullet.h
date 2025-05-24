@@ -34,6 +34,7 @@ typedef struct {
 // Function Declarations
 void bullet_system_init(unsigned long start_ms, int fire_interval_ms);
 void bullet_spawn_plant(int col, int row, unsigned long start_ms);
+void bullet_remove_plant(int col, int row);
 void bullet_update(unsigned long current_time_ms);
 void bullet_draw(void);
 void check_bullet_zombie_collisions(Zombie *zombie);

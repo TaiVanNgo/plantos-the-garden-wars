@@ -13,8 +13,7 @@ static unsigned long last_bullet_move_time = 0;
 static int target_x, target_y;
 static int bullet_speed = 3;
 static int game_over;
-static unsigned int background_buffer[MAX_BULLETS]
-                                     [BULLET_WIDTH * BULLET_HEIGHT];
+static unsigned int background_buffer[MAX_BULLETS][BULLET_WIDTH * BULLET_HEIGHT];
 static int zombies_on_row[GRID_ROWS] = {0, 0, 0, 0};
 
 // --- Background/Utility Helpers ---
@@ -27,7 +26,21 @@ static int bullet_should_fire(unsigned long last_fire_time,
                               unsigned int interval);
 static int is_living_zombie_on_row(int row);
 
-// --- Bullet System API ---
+// Remove a plant from the bullet system
+void bullet_remove_plant(int col, int row) {
+    for (int i = 0; i < plant_count; i++) {
+        if (plants[i].col == col && plants[i].row == row) {
+            // Remove plant by shifting remaining plants
+            for (int j = i; j < plant_count - 1; j++) {
+                plants[j] = plants[j + 1];
+            }
+            plant_count--;
+            uart_puts("Plant removed from bullet system\n");
+            break;
+        }
+    }
+}
+
 // Initialize bullet system
 void bullet_system_init(unsigned long start_ms, int fire_interval_ms)
 {
