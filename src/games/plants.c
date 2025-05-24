@@ -314,7 +314,7 @@ void apply_chilli_damage(Zombie *zombie)
     zombie->active = 0;
     register_zombie_on_row(zombie->row, 0);
     restore_background_area(zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0, 0, 0, 0);
-    uart_puts("Zombie killby chilli\n");
+    uart_puts("[Plant] Zombie killed by chilli\n");
 }
 
 // get plant name
