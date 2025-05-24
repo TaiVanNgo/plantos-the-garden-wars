@@ -1,3 +1,4 @@
+#include "../include/plants.h"
 #include "../include/grid.h"
 
 // Convert grid position to pixel coordinates

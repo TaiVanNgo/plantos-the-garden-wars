@@ -68,20 +68,17 @@ typedef struct
 void game_main();
 void game_menu();
 void start_level();
+void game_over();
 int handle_user_input(int *frame_counter);
 int check_occupied();
 void handle_plant_selection(int plant_type);
 void handle_remove_plant();
 void handle_arrow_keys();
 void handle_enter_key();
-
-// void set_zombie_types_level(int level, int zombie_types[10]);
-
-// allow access to the selection state from other files
+void victory_screen();
 int get_selection_current_plant(void);
 int get_selection_row(void);
 int get_selection_col(void);
-
 // External global variables
 extern GameState game;
 extern SelectionState select_state;

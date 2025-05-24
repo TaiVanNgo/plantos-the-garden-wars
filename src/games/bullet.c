@@ -164,14 +164,14 @@ void bullet_update(unsigned long current_time_ms)
                 if (bullets[i].x > PHYSICAL_WIDTH - 50)
                 {
                     restore_background_area(bullets[i].x, bullets[i].y, BULLET_WIDTH,
-                                            BULLET_HEIGHT, 0, 0, 0);
+                                            BULLET_HEIGHT, 0, 0, 0, 0);
                     bullets[i].active = 0;
                 }
 
                 if (bullets[i].x > PHYSICAL_WIDTH)
                 {
                     restore_background_area(bullets[i].x, bullets[i].y, BULLET_WIDTH,
-                                            BULLET_HEIGHT, 0, 0, 0);
+                                            BULLET_HEIGHT, 0, 0, 0, 0);
                     bullets[i].active = 0;
                     uart_puts("Bullet out of bounds\n");
                 }
@@ -188,7 +188,7 @@ void bullet_draw(void)
         if (bullets[i].prev_x > 0 || bullets[i].prev_y > 0)
         {
             restore_background_area(bullets[i].prev_x, bullets[i].prev_y,
-                                    BULLET_WIDTH, BULLET_HEIGHT, 0, 0, 0);
+                                    BULLET_WIDTH, BULLET_HEIGHT, 0, 0, 0,0);
         }
 
         if (bullets[i].active)
@@ -335,7 +335,7 @@ void apply_bullet_damage(Bullet *bullet, Zombie *zombie)
     int dmg = get_plant_damage(bullet->plant_type);
 
     restore_background_area(bullet->x, bullet->y, BULLET_WIDTH, BULLET_HEIGHT, 0,
-                            0, 0);
+                            0, 0, 0);
 
     if (zombie->health <= dmg)
     {
@@ -343,7 +343,7 @@ void apply_bullet_damage(Bullet *bullet, Zombie *zombie)
         zombie->active = 0;
         register_zombie_on_row(zombie->row, 0);
         restore_background_area(zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT,
-                                0, 0, 0);
+                                0, 0, 0, 0);
         uart_puts("[Plant] Zombie Killed!\n");
     }
     else
