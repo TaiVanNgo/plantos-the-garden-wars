@@ -33,6 +33,7 @@ typedef struct
   uint8_t attack_speed; // Attack rate (ticks between attacks)
   uint8_t is_frozen;    // Frozen status (1 = yes, 0 = no)
   uint8_t active;       // 1 = alive and moving, 0 = dead
+  int frozen_counter;   // Counter for frozen movement delay
 } Zombie;
 
 extern const Zombie default_zombie_normal;

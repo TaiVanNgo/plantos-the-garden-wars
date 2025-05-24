@@ -29,7 +29,7 @@ const Plant default_peashooter = {
     .max_health = 100,
     .col = 0,
     .row = 0,
-    .attack_damage = 20,
+    .attack_damage = 30,
     .cost = 100,
     .attack_speed = 5, // Fires 5 peas per time unit
 };
@@ -41,7 +41,7 @@ const Plant default_frozen_peashooter = {
     .max_health = 100,
     .col = 0,
     .row = 0,
-    .attack_damage = 15, // Slightly less damage than regular peashooter
+    .attack_damage = 20, // Slightly less damage than regular peashooter
     .cost = 175,         // More expensive due to freezing ability
     .attack_speed = 4,   // Fires 4 peas per time unit
 };
