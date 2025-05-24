@@ -4,6 +4,8 @@
 #include "../include/cooldown.h"
 
 extern int flame_active[GRID_ROWS];
+extern int flame_start_frames[GRID_ROWS];
+
 
 SelectionState select_state = {
     .mode = 0, .selected_card = -1, .row = 0, .col = 0, .current_plant = -1};
@@ -186,6 +188,12 @@ void game_menu() {
 void start_level() {
     reset_zombie_counts();  // Reset zombie tracking
 
+    // Reset flame effects
+    for (int i = 0; i < GRID_ROWS; i++) {
+        flame_active[i] = 0;
+        flame_start_frames[i] = 0;
+    }
+
     // draw background first
     for (int i = 0; i < GRID_ROWS; i++) {
         for (int j = 0; j < GRID_COLS; j++) {
@@ -362,7 +370,6 @@ void start_level() {
             // Check if killed
             if (zombie_pointers[i]->health <= 0 && zombie_pointers[i]->active) {
                 zombie_pointers[i]->active = 0;
-                register_zombie_on_row(zombie_pointers[i]->row, 0);
                 zombies_killed++;
                 game.score += ZOMBIE_KILL_REWARD;
 
@@ -371,6 +378,7 @@ void start_level() {
                 uart_puts(" ,Total Score: ");
                 uart_dec(game.score);
                 uart_puts("\n");
+
             }
 
             // Check for level completion
