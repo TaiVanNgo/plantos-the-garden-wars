@@ -66,7 +66,11 @@ Command commands[] = {
      "handshake - Allow the user to turn on/off CTS/RTS handshaking on current UART if possible\n"
      "Example: PlantOS> handshake on\n"
      "Example: PlantOS> handshake off",
-     cmd_handshake}
+     cmd_handshake},
+    {"game",
+     "Start the Plants vs. Zombies game",
+     "game - Start Garden Wars from the CLI\nExample: PlantOS> game",
+     cmd_game}
 };
 
 const int num_commands = sizeof(commands) / sizeof(commands[0]);
@@ -484,6 +488,17 @@ void cmd_handshake(char *args)
         uart_puts("\nUsage: handshake <on|off>\n");
         uart_puts("Example: PlantOS> handshake on\n");
     }
+}
+
+/**
+ * @brief Command: Start the Plants vs. Zombies game.
+ *
+ * @param args Not used.
+ */
+void cmd_game(char *args)
+{
+    uart_puts("\nStarting Garden Wars ...\n");
+    game_main();
 }
 
 // === Welcome Message ===
