@@ -70,9 +70,9 @@ void game_start_difficulty()
     draw_image(MAIN_SCREEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
 
     Button normal, medium, hard;
-    button_init(&normal, 240, 300, 300, 130, NORMAL);
-    button_init(&medium, 240, 400, 300, 130, MEDIUM);
-    button_init(&hard, 240, 500, 300, 130, HARD);
+    button_init(&normal, 240, 300, 300, 85, NORMAL);
+    button_init(&medium, 240, 400, 300, 85, MEDIUM);
+    button_init(&hard, 240, 500, 300, 85, HARD);
 
     Button *buttons[3] = {&normal, &medium, &hard};
     int current_selection = 0;
@@ -151,7 +151,7 @@ void game_menu()
     Button startButton;
     Button endButton;
     button_init(&startButton, 240, 300, 300, 85, START);
-    button_init(&endButton, 240, 400, 300, 85, QUIT);
+    button_init(&endButton, 240, 400, 300, 80, QUIT);
 
     Button *buttons[2] = {&startButton, &endButton};
     int current_selection = 0;
@@ -746,8 +746,11 @@ void victory_screen()
     draw_image(VICTORY_SCREEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
 
     Button quit, start;
-    button_init(&quit, 240, 300, 300, 130, QUIT);
-    button_init(&start, 240, 450, 300, 130, START);
+    button_init(&quit, 240, 350, 300, 85, HOME);
+    if(game.level != LEVEL_HARD_ENUM){
+        button_init(&start, 240, 450, 300, 85, NEXTROUND);
+    }
+   
 
     Button *buttons[] = {&quit, &start};
     int current_selection = 0;
@@ -805,6 +808,15 @@ void victory_screen()
             {
                 clear_screen();
                 game.state = GAME_PLAYING;
+                if(game.level == LEVEL_EASY_ENUM){
+                    uart_puts("\nMoving to Medium\n");
+                    game.level= LEVEL_MEDIUM_ENUM;
+                }else if (game.level == LEVEL_MEDIUM_ENUM){
+                    uart_puts("\nMoving to HARD\n");
+                    game.level= LEVEL_HARD_ENUM;
+                }else{
+                    game.level= LEVEL_EASY_ENUM;
+                }
                 return;
             }
         }
@@ -818,15 +830,15 @@ void game_over()
 
     // REPLACE BUTTON ui BY REAL ONE
     Button quit, retry;
-    button_init(&quit, 100, 450, 300, 130, HARD);
-    button_init(&retry, 470, 450, 300, 130, NORMAL);
+    button_init(&quit, 100, 450, 300, 85, QUIT);
+    button_init(&retry, 470, 450, 300, 85, RETRY);
 
     Button *buttons[] = {&quit, &retry};
     int current_selection = 0;
     int previous_selection = current_selection;
 
     button_set_state(buttons[current_selection], BUTTON_SELECTED);
-    button_draw_selection(buttons, current_selection, previous_selection, 0, 0, 90, 20);
+    button_draw_selection(buttons, current_selection, previous_selection, 0, 0, 160, 20);
 
     while (1)
     {
