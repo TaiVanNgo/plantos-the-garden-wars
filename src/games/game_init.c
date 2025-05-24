@@ -76,7 +76,7 @@ void game_start_difficulty(){
     int previous_selection = current_selection;
 
     button_set_state(buttons[current_selection], BUTTON_SELECTED);
-    button_draw_selection(buttons, current_selection, previous_selection, 0);
+    button_draw_selection(buttons, current_selection, previous_selection, 0, 1);
 
     while (1)
     {
@@ -96,7 +96,7 @@ void game_start_difficulty(){
                 }
 
                 button_set_state(buttons[current_selection], BUTTON_SELECTED);
-                button_draw_selection(buttons, current_selection, previous_selection, 0);
+                button_draw_selection(buttons, current_selection, previous_selection, 0, 1);
             }
             else if ((key2 == 'B'))
             {
@@ -111,7 +111,7 @@ void game_start_difficulty(){
                 }
 
                 button_set_state(buttons[current_selection], BUTTON_SELECTED);
-                button_draw_selection(buttons, current_selection, previous_selection, 0);
+                button_draw_selection(buttons, current_selection, previous_selection, 0, 1);
             }
         }
 
@@ -153,7 +153,7 @@ void game_menu()
     int previous_selection = current_selection;
     // Initially set the first button selected
     button_set_state(buttons[current_selection], BUTTON_SELECTED);
-    button_draw_selection(buttons, current_selection, previous_selection, 0);
+    button_draw_selection(buttons, current_selection, previous_selection, 0, 1);
 
     while (1)
     {
@@ -173,7 +173,7 @@ void game_menu()
                 }
 
                 button_set_state(buttons[current_selection], BUTTON_SELECTED);
-                button_draw_selection(buttons, current_selection, previous_selection, 0);
+                button_draw_selection(buttons, current_selection, previous_selection, 0, 1);
             }
             else if ((key2 == 'B'))
             {
@@ -188,7 +188,7 @@ void game_menu()
                 }
 
                 button_set_state(buttons[current_selection], BUTTON_SELECTED);
-                button_draw_selection(buttons, current_selection, previous_selection, 0);
+                button_draw_selection(buttons, current_selection, previous_selection, 0, 1);
             }
         }
 
@@ -753,7 +753,7 @@ void victory_screen(){
     int previous_selection = current_selection;
 
     button_set_state(buttons[current_selection], BUTTON_SELECTED);
-    button_draw_selection(buttons, current_selection, previous_selection, 1);
+    button_draw_selection(buttons, current_selection, previous_selection, 1, 1);
 
     while (1)
     {
@@ -773,7 +773,7 @@ void victory_screen(){
                 }
 
                 button_set_state(buttons[current_selection], BUTTON_SELECTED);
-                button_draw_selection(buttons, current_selection, previous_selection, 1);
+                button_draw_selection(buttons, current_selection, previous_selection, 1, 1);
             }
             else if ((key2 == 'B'))
             {
@@ -788,7 +788,7 @@ void victory_screen(){
                 }
 
                 button_set_state(buttons[current_selection], BUTTON_SELECTED);
-                button_draw_selection(buttons, current_selection, previous_selection, 1);
+                button_draw_selection(buttons, current_selection, previous_selection, 1, 1);
             }
         }
 
@@ -811,8 +811,8 @@ void victory_screen(){
 }
 
 void game_over(){
-
-    draw_image(simulated_background, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
+    // clear_screen();
+    draw_image(LOSE_SCREEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
 
 
     Button quit, retry;
@@ -824,7 +824,7 @@ void game_over(){
     int previous_selection = current_selection;
 
     button_set_state(buttons[current_selection], BUTTON_SELECTED);
-    button_draw_selection(buttons, current_selection, previous_selection, 1);
+    button_draw_selection(buttons, current_selection, previous_selection, 0, 0);
 
     while (1)
     {
@@ -843,7 +843,7 @@ void game_over(){
                 }
 
                 button_set_state(buttons[current_selection], BUTTON_SELECTED);
-                button_draw_selection(buttons, current_selection, previous_selection, 1);
+                button_draw_selection(buttons, current_selection, previous_selection, 0, 0);
             }
             else if ((key2 == 'B'))
             {
@@ -858,7 +858,7 @@ void game_over(){
                 }
 
                 button_set_state(buttons[current_selection], BUTTON_SELECTED);
-                button_draw_selection(buttons, current_selection, previous_selection, 0);
+                button_draw_selection(buttons, current_selection, previous_selection, 0, 0);
             }
         }
 
