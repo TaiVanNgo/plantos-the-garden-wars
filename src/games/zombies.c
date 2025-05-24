@@ -187,7 +187,7 @@ void update_zombie_position(Zombie *zombie)
   int old_y = zombie->y;
 
   // Restore background from old position
-  restore_background_area(old_x, old_y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0, 0, 0);
+  restore_background_area(old_x, old_y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0, 0, 0, 0);
 
   // Move zombie left (update position)
   int status = move_zombie(zombie);

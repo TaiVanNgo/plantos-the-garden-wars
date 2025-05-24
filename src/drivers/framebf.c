@@ -344,7 +344,7 @@ void draw_string(int x, int y, char *s, unsigned int attr, int scale)
   }
 }
 
-void restore_background_area(int x, int y, int width, int height, int draw_main_screen, int redraw_default, int restore)
+void restore_background_area(int x, int y, int width, int height, int draw_main_screen, int redraw_default, int restore, int victory)
 {
 
   for (int row = 0; row < height; row++)
@@ -360,6 +360,10 @@ void restore_background_area(int x, int y, int width, int height, int draw_main_
         int bg_index = screen_y * GARDEN_WIDTH + screen_x;
         int fb_index = screen_y * (pitch / 4) + screen_x;
 
+        if(victory){
+          *((unsigned int *)fb + fb_index) = VICTORY_SCREEN[bg_index];
+          continue;
+        }
         if(restore){
           *((unsigned int *)fb + fb_index) = tmp[bg_index];
           continue;
@@ -515,14 +519,14 @@ void draw_selection_border(int selection)
   int prev_x = FIRST_CARD_X + (prev_selection - 1) * CARD_SPACING;
 
   // remove the selection border & shovel border
-  restore_background_area(prev_x, CARDS_Y, SEL_BORDER_WIDTH, SEL_BORDER_HEIGHT, 0, 1, 0);
+  restore_background_area(prev_x, CARDS_Y, SEL_BORDER_WIDTH, SEL_BORDER_HEIGHT, 0, 1, 0, 0);
   restore_background_area(
       SHOVEL_X,
       CARDS_Y,
       SEL_BORDER_WIDTH,
       SEL_BORDER_HEIGHT,
       0,
-      1, 0);
+      1, 0, 0);
 
   // update current selection for next time using
   prev_selection = selection;

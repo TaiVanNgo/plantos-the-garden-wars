@@ -254,7 +254,7 @@ void place_plant_on_background(int plant_type, int grid_col, int grid_row, unsig
     // clear_plant_from_background(grid_col,grid_row,1);
 
     draw_plant(plant, grid_col, grid_row);
-    restore_background_area(x, y, PLANT_WIDTH, PHYSICAL_HEIGHT, 0, 0, 0);
+    restore_background_area(x, y, PLANT_WIDTH, PHYSICAL_HEIGHT, 0, 0, 0, 0);
 }
 
 void draw_flames_on_row(int row)
@@ -276,7 +276,7 @@ void clear_flames_on_row(int row)
     y = GRID_TOP_MARGIN + (row * GRID_ROW_HEIGHT) + ((GRID_ROW_HEIGHT - FLAMES_EFFECT_HEIGHT) / 2);
 
     // Restore the background where flames were
-    restore_background_area(x, y, FLAMES_EFFECT_WIDTH, FLAMES_EFFECT_HEIGHT, 0, 0, 0);
+    restore_background_area(x, y, FLAMES_EFFECT_WIDTH, FLAMES_EFFECT_HEIGHT, 0, 0, 0, 0);
 }
 
 void chillies_detonate(int row, int current_frame)
@@ -313,7 +313,7 @@ void apply_chilli_damage(Zombie *zombie)
     zombie->health = 0;
     zombie->active = 0;
     register_zombie_on_row(zombie->row, 0);
-    restore_background_area(zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0, 0, 0);
+    restore_background_area(zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0, 0, 0, 0);
     uart_puts("Zombie killby chilli\n");
 }
 

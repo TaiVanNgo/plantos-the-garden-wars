@@ -76,7 +76,7 @@ void game_start_difficulty(){
     int previous_selection = current_selection;
 
     button_set_state(buttons[current_selection], BUTTON_SELECTED);
-    button_draw_selection(buttons, current_selection, previous_selection);
+    button_draw_selection(buttons, current_selection, previous_selection, 0);
 
     while (1)
     {
@@ -96,7 +96,7 @@ void game_start_difficulty(){
                 }
 
                 button_set_state(buttons[current_selection], BUTTON_SELECTED);
-                button_draw_selection(buttons, current_selection, previous_selection);
+                button_draw_selection(buttons, current_selection, previous_selection, 0);
             }
             else if ((key2 == 'B'))
             {
@@ -111,7 +111,7 @@ void game_start_difficulty(){
                 }
 
                 button_set_state(buttons[current_selection], BUTTON_SELECTED);
-                button_draw_selection(buttons, current_selection, previous_selection);
+                button_draw_selection(buttons, current_selection, previous_selection, 0);
             }
         }
 
@@ -153,7 +153,7 @@ void game_menu()
     int previous_selection = current_selection;
     // Initially set the first button selected
     button_set_state(buttons[current_selection], BUTTON_SELECTED);
-    button_draw_selection(buttons, current_selection, previous_selection);
+    button_draw_selection(buttons, current_selection, previous_selection, 0);
 
     while (1)
     {
@@ -173,7 +173,7 @@ void game_menu()
                 }
 
                 button_set_state(buttons[current_selection], BUTTON_SELECTED);
-                button_draw_selection(buttons, current_selection, previous_selection);
+                button_draw_selection(buttons, current_selection, previous_selection, 0);
             }
             else if ((key2 == 'B'))
             {
@@ -188,7 +188,7 @@ void game_menu()
                 }
 
                 button_set_state(buttons[current_selection], BUTTON_SELECTED);
-                button_draw_selection(buttons, current_selection, previous_selection);
+                button_draw_selection(buttons, current_selection, previous_selection, 0);
             }
         }
 
@@ -481,7 +481,7 @@ void handle_plant_selection(int plant_type)
     if (select_state.mode == 2)
     {
         grid_to_pixel(select_state.col, select_state.row, &x_card, &y_card);
-        restore_background_area(x_card, y_card, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0, 0, 0);
+        restore_background_area(x_card, y_card, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0, 0, 0, 0);
         draw_plant(select_state.current_plant, select_state.col, select_state.row);
         return;
     }
@@ -753,7 +753,7 @@ void victory_screen(){
     int previous_selection = current_selection;
 
     button_set_state(buttons[current_selection], BUTTON_SELECTED);
-    button_draw_selection(buttons, current_selection, previous_selection);
+    button_draw_selection(buttons, current_selection, previous_selection, 1);
 
     while (1)
     {
@@ -773,7 +773,7 @@ void victory_screen(){
                 }
 
                 button_set_state(buttons[current_selection], BUTTON_SELECTED);
-                button_draw_selection(buttons, current_selection, previous_selection);
+                button_draw_selection(buttons, current_selection, previous_selection, 1);
             }
             else if ((key2 == 'B'))
             {
@@ -788,7 +788,7 @@ void victory_screen(){
                 }
 
                 button_set_state(buttons[current_selection], BUTTON_SELECTED);
-                button_draw_selection(buttons, current_selection, previous_selection);
+                button_draw_selection(buttons, current_selection, previous_selection, 1);
             }
         }
 
