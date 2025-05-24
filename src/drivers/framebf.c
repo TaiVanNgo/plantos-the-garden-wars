@@ -573,3 +573,25 @@ void draw_cooldown_on_cards(int plant_type) {
     // Draw "COOLDOWN" text in red
     draw_string(card_x + 5, CARDS_Y + 80, "COOLDOWN", 0x00FF0000, 1);
 }
+
+void restore_grid_area_to_garden(int grid_col, int grid_row)
+{
+    int x, y;
+    grid_to_pixel(grid_col, grid_row, &x, &y);
+
+    for (int row = 0; row < PLANT_HEIGHT; row++)
+    {
+        for (int col = 0; col < PLANT_WIDTH; col++)
+        {
+            int screen_x = x + col;
+            int screen_y = y + row;
+
+            if (screen_x >= 0 && screen_x < GARDEN_WIDTH &&
+                screen_y >= 0 && screen_y < GARDEN_HEIGHT)
+            {
+                int index = screen_y * GARDEN_WIDTH + screen_x;
+                simulated_background[index] = GARDEN[index];
+            }
+        }
+    }
+}

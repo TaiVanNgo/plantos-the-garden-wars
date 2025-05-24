@@ -394,6 +394,9 @@ int handle_user_input(int *frame_counter) {
     // Number keys for plant selection
     if (key >= '1' && key <= '5') {
         int selection = key - '0';
+        if(check_occupied()){
+            clear_plant_from_background(select_state.col, select_state.row, 0, 0);
+        }
         handle_plant_selection(selection);
         return 1;
     }
