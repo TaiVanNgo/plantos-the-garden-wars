@@ -69,7 +69,7 @@ Command commands[] = {
      cmd_handshake},
     {"game",
      "Start the Plants vs. Zombies game",
-     "game - Start the Plants vs. Zombies game from the CLI\nExample: PlantOS> game",
+     "game - Start Garden Wars from the CLI\nExample: PlantOS> game",
      cmd_game}
 };
 
