@@ -248,7 +248,7 @@ void start_level()
     unsigned long start_counter;
     asm volatile("mrs %0, cntpct_el0" : "=r"(start_counter));
     unsigned long start_ms = start_counter * 1000 / freq;
-    bullet_system_init(start_ms, 5000); // Initialize with 1 second fire interval
+    bullet_system_init(start_ms, 3000); // Initialize with 1 second fire interval
 
     /* Zombie settings */
     // Define individual zombies instead of an array
@@ -610,7 +610,7 @@ void handle_enter_key(int frame_counter)
             unsigned long freq;
             asm volatile("mrs %0, cntfrq_el0" : "=r"(freq));
             unsigned long current_time_ms = current_counter * 1000 / freq;
-            bullet_spawn_plant(select_state.col, select_state.row, current_time_ms);
+            bullet_spawn_plant(select_state.col, select_state.row, current_time_ms, select_state.current_plant);
         }
         else if (select_state.current_plant == PLANT_CHILLIES)
         {
@@ -652,7 +652,7 @@ void handle_enter_key(int frame_counter)
             unsigned long freq;
             asm volatile("mrs %0, cntfrq_el0" : "=r"(freq));
             unsigned long current_time_ms = current_counter * 1000 / freq;
-            bullet_spawn_plant(select_state.col, select_state.row, current_time_ms);
+            bullet_spawn_plant(select_state.col, select_state.row, current_time_ms, select_state.current_plant);
         }
         else if (select_state.current_plant == PLANT_CHILLIES)
         {
