@@ -451,11 +451,13 @@ int handle_user_input(int *frame_counter)
     if (key >= '1' && key <= '5')
     {
         int selection = key - '0';
+        select_state.mode= 0;
         if (check_occupied())
         {
             clear_plant_from_background(select_state.col, select_state.row, 0, 0);
         }
         handle_plant_selection(selection);
+        
         return 1;
     }
 
@@ -611,8 +613,9 @@ void handle_arrow_keys()
         return; // Unrecognized key, exit
     }
 
-    // Only redraw if position changed
-    if (old_row != select_state.row || old_col != select_state.col)
+   if(select_state.current_plant== 9 && select_state.mode == 2){
+        
+   } else if (old_row != select_state.row || old_col != select_state.col)
     {
         int x_old, y_old, x_new, y_new;
 
@@ -664,7 +667,9 @@ void handle_enter_key(int frame_counter)
         // Shovel mode
         int x, y;
         plant_grid[select_state.row][select_state.col].type = 255;
-        clear_plant_from_background(select_state.col, select_state.row, 0, 0);
+        // clear_plant_from_background(select_state.col, select_state.row, 0, 0);
+        bullet_remove_plant(select_state.col, select_state.row); 
+        draw_plant(SHOVEL, select_state.col, select_state.row);
         select_state.mode = 1;
         select_state.selected_card = -1;
         select_state.current_plant = -1;
