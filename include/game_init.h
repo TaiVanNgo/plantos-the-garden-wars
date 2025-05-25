@@ -75,7 +75,7 @@ void start_level();
 void game_over();
 int handle_user_input(int *frame_counter);
 int check_occupied();
-void handle_plant_selection(int plant_type);
+void handle_plant_selection(int plant_type, int current_frame);
 void handle_remove_plant();
 void handle_arrow_keys();
 void handle_enter_key();

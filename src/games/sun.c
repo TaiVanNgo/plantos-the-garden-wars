@@ -11,6 +11,10 @@ extern GameState game;
 #define SUN_COUNT_X 20    
 #define SUN_COUNT_Y 160
 
+static int warning_active = 0;           // Flag to track if warning is active
+static int warning_start_frame = 0;      // Frame when warning started
+static int WARNING_DURATION = 100;       // Duration in frames (about 2 seconds)
+
 // Array to track sunflower positions
 typedef struct {
     int col;
@@ -123,6 +127,14 @@ void update_suns(int current_frame) {
             }
         }
     }
+
+
+    // Check if warning needs to be cleared
+    if (warning_active && (current_frame - warning_start_frame >= WARNING_DURATION)) {
+        warning_active = 0;
+        draw_sun_count_enhanced(game.sun_count, BROWN, 1, 1);
+        uart_puts("[Sun] Warning cleared\n");
+    }
     
     // Update existing suns
     for (int i = 0; i < MAX_SUNS; i++) {
@@ -191,18 +203,38 @@ int collect_sun_at_position(int col, int row) {
 }
 
 void draw_sun_count(int count) {
+    draw_sun_count_enhanced(count, BROWN, 1, 0);
+}
 
-    restore_background_area(SUN_COUNT_X, SUN_COUNT_Y, 100, 30, 0, 0, 0, 0);
+void draw_sun_count_enhanced(int count, int color, int size, int force_update) {
+    static int last_count = -1;
+    
+    // Only redraw if count changed or forced update
+    if (count != last_count || force_update) {
+        restore_background_area(SUN_COUNT_X, SUN_COUNT_Y, 150, 50, 0, 0, 0, 0);
+        
+        char count_str[10];
+        int_to_str(count, count_str);
+        
+        // Draw the count string with specified color and size
+        draw_string(SUN_COUNT_X, SUN_COUNT_Y, count_str, color, size);
+        
+        // Log the sun count
+        uart_puts("[Sun] Current sun count: ");
+        uart_dec(count);
+        uart_puts("\n");
+        
+        last_count = count;
+    }
+}
 
-    // Convert the count to a string
-    char count_str[10];
-    int_to_str(count, count_str);
-
-    // Draw the count string
-    draw_string(SUN_COUNT_X, SUN_COUNT_Y, count_str, BROWN, 1);
-
-    // Log the sun count
-    uart_puts("[Sun] Current sun count: ");
-    uart_dec(count);
-    uart_puts("\n");
+void trigger_insufficient_sun_warning(int current_frame) {
+    // Set warning state
+    warning_active = 1;
+    warning_start_frame = current_frame;
+    
+    // Display sun count in red and larger
+    draw_sun_count_enhanced(game.sun_count, RED, 2, 1);
+    
+    uart_puts("[Sun] Warning: Insufficient sun resources!\n");
 }

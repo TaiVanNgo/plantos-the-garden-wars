@@ -35,5 +35,7 @@ void register_sunflower(int col, int row, int current_frame);
 void unregister_sunflower(int col, int row);
 int collect_sun_at_position(int col, int row);
 void draw_sun_count(int count);
+void draw_sun_count_enhanced(int count, int color, int size, int force_update);
+void trigger_insufficient_sun_warning(int current_frame);
 
 #endif // SUN_H

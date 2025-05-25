@@ -394,7 +394,7 @@ int handle_user_input(int *frame_counter) {
     // Number keys for plant selection
     if (key >= '1' && key <= '5') {
         int selection = key - '0';
-        handle_plant_selection(selection);
+        handle_plant_selection(selection, *frame_counter);
         return 1;
     }
 
@@ -445,10 +445,10 @@ int handle_user_input(int *frame_counter) {
 void handle_remove_plant() {
     select_state.selected_card = 9;
     select_state.mode = 2;
-    handle_plant_selection(9);
+    handle_plant_selection(9, 0);
 }
 
-void handle_plant_selection(int plant_type) {
+void handle_plant_selection(int plant_type, int frame_counter) {
     // Check if plant is on cooldown
     if (plant_type >= 1 && plant_type <= 5) {
         // Check if player has enough sun for this plant
@@ -459,6 +459,8 @@ void handle_plant_selection(int plant_type) {
             uart_puts(", Available sun: ");
             uart_dec(game.sun_count);
             uart_puts("\n");
+
+            trigger_insufficient_sun_warning(frame_counter);
             return;
         }
 
