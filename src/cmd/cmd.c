@@ -23,8 +23,8 @@ void cmd_video(char *args);
 Command commands[] = {
     {"help", "Show help", "help [cmd] - Show help info", cmd_help},
     {"clear", "Clear screen", "clear - Clear the terminal", cmd_clear},
-    {"info", "Board info", "info - Show board revision and MAC", cmd_showinfo},
-    {"baud", "Set baudrate", "baud <rate> - Set UART baudrate", cmd_baudrate},
+    {"showinfo", "Board info", "showinfo - Show board revision and MAC", cmd_showinfo},
+    {"baudrate", "Set baudrate", "baudrate <rate> - Set UART baudrate", cmd_baudrate},
     {"handshake", "RTS/CTS", "handshake <on|off> - Toggle handshaking", cmd_handshake},
     {"game", "Start game", "game - Start Garden Wars", cmd_game},
     {"video", "Play video", "video - Play the intro video animation", cmd_video}};
