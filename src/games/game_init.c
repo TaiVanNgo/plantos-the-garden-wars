@@ -1,6 +1,5 @@
 #include "../include/game_init.h"
-#include "../include/bullet.h"
-#include "../include/cooldown.h"
+
 
 extern int flame_active[GRID_ROWS];
 extern int flame_start_frames[GRID_ROWS];
@@ -10,7 +9,7 @@ SelectionState select_state = {
 
 GameState game = {.state = GAME_MENU, .score = 0, .level = LEVEL_HARD_ENUM, .sun_count = INITIAL_SUN_COUNT};
 
-Plant plant_grid[4][9];
+Plant plant_grid[GRID_ROWS][GRID_COLS];
 
 int prev_col, prev_row;
 void game_main()

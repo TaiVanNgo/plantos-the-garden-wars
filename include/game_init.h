@@ -1,7 +1,7 @@
 #ifndef GAME_INIT_H
 #define GAME_INIT_H
 
-#include "../include/bullet.h"
+#include "bullet.h"
 #include "../assets/backgrounds/garden.h"
 #include "zombies.h"
 #include "utils.h"
@@ -13,6 +13,7 @@
 #include "plants.h"
 #include "grid.h"
 #include "sun.h"
+#include "cooldown.h"
 
 #define ROWS 4
 #define COLS 9
