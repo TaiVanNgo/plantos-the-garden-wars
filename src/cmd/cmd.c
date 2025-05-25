@@ -368,18 +368,32 @@ void cmd_showinfo(char *args)
         uart_puts("\n");
     }
 
-    unsigned char mac[6];
-    if (get_mac_address(mac))
+    // unsigned char mac[6];
+    // if (get_mac_address(mac))
+    // {
+    //     uart_puts("\nMAC Address: ");
+    //     for (int i = 0; i < 6; i++)
+    //     {
+    //         uart_mac_hex(mac[i]);
+    //         if (i < 5)
+    //             uart_puts(":");
+    //     }
+    //     uart_puts("\n");
+    // }
+
+    unsigned int mac[6];
+    if (get_mac_address2(mac))
     {
         uart_puts("\nMAC Address: ");
         for (int i = 0; i < 6; i++)
         {
-            uart_mac_hex(mac[i]);
+            uart_mac_formater((unsigned int)mac[i]);
             if (i < 5)
                 uart_puts(":");
         }
         uart_puts("\n");
     }
+
     else
     {
         uart_puts("\nFailed to get MAC address.\n");

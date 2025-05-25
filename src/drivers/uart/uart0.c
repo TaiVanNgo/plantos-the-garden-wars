@@ -254,6 +254,18 @@ void uart_mac_hex(unsigned char num)
 	uart_sendc(digit);
 }
 
+void uart_mac_formater(unsigned int num){
+    for (int pos = 4; pos >= 0; pos = pos - 4) {
+        // Get highest 4-bit nibble
+        char digit = (num >> pos) & 0xF;
+
+        // Convert to ASCII code
+        digit += (digit > 9) ? (-10 + 'A') : '0';
+
+        uart_sendc(digit);  // Send the character
+    }
+}
+
 unsigned int uart_isReadByteReady()
 {
 	return (!(UART0_FR & UART0_FR_RXFE));
