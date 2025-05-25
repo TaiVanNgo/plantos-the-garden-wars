@@ -236,7 +236,7 @@ void draw_sun_count_enhanced(int count, int color, int size, int force_update) {
     // Only redraw if count changed or forced update
     if (count != last_count || force_update) {
         // Clear a larger area for the text
-        restore_background_area(SUN_COUNT_X, SUN_COUNT_Y - 10, 150, 60, 0);
+        restore_background_area(SUN_COUNT_X - 5, SUN_COUNT_Y - 10, 180, 70, 0);
         
         char count_str[10];
         int_to_str(count, count_str);
@@ -258,6 +258,7 @@ void draw_sun_count_enhanced(int count, int color, int size, int force_update) {
     }
 }
 
+// Make sure the warning system doesn't trigger during selection
 void trigger_insufficient_sun_warning(int current_frame) {
     // Set warning state
     warning_active = 1;
@@ -265,6 +266,4 @@ void trigger_insufficient_sun_warning(int current_frame) {
     
     // Display sun count in red and larger
     draw_sun_count_enhanced(game.sun_count, RED, 2, 1);
-    
-    uart_puts("[Sun] Warning: Insufficient sun resources!\n");
 }
