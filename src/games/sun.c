@@ -8,7 +8,7 @@ static Sun suns[MAX_SUNS];
 extern GameState game;
 
 #define SUN_VALUE 50      // Each sun gives 50 resource points
-#define SUN_COUNT_X 20    
+#define SUN_COUNT_X 15    
 #define SUN_COUNT_Y 160
 
 static int warning_active = 0;           // Flag to track if warning is active
@@ -211,13 +211,19 @@ void draw_sun_count_enhanced(int count, int color, int size, int force_update) {
     
     // Only redraw if count changed or forced update
     if (count != last_count || force_update) {
-        restore_background_area(SUN_COUNT_X, SUN_COUNT_Y, 150, 50, 0, 0, 0, 0);
+        // Clear a larger area for the text
+        restore_background_area(SUN_COUNT_X, SUN_COUNT_Y - 10, 150, 60, 0, 0, 0, 0);
         
         char count_str[10];
         int_to_str(count, count_str);
         
-        // Draw the count string with specified color and size
-        draw_string(SUN_COUNT_X, SUN_COUNT_Y, count_str, color, size);
+        // Adjust Y position based on text size to center it vertically
+        int adjusted_y = SUN_COUNT_Y;
+        if (size > 1) {
+            adjusted_y = SUN_COUNT_Y - 5;
+        }
+        
+        draw_string(SUN_COUNT_X, adjusted_y, count_str, color, size);
         
         // Log the sun count
         uart_puts("[Sun] Current sun count: ");
