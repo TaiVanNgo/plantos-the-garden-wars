@@ -45,16 +45,21 @@ endif
 all: clean uart0_build build_core_all $(IMAGE)_video run0
 
 # Build game mode
-game: clean uart0_build build_core_zombie build_game $(IMAGE)_game run0
+game: clean uart0_build build_core_game build_game $(IMAGE)_game run0
 
 # Build video mode
 video: clean uart0_build build_core_vid $(IMAGE)_video run0
 
 # Build CLI mode
-cli: clean uart0_build build_core_cli $(IMAGE)_video run0
+cli: CLI_MODE=1
+cli: clean uart0_build build_core_cli build_cmd $(IMAGE)_cli run0
 
 # Build TEAM mode
-team: clean uart0_build build_core_team$(IMAGE)_video run0
+team: clean uart0_build build_core_team $(IMAGE)_video run0
+
+# Build ALL mode
+all_mode: CLI_MODE=1
+all_mode: clean uart0_build build_core_all $(IMAGE)_video run0
 
 #//////////////////////////////////////////////////////////////
 #                             BUILD STEPS
@@ -99,7 +104,13 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c | $(BUILD_DIR)
 $(BUILD_DIR)/%.o: $(VIDEO_DIR)/%.c | $(BUILD_DIR)
 	@echo "[BUILD] Compiling video source: $< -> $@"
 	aarch64-none-elf-gcc $(GCCFLAGS) -c $< -o $@
-$(BUILD_DIR)/%.o: $(CMD_DIR)/%.c | $(BUILD_DIR)
+
+# Build command files
+build_cmd: CLI_MODE=1
+build_cmd: $(BUILD_DIR)/cmd.o
+
+# Build command source files
+$(BUILD_DIR)/cmd.o: $(CMD_DIR)/cmd.c | $(BUILD_DIR)
 	@echo "[BUILD] Compiling command source: $< -> $@"
 	aarch64-none-elf-gcc $(GCCFLAGS) -c $< -o $@
 
@@ -114,35 +125,26 @@ $(BUILD_DIR)/games/%.o: $(SRC_DIR)/games/%.c | $(BUILD_DIR)
 	@echo "[BUILD] Compiling game source: $< -> $@"
 	$(MKDIR)
 	aarch64-none-elf-gcc $(GCCFLAGS) -c $< -o $@
+
 build_game: 
 # Build game C files
 $(BUILD_DIR)/games/%.o: $(SRC_DIR)/games/%.c | $(BUILD_DIR)
 	$(MKDIR)
 	aarch64-none-elf-gcc $(GCCFLAGS) -c $< -o $@
-# Build core components for game
-build_core_zombie: $(BUILD_DIR)/boot.o $(BUILD_DIR)/mbox.o $(BUILD_DIR)/framebf.o $(COMMON_OFILES)
-	@echo "[BUILD] Building core components (GAME_INIT)"
-	aarch64-none-elf-gcc $(GCCFLAGS) -DGAME_INIT -c $(SRC_DIR)/kernel.c -o $(BUILD_DIR)/kernel.o
 
-# Build core components for video mode (VID)
-build_core_vid: $(BUILD_DIR)/boot.o $(BUILD_DIR)/mbox.o $(BUILD_DIR)/framebf.o $(COMMON_OFILES)
-	@echo "[BUILD] Building core components (VID)"
-	aarch64-none-elf-gcc $(GCCFLAGS) -DVID_INIT -c $(SRC_DIR)/kernel.c -o $(BUILD_DIR)/kernel.o
+# More efficient way to handle build core targets
+define BUILD_CORE_TEMPLATE
+build_core_$(1): $(BUILD_DIR)/boot.o $(BUILD_DIR)/mbox.o $(BUILD_DIR)/framebf.o $(COMMON_OFILES)
+	@echo "[BUILD] Building core components ($(2))"
+	aarch64-none-elf-gcc $(GCCFLAGS) -D$(2) -c $(SRC_DIR)/kernel.c -o $(BUILD_DIR)/kernel.o
+endef
 
-# Build core components for CLI mode (CLI_INIT)
-build_core_cli: $(BUILD_DIR)/boot.o $(BUILD_DIR)/mbox.o $(BUILD_DIR)/framebf.o $(COMMON_OFILES)
-	@echo "[BUILD] Building core components (CLI_INIT)"
-	aarch64-none-elf-gcc $(GCCFLAGS) -DCLI_INIT -c $(SRC_DIR)/kernel.c -o $(BUILD_DIR)/kernel.o
-
-# Build core components for TEAM mode (TEAM_INIT)
-build_core_team: $(BUILD_DIR)/boot.o $(BUILD_DIR)/mbox.o $(BUILD_DIR)/framebf.o $(COMMON_OFILES)
-	@echo "[BUILD] Building core components (TEAM_INIT)"
-	aarch64-none-elf-gcc $(GCCFLAGS) -DTEAM_INIT -c $(SRC_DIR)/kernel.c -o $(BUILD_DIR)/kernel.o
-
-# Build core components for ALL mode (ALL_INIT)
-build_core_all: $(BUILD_DIR)/boot.o $(BUILD_DIR)/mbox.o $(BUILD_DIR)/framebf.o $(COMMON_OFILES)
-	@echo "[BUILD] Building core components (ALL_INIT)"
-	aarch64-none-elf-gcc $(GCCFLAGS) -DALL_INIT -c $(SRC_DIR)/kernel.c -o $(BUILD_DIR)/kernel.o
+# Generate build core targets
+$(eval $(call BUILD_CORE_TEMPLATE,game,GAME_INIT))
+$(eval $(call BUILD_CORE_TEMPLATE,vid,VID_INIT))
+$(eval $(call BUILD_CORE_TEMPLATE,cli,CLI_INIT))
+$(eval $(call BUILD_CORE_TEMPLATE,team,TEAM_INIT))
+$(eval $(call BUILD_CORE_TEMPLATE,all,ALL_INIT))
 
 # Link and generate kernel image (without video)
 $(IMAGE): $(BUILD_DIR)/boot.o $(BUILD_DIR)/uart.o $(BUILD_DIR)/mbox.o $(BUILD_DIR)/framebf.o $(COMMON_OFILES) $(BUILD_DIR)/cmd.o $(ASSETS_OFILES) $(GAMES_OFILES) | $(BUILD_DIR)
@@ -158,9 +160,16 @@ $(IMAGE)_video: $(BUILD_DIR)/boot.o $(BUILD_DIR)/uart.o $(BUILD_DIR)/mbox.o $(BU
 	@echo "[OBJCOPY] Creating binary image: $(IMAGE)"
 	aarch64-none-elf-objcopy -O binary $(BUILD_DIR)/kernel8.elf $(IMAGE)
 
-$(IMAGE)_game: $(BUILD_DIR)/boot.o $(BUILD_DIR)/uart.o $(BUILD_DIR)/mbox.o $(BUILD_DIR)/framebf.o $(COMMON_OFILES) $(BUILD_DIR)/cmd.o $(ASSETS_OFILES) $(GAMES_OFILES) | $(BUILD_DIR)
+$(IMAGE)_game: $(BUILD_DIR)/boot.o $(BUILD_DIR)/uart.o $(BUILD_DIR)/mbox.o $(BUILD_DIR)/framebf.o $(COMMON_OFILES) $(ASSETS_OFILES) $(GAMES_OFILES) | $(BUILD_DIR)
 	@echo "[LINK] Linking kernel image (with video): $(BUILD_DIR)/kernel8.elf"
-	aarch64-none-elf-ld -nostdlib $(BUILD_DIR)/boot.o $(BUILD_DIR)/mbox.o $(BUILD_DIR)/framebf.o $(BUILD_DIR)/uart.o $(COMMON_OFILES) $(BUILD_DIR)/cmd.o $(ASSETS_OFILES) $(GAMES_OFILES) -T $(ARCH_DIR)/link.ld -o $(BUILD_DIR)/kernel8.elf
+	aarch64-none-elf-ld -nostdlib $(BUILD_DIR)/boot.o $(BUILD_DIR)/mbox.o $(BUILD_DIR)/framebf.o $(BUILD_DIR)/uart.o $(COMMON_OFILES) $(ASSETS_OFILES) $(GAMES_OFILES) -T $(ARCH_DIR)/link.ld -o $(BUILD_DIR)/kernel8.elf
+	@echo "[OBJCOPY] Creating binary image: $(IMAGE)"
+	aarch64-none-elf-objcopy -O binary $(BUILD_DIR)/kernel8.elf $(IMAGE)
+
+$(IMAGE)_cli: CLI_MODE=1
+$(IMAGE)_cli: $(BUILD_DIR)/boot.o $(BUILD_DIR)/uart.o $(BUILD_DIR)/mbox.o $(BUILD_DIR)/framebf.o $(COMMON_OFILES) $(VIDEO_OFILES) $(BUILD_DIR)/cmd.o $(ASSETS_OFILES) $(GAMES_OFILES) | $(BUILD_DIR)
+	@echo "[LINK] Linking kernel image (with CLI): $(BUILD_DIR)/kernel8.elf"
+	aarch64-none-elf-ld -nostdlib $(BUILD_DIR)/boot.o $(BUILD_DIR)/mbox.o $(BUILD_DIR)/framebf.o $(BUILD_DIR)/uart.o $(COMMON_OFILES) $(VIDEO_OFILES) $(BUILD_DIR)/cmd.o $(ASSETS_OFILES) $(GAMES_OFILES) -T $(ARCH_DIR)/link.ld -o $(BUILD_DIR)/kernel8.elf
 	@echo "[OBJCOPY] Creating binary image: $(IMAGE)"
 	aarch64-none-elf-objcopy -O binary $(BUILD_DIR)/kernel8.elf $(IMAGE)
 

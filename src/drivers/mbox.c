@@ -238,31 +238,3 @@ uint32_t get_mac_address(unsigned char mac[6])
     
     return 0; // Failure
 }
-
-uint32_t get_mac_address2(unsigned int mac[6])
-{
-    // Prepare mailbox buffer for MAC address request
-    mBuf[0] = 8 * 4;                  // Buffer size in bytes (8 words * 4 bytes)
-    mBuf[1] = MBOX_REQUEST;           // Request code
-    mBuf[2] = 0x00010003;             // Tag: Get MAC address
-    mBuf[3] = 6;                      // Value buffer size (6 bytes for MAC)
-    mBuf[4] = 0;                      // Request code = 0
-    mBuf[5] = 0;                      // Value buffer (will hold the MAC address, first part)
-    mBuf[6] = 0;                      // Value buffer (will hold the MAC address, second part)
-    mBuf[7] = MBOX_TAG_LAST;          // End tag
-    
-    if (mbox_call(ADDR(mBuf), MBOX_CH_PROP))
-    {
-        // Extract MAC address bytes from response
-        mac[0] = (mBuf[5] >> 0) & 0xFF;
-        mac[1] = (mBuf[5] >> 8) & 0xFF;
-        mac[2] = (mBuf[5] >> 16) & 0xFF;
-        mac[3] = (mBuf[5] >> 24) & 0xFF;
-        mac[4] = (mBuf[6] >> 0) & 0xFF;
-        mac[5] = (mBuf[6] >> 8) & 0xFF;
-        
-        return 1; // Success
-    }
-    
-    return 0; // Failure
-}
