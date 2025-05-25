@@ -44,7 +44,7 @@ typedef struct
   GAME_STATE state;
   int score;
   LEVEL_DIFFICULTY level;
-  int sun_count; 
+  int sun_count;
 } GameState;
 
 typedef struct
@@ -83,5 +83,6 @@ void victory_screen();
 int get_selection_current_plant(void);
 int get_selection_row(void);
 int get_selection_col(void);
+void set_zombie_level_config(int level, int zombie_types[10], int spawn_times[10]);
 
 #endif
