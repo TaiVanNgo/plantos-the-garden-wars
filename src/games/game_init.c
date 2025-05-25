@@ -1,5 +1,4 @@
 #include "../include/game_init.h"
-
 #include "../include/bullet.h"
 #include "../include/cooldown.h"
 
@@ -9,7 +8,7 @@ extern int flame_start_frames[GRID_ROWS];
 SelectionState select_state = {
     .mode = 0, .selected_card = -1, .row = 0, .col = 0, .current_plant = -1};
 
-GameState game = {.state = GAME_OVER, .score = 0, .level = LEVEL_HARD_ENUM, .sun_count = 2000};
+GameState game = {.state = GAME_MENU, .score = 0, .level = LEVEL_EASY_ENUM, .sun_count = 2000};
 
 Plant plant_grid[GRID_ROWS][GRID_COLS];
 
@@ -74,9 +73,9 @@ void game_start_difficulty()
     draw_image(MAIN_SCREEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
 
     Button normal, medium, hard;
-    button_init(&normal, 240, 300, 300, 130, NORMAL);
-    button_init(&medium, 240, 400, 300, 130, MEDIUM);
-    button_init(&hard, 240, 500, 300, 130, HARD);
+    button_init(&normal, 240, 300, BUTTON_WIDTH, BUTTON_HEIGHT, NORMAL);
+    button_init(&medium, 240, 400, BUTTON_WIDTH, BUTTON_HEIGHT, MEDIUM);
+    button_init(&hard, 240, 500, BUTTON_WIDTH, BUTTON_HEIGHT, HARD);
 
     Button *buttons[3] = {&normal, &medium, &hard};
     int current_selection = 0;
@@ -154,8 +153,8 @@ void game_menu()
 
     Button startButton;
     Button endButton;
-    button_init(&startButton, 240, 300, 300, 85, START);
-    button_init(&endButton, 240, 400, 300, 85, QUIT);
+    button_init(&startButton, 240, 300, BUTTON_WIDTH, BUTTON_HEIGHT, START);
+    button_init(&endButton, 240, 400, BUTTON_WIDTH, BUTTON_HEIGHT, QUIT);
 
     Button *buttons[2] = {&startButton, &endButton};
     int current_selection = 0;
@@ -902,8 +901,8 @@ void victory_screen()
     draw_image(VICTORY_SCREEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
 
     Button quit, start;
-    button_init(&quit, 240, 300, 300, 130, QUIT);
-    button_init(&start, 240, 450, 300, 130, START);
+    button_init(&start, 100, 450, BUTTON_WIDTH, BUTTON_HEIGHT, START);
+    button_init(&quit, 470, 450, BUTTON_WIDTH, BUTTON_HEIGHT, QUIT);
 
     Button *buttons[] = {&quit, &start};
     int current_selection = 0;
@@ -918,9 +917,9 @@ void victory_screen()
         if (key == '[')
         {
             char key2 = getUart();
-            if ((key2 == 'A'))
+            if ((key2 == 'D'))
             {
-                // 'up arrow' button
+                // 'left arrow' button
                 int previous_selection = current_selection;
                 button_set_state(buttons[current_selection], BUTTON_NORMAL);
                 current_selection--;
@@ -932,9 +931,9 @@ void victory_screen()
                 button_set_state(buttons[current_selection], BUTTON_SELECTED);
                 button_draw_selection(buttons, current_selection, previous_selection, 4, 70, 10);
             }
-            else if ((key2 == 'B'))
+            else if ((key2 == 'C'))
             {
-                // 'down arrow' button
+                // 'right arrow' button
                 int previous_selection = current_selection;
                 button_set_state(buttons[current_selection], BUTTON_NORMAL);
 
@@ -973,15 +972,15 @@ void game_over()
     draw_image(LOSE_SCREEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
 
     Button quit, retry;
-    button_init(&quit, 100, 450, 300, 85, HOME);
-    button_init(&retry, 470, 450, 300, 75, QUIT);
+    button_init(&quit, 100, 450, BUTTON_WIDTH, BUTTON_HEIGHT, HOME);
+    button_init(&retry, 470, 450, BUTTON_WIDTH, BUTTON_HEIGHT, QUIT);
 
     Button *buttons[] = {&quit, &retry};
     int current_selection = 0;
     int previous_selection = current_selection;
 
     button_set_state(buttons[current_selection], BUTTON_SELECTED);
-    button_draw_selection(buttons, current_selection, previous_selection, 0, 70, 10);
+    button_draw_selection(buttons, current_selection, previous_selection, 0, 60, 5);
 
     while (1)
     {
@@ -1000,7 +999,7 @@ void game_over()
                 }
 
                 button_set_state(buttons[current_selection], BUTTON_SELECTED);
-                button_draw_selection(buttons, current_selection, previous_selection, 0, 70, 10);
+                button_draw_selection(buttons, current_selection, previous_selection, 0, 60, 5);
             }
             else if ((key2 == 'D'))
             {
@@ -1015,7 +1014,7 @@ void game_over()
                 }
 
                 button_set_state(buttons[current_selection], BUTTON_SELECTED);
-                button_draw_selection(buttons, current_selection, previous_selection, 0, 70, 10);
+                button_draw_selection(buttons, current_selection, previous_selection, 0, 60, 5);
             }
         }
 

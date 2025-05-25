@@ -1,6 +1,4 @@
-// #define BUTTON_NORMAL_COLOR    0x00AAAAAA
-// #define BUTTON_SELECTED_COLOR  0x00FFFFFF
-// #define BUTTON_PRESSED_COLOR   0x00FFAA00
+
 // Update the include path to the correct location
 #include "../../include/framebf.h"
 #include "./button.h"

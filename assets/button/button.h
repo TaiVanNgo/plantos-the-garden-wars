@@ -7,6 +7,8 @@
 
 #define ARROW_WIDTH 58
 #define ARROW_HEIGHT 72
+#define BUTTON_WIDTH 300
+#define BUTTON_HEIGHT 85
 
 extern const unsigned int START[];
 extern const unsigned int QUIT[];
