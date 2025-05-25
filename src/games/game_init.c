@@ -9,7 +9,7 @@ extern int flame_start_frames[GRID_ROWS];
 SelectionState select_state = {
     .mode = 0, .selected_card = -1, .row = 0, .col = 0, .current_plant = -1};
 
-GameState game = {.state = GAME_MENU, .score = 0, .level = LEVEL_HARD_ENUM, .sun_count = 2000};
+GameState game = {.state = GAME_MENU, .score = 0, .level = LEVEL_HARD_ENUM, .sun_count = INITIAL_SUN_COUNT};
 
 Plant plant_grid[4][9];
 int prev_col, prev_row;
@@ -217,9 +217,9 @@ void game_menu()
     }
 }
 
-void start_level()
-{
-    reset_zombie_counts(); // Reset zombie tracking
+void start_level() {
+    game.sun_count = INITIAL_SUN_COUNT; 
+    reset_zombie_counts();  // Reset zombie tracking
 
     // Reset flame effects
     for (int i = 0; i < GRID_ROWS; i++)
@@ -275,10 +275,10 @@ void start_level()
         &zombie6, &zombie7, &zombie8, &zombie9, &zombie10};
 
     int zombie_spawned[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    int spawn_times[10] = {0, 100, 300, 450, 600, 750, 900, 1050, 1200, 1350};
 
+    int spawn_times[10];
     int zombie_types[10];
-    set_zombie_types_level(game.level, zombie_types);
+    set_zombie_level_config(game.level, zombie_types, spawn_times);
 
     int zombie_rows[10] = {0, 1, 2, 3, 0, 1, 2, 3, 2, 1};
 
@@ -429,7 +429,7 @@ void start_level()
             // Check for level completion
             if (zombies_killed >= 10)
             {
-                delay_ms(2000);
+                delay_ms(5000);
                 game.state = GAME_VICTORY;
                 return;
             }
@@ -454,7 +454,7 @@ int handle_user_input(int *frame_counter)
         {
             clear_plant_from_background(select_state.col, select_state.row, 0, 0);
         }
-        handle_plant_selection(selection);
+        handle_plant_selection(selection, *frame_counter);
         return 1;
     }
 
@@ -511,14 +511,28 @@ void handle_remove_plant()
 {
     select_state.selected_card = 9;
     select_state.mode = 2;
-    handle_plant_selection(9);
+    handle_plant_selection(9, 0);
 }
 
-void handle_plant_selection(int plant_type)
+void handle_plant_selection(int plant_type, int frame_counter)
 {
     // Check if plant is on cooldown
     if (plant_type >= 1 && plant_type <= 5)
     {
+        // Check if player has enough sun for this plant
+        int cost = get_plant_cost(plant_type);
+        if (game.sun_count < cost)
+        {
+            uart_puts("Not enough sun! Plant cost: ");
+            uart_dec(cost);
+            uart_puts(", Available sun: ");
+            uart_dec(game.sun_count);
+            uart_puts("\n");
+
+            trigger_insufficient_sun_warning(frame_counter);
+            return;
+        }
+
         if (is_plant_on_cooldown(plant_type))
         {
             uart_puts("Plant is on cooldown! ");
@@ -662,6 +676,13 @@ void handle_enter_key(int frame_counter)
     {
         // Shovel mode
         int x, y;
+
+        // If sunflower -> unregister sun
+        if (plant_grid[select_state.row][select_state.col].type == PLANT_SUNFLOWER)
+        {
+            unregister_sunflower(select_state.col, select_state.row);
+        }
+
         plant_grid[select_state.row][select_state.col].type = 255;
         clear_plant_from_background(select_state.col, select_state.row, 0, 0);
         select_state.mode = 1;
@@ -671,7 +692,6 @@ void handle_enter_key(int frame_counter)
         // clear selection border
         draw_selection_border(-1);
 
-        // Draw cursor at new position
         draw_cursor();
         return;
     }
@@ -690,11 +710,27 @@ void handle_enter_key(int frame_counter)
         return;
     }
 
+    // Double check if player has enough sun for this plant
+    int plant_cost = get_plant_cost(select_state.current_plant);
+    if (game.sun_count < plant_cost)
+    {
+        uart_puts("Not enough sun! Plant cost: ");
+        uart_dec(plant_cost);
+        uart_puts(", Available sun: ");
+        uart_dec(game.sun_count);
+        uart_puts("\n");
+        return;
+    }
+
     // Plant placement logic
     if (select_state.mode == 0 || select_state.mode == 1)
     {
         if (select_state.mode == 0)
         {
+            // Deduct the sun cost
+            game.sun_count -= plant_cost;
+            draw_sun_count(game.sun_count);
+
             // Start cooldown when plant is placed
             if (select_state.current_plant >= 1 && select_state.current_plant <= 5)
             {
@@ -742,6 +778,10 @@ void handle_enter_key(int frame_counter)
         }
         else if (select_state.mode == 1)
         {
+            // Deduct the sun cost
+            game.sun_count -= plant_cost;
+            draw_sun_count(game.sun_count);
+
             // Start cooldown when plant is placed
             if (select_state.current_plant >= 1 && select_state.current_plant <= 5)
             {
@@ -785,7 +825,14 @@ void handle_enter_key(int frame_counter)
     }
 }
 
-void set_zombie_types_level(int level, int zombie_types[10])
+/**
+ * Sets zombie types and spawn times based on game difficulty level
+ *
+ * @param level The difficulty level (LEVEL_EASY_ENUM, LEVEL_MEDIUM_ENUM, or LEVEL_HARD_ENUM)
+ * @param zombie_types Array to populate with zombie types
+ * @param spawn_times Array to populate with spawn frame counts
+ */
+void set_zombie_level_config(int level, int zombie_types[10], int spawn_times[10])
 {
     if (level == LEVEL_EASY_ENUM)
     {
@@ -802,6 +849,18 @@ void set_zombie_types_level(int level, int zombie_types[10])
 
         zombie_types[8] = ZOMBIE_HELMET;
         zombie_types[9] = ZOMBIE_HELMET;
+
+        // Easy level spawn times - wider gaps between zombies
+        spawn_times[0] = 500;  // First zombie at 25 seconds
+        spawn_times[1] = 1000; // 50 seconds (25 second gap)
+        spawn_times[2] = 1500; // 75 seconds (25 second gap)
+        spawn_times[3] = 1900; // 95 seconds (20 second gap)
+        spawn_times[4] = 2200; // 110 seconds (15 second gap)
+        spawn_times[5] = 2450; // 122.5 seconds (12.5 second gap)
+        spawn_times[6] = 2650; // 132.5 seconds (10 second gap)
+        spawn_times[7] = 2800; // 140 seconds (7.5 second gap)
+        spawn_times[8] = 2900; // 145 seconds (5 second gap)
+        spawn_times[9] = 2950; // 147.5 seconds (2.5 second gap)
     }
     else if (level == LEVEL_MEDIUM_ENUM)
     {
@@ -818,6 +877,18 @@ void set_zombie_types_level(int level, int zombie_types[10])
         {
             zombie_types[i] = ZOMBIE_HELMET;
         }
+
+        // Medium level spawn times - moderate gaps
+        spawn_times[0] = 400;  // First zombie at 20 seconds
+        spawn_times[1] = 800;  // 40 seconds (20 second gap)
+        spawn_times[2] = 1200; // 60 seconds (20 second gap)
+        spawn_times[3] = 1450; // 72.5 seconds (12.5 second gap)
+        spawn_times[4] = 1700; // 85 seconds (12.5 second gap)
+        spawn_times[5] = 1900; // 95 seconds (10 second gap)
+        spawn_times[6] = 2050; // 102.5 seconds (7.5 second gap)
+        spawn_times[7] = 2150; // 107.5 seconds (5 second gap)
+        spawn_times[8] = 2220; // 111 seconds (3.5 second gap)
+        spawn_times[9] = 2270; // 113.5 seconds (2.5 second gap)
     }
     else
     {
@@ -834,6 +905,18 @@ void set_zombie_types_level(int level, int zombie_types[10])
         {
             zombie_types[i] = ZOMBIE_FOOTBALL;
         }
+
+        // Hard level spawn times - shortest gaps
+        spawn_times[0] = 300;  // First zombie at 15 seconds
+        spawn_times[1] = 600;  // 30 seconds (15 second gap)
+        spawn_times[2] = 900;  // 45 seconds (15 second gap)
+        spawn_times[3] = 1100; // 55 seconds (10 second gap)
+        spawn_times[4] = 1250; // 62.5 seconds (7.5 second gap)
+        spawn_times[5] = 1350; // 67.5 seconds (5 second gap)
+        spawn_times[6] = 1430; // 71.5 seconds (4 second gap)
+        spawn_times[7] = 1490; // 74.5 seconds (3 second gap)
+        spawn_times[8] = 1530; // 76.5 seconds (2 second gap)
+        spawn_times[9] = 1560; // 78 seconds (1.5 second gap)
     }
 }
 

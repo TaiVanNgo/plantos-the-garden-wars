@@ -8,8 +8,12 @@ static Sun suns[MAX_SUNS];
 extern GameState game;
 
 #define SUN_VALUE 50      // Each sun gives 50 resource points
-#define SUN_COUNT_X 20    // Position to display sun count
-#define SUN_COUNT_Y 20
+#define SUN_COUNT_X 15    
+#define SUN_COUNT_Y 160
+
+static int warning_active = 0;           // Flag to track if warning is active
+static int warning_start_frame = 0;      // Frame when warning started
+static int WARNING_DURATION = 100;       // Duration in frames (about 2 seconds)
 
 // Array to track sunflower positions
 typedef struct {
@@ -50,6 +54,26 @@ void register_sunflower(int col, int row, int current_frame) {
             sunflower_trackers[i].last_generation_frame = current_frame;
             num_sunflowers++;
             uart_puts("[Sun] Registered sunflower at col=");
+            uart_dec(col);
+            uart_puts(", row=");
+            uart_dec(row);
+            uart_puts("\n");
+            return;
+        }
+    }
+}
+
+// Unregister a sunflower at the given position
+void unregister_sunflower(int col, int row) {
+    for (int i = 0; i < GRID_ROWS * GRID_COLS; i++) {
+        if (sunflower_trackers[i].active && 
+            sunflower_trackers[i].col == col && 
+            sunflower_trackers[i].row == row) {
+            
+            sunflower_trackers[i].active = 0;
+            num_sunflowers--;
+            
+            uart_puts("[Sun] Unregistered sunflower at col=");
             uart_dec(col);
             uart_puts(", row=");
             uart_dec(row);
@@ -102,6 +126,14 @@ void update_suns(int current_frame) {
                 sunflower_trackers[i].last_generation_frame = current_frame;
             }
         }
+    }
+
+
+    // Check if warning needs to be cleared
+    if (warning_active && (current_frame - warning_start_frame >= WARNING_DURATION)) {
+        warning_active = 0;
+        draw_sun_count_enhanced(game.sun_count, BROWN, 1, 1);
+        uart_puts("[Sun] Warning cleared\n");
     }
     
     // Update existing suns
@@ -171,41 +203,44 @@ int collect_sun_at_position(int col, int row) {
 }
 
 void draw_sun_count(int count) {
-    // Clear the previous display area
-    draw_rect(SUN_COUNT_X, SUN_COUNT_Y, SUN_COUNT_X + 120, SUN_COUNT_Y + 30, BLACK, 1);
+    draw_sun_count_enhanced(count, BROWN, 1, 0);
+}
+
+void draw_sun_count_enhanced(int count, int color, int size, int force_update) {
+    static int last_count = -1;
     
-    // Draw the sun icon
-    draw_image(sun, SUN_COUNT_X, SUN_COUNT_Y, SUN_WIDTH, SUN_HEIGHT, 0);
-    
-    // Convert the count to a string
-    char count_str[10];
-    int i = 0;
-    int temp = count;
-    
-    // Handle the case of zero
-    if (temp == 0) {
-        count_str[i++] = '0';
-    } else {
-        // Convert number to string in reverse
-        while (temp > 0) {
-            count_str[i++] = '0' + (temp % 10);
-            temp /= 10;
+    // Only redraw if count changed or forced update
+    if (count != last_count || force_update) {
+        // Clear a larger area for the text
+        restore_background_area(SUN_COUNT_X, SUN_COUNT_Y - 10, 150, 60, 0, 0, 0, 0);
+        
+        char count_str[10];
+        int_to_str(count, count_str);
+        
+        // Adjust Y position based on text size to center it vertically
+        int adjusted_y = SUN_COUNT_Y;
+        if (size > 1) {
+            adjusted_y = SUN_COUNT_Y - 5;
         }
+        
+        draw_string(SUN_COUNT_X, adjusted_y, count_str, color, size);
+        
+        // Log the sun count
+        uart_puts("[Sun] Current sun count: ");
+        uart_dec(count);
+        uart_puts("\n");
+        
+        last_count = count;
     }
-    count_str[i] = '\0';
+}
+
+void trigger_insufficient_sun_warning(int current_frame) {
+    // Set warning state
+    warning_active = 1;
+    warning_start_frame = current_frame;
     
-    // Reverse the string
-    for (int j = 0; j < i/2; j++) {
-        char tmp = count_str[j];
-        count_str[j] = count_str[i-j-1];
-        count_str[i-j-1] = tmp;
-    }
+    // Display sun count in red and larger
+    draw_sun_count_enhanced(game.sun_count, RED, 2, 1);
     
-    // Draw the count string
-    draw_string(SUN_COUNT_X + SUN_WIDTH + 10, SUN_COUNT_Y + 5, count_str, WHITE, 1);
-    
-    // Log the sun count
-    uart_puts("[Sun] Current sun count: ");
-    uart_dec(count);
-    uart_puts("\n");
+    uart_puts("[Sun] Warning: Insufficient sun resources!\n");
 }

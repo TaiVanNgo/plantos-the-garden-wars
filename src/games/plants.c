@@ -349,3 +349,22 @@ const char *get_plant_name(int type)
         return "Unknown";
     }
 }
+
+int get_plant_cost(int plant_type)
+{
+    switch (plant_type)
+    {
+    case PLANT_SUNFLOWER:
+        return default_sunflower.cost;
+    case PLANT_PEASHOOTER:
+        return default_peashooter.cost;
+    case PLANT_FROZEN_PEASHOOTER:
+        return default_frozen_peashooter.cost;
+    case PLANT_WALNUT:
+        return default_walnut.cost;
+    case PLANT_CHILLIES:
+        return default_chillies.cost;
+    default:
+        return 0;
+    }
+}

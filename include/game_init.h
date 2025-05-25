@@ -74,7 +74,7 @@ void start_level();
 void game_over();
 int handle_user_input(int *frame_counter);
 int check_occupied();
-void handle_plant_selection(int plant_type);
+void handle_plant_selection(int plant_type, int current_frame);
 void handle_remove_plant();
 void handle_arrow_keys();
 void handle_enter_key();
@@ -82,5 +82,6 @@ void victory_screen();
 int get_selection_current_plant(void);
 int get_selection_row(void);
 int get_selection_col(void);
+void set_zombie_level_config(int level, int zombie_types[10], int spawn_times[10]);
 
 #endif

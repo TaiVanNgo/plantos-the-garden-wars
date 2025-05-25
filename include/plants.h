@@ -54,5 +54,6 @@ void draw_flames_on_row(int row);
 void clear_flames_on_row(int row);
 void update_flame_effects(int current_frame);
 void chillies_detonate(int row, int current_frame); 
+int get_plant_cost(int plant_type);
 
 #endif
