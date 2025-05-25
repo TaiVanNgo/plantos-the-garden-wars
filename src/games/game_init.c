@@ -405,7 +405,7 @@ int handle_user_input(int *frame_counter) {
         if(check_occupied()){
             clear_plant_from_background(select_state.col, select_state.row, 0, 0);
         }
-        handle_plant_selection(selection);
+        handle_plant_selection(selection, *frame_counter);
         return 1;
     }
 
