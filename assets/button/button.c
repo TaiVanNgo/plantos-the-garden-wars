@@ -24,10 +24,26 @@ void button_set_state(Button* button, int state){
     button->state= state;
 }
 
-void button_draw_selection(Button **button, int current_selection, int prev_selection, int vicotry, int garden, int XOffset, int YOffset){
-    
-    restore_background_area(button[prev_selection]->x - XOffset,button[prev_selection]->y +YOffset,120,60, garden,0, 0,vicotry);
-    draw_image(ARROW, button[current_selection]->x - XOffset, button[current_selection]->y + YOffset, 120, 60, 0);
+/**
+ * Draws a selection cursor next to a button and restore background
+ * 
+ * @param bg_type Background type to restore:
+ *        0 = simulated_background
+ *        1 = GARDEN
+ *        2 = MAIN_SCREEN
+ *        3 = tmp
+ *        4 = VICTORY_SCREEN
+ */
+void button_draw_selection(Button **button, int current_selection, int prev_selection, 
+                          int bg_type, int x_offset, int y_offset)
+{    
+    restore_background_area(
+        button[prev_selection]->x - x_offset,
+        button[prev_selection]->y + y_offset,
+        120, 60,
+        bg_type
+    );
+    draw_image(ARROW, button[current_selection]->x - x_offset, button[current_selection]->y + y_offset, 120, 60, 0);
 }
 
 int button_is_selected(Button* button) {

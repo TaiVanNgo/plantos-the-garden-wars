@@ -77,8 +77,10 @@ static void fire_bullet_for_plant(int col, int row)
 {
     // Find the plant instance to get its type
     int plant_type = PLANT_PEASHOOTER; // Default to regular peashooter
-    for (int i = 0; i < plant_count; i++) {
-        if (plants[i].col == col && plants[i].row == row) {
+    for (int i = 0; i < plant_count; i++)
+    {
+        if (plants[i].col == col && plants[i].row == row)
+        {
             plant_type = plants[i].plant_type;
             break;
         }
@@ -179,7 +181,7 @@ void bullet_update(unsigned long current_time_ms)
                 if (bullets[i].x > PHYSICAL_WIDTH - 50)
                 {
                     restore_background_area(bullets[i].x, bullets[i].y, BULLET_WIDTH,
-                                            BULLET_HEIGHT, 0, 0, 0, 0);
+                                            BULLET_HEIGHT, 0);
                     bullets[i].active = 0;
                     uart_puts("[bullet] Bullet removed (off screen)\n");
                 }
@@ -187,7 +189,7 @@ void bullet_update(unsigned long current_time_ms)
                 if (bullets[i].x > PHYSICAL_WIDTH)
                 {
                     restore_background_area(bullets[i].x, bullets[i].y, BULLET_WIDTH,
-                                            BULLET_HEIGHT, 0, 0, 0, 0);
+                                            BULLET_HEIGHT, 0);
                     bullets[i].active = 0;
                     uart_puts("[bullet] Bullet out of bounds\n");
                 }
@@ -204,13 +206,12 @@ void bullet_draw(void)
         if (bullets[i].prev_x > 0 || bullets[i].prev_y > 0)
         {
             restore_background_area(bullets[i].prev_x, bullets[i].prev_y,
-                                    BULLET_WIDTH, BULLET_HEIGHT, 0, 0, 0, 0);
+                                    BULLET_WIDTH, BULLET_HEIGHT, 0);
         }
 
         if (bullets[i].active)
         {
-            const unsigned int *bullet_sprite = (bullets[i].plant_type == PLANT_FROZEN_PEASHOOTER) ? 
-                bullet_blue : bullet_green;
+            const unsigned int *bullet_sprite = (bullets[i].plant_type == PLANT_FROZEN_PEASHOOTER) ? bullet_blue : bullet_green;
             draw_image(bullet_sprite, bullets[i].x, bullets[i].y, BULLET_WIDTH,
                        BULLET_HEIGHT, 0);
         }
@@ -352,23 +353,22 @@ void apply_bullet_damage(Bullet *bullet, Zombie *zombie)
         return;
 
     // Freeze zombie if hit by frozen peashooter bullet
-    if (bullet->plant_type == PLANT_FROZEN_PEASHOOTER) {
+    if (bullet->plant_type == PLANT_FROZEN_PEASHOOTER)
+    {
         zombie->is_frozen = 1;
         zombie->frozen_counter = 0;
     }
 
     int dmg = get_plant_damage(bullet->plant_type);
 
-    restore_background_area(bullet->x, bullet->y, BULLET_WIDTH, BULLET_HEIGHT, 0,
-                            0, 0, 0);
+    restore_background_area(bullet->x, bullet->y, BULLET_WIDTH, BULLET_HEIGHT, 0);
 
     if (zombie->health <= dmg)
     {
         zombie->health = 0;
         zombie->active = 0;
         register_zombie_on_row(zombie->row, 0);
-        restore_background_area(zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT,
-                                0, 0, 0, 0);
+        restore_background_area(zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);
         uart_puts("[bullet] Zombie killed by bullet\n");
     }
     else

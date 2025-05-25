@@ -344,7 +344,17 @@ void draw_string(int x, int y, char *s, unsigned int attr, int scale)
   }
 }
 
-void restore_background_area(int x, int y, int width, int height, int draw_main_screen, int redraw_default, int restore, int victory)
+/**
+ * Restore a specific area of the screen with the selected background
+ *
+ * @param bg_type The background area to restore
+ *                0 = simulated_background (default)
+ *                1 = GARDEN (Original background)
+ *                2 = MAIN_SCREEN (Game menu)
+ *                3 = tmp (temporary saved background)
+ *                4 = Victory screen (victory background)
+ */
+void restore_background_area(int x, int y, int width, int height, int bg_type)
 {
 
   for (int row = 0; row < height; row++)
@@ -360,50 +370,35 @@ void restore_background_area(int x, int y, int width, int height, int draw_main_
         int bg_index = screen_y * GARDEN_WIDTH + screen_x;
         int fb_index = screen_y * (pitch / 4) + screen_x;
 
-        if(victory){
-          *((unsigned int *)fb + fb_index) = VICTORY_SCREEN[bg_index];
-          continue;
-        }
-        if(restore){
-          *((unsigned int *)fb + fb_index) = tmp[bg_index];
-          continue;
-        }
-        if (redraw_default)
+        // choose background to restore
+
+        switch (bg_type)
         {
+        case 1: // GARDEN (default background)
           *((unsigned int *)fb + fb_index) = GARDEN[bg_index];
-          continue;
-        }
-        if (draw_main_screen)
-        {
+          break;
+
+        case 2: // MAIN_SCREEN
           *((unsigned int *)fb + fb_index) = MAIN_SCREEN[bg_index];
-        }
-        else
-        {
+          break;
+
+        case 3: // tmp (temporarily saved background)
+          *((unsigned int *)fb + fb_index) = tmp[bg_index];
+          break;
+
+        case 4: // VICTORY_SCREEN
+          *((unsigned int *)fb + fb_index) = VICTORY_SCREEN[bg_index];
+          break;
+
+        case 0: // simulated_background (default)
+        default:
           *((unsigned int *)fb + fb_index) = simulated_background[bg_index];
+          break;
         }
       }
     }
   }
 }
-
-// void update_framebuffer_region(int x, int y, int width, int height)
-// {
-//     for (int row = 0; row < height; row++) {
-//         for (int col = 0; col < width; col++) {
-//             int screen_x = x + col;
-//             int screen_y = y + row;
-
-//             if (screen_x >= 0 && screen_x < GARDEN_WIDTH &&
-//                 screen_y >= 0 && screen_y < GARDEN_HEIGHT) {
-
-//                 int index = screen_y * GARDEN_WIDTH + screen_x;
-//                 int fb_index = screen_y * (pitch / 4) + screen_x;
-
-//                 *((unsigned int *)fb + fb_index) = simulated_background[index];
-//             }
-//         }
-//     }
-// }
 
 // Function to create a simulated background that includes both garden and plants
 void create_simulated_background(unsigned int *sim_bg, const unsigned int garden[], int garden_width, int garden_height)
@@ -470,128 +465,129 @@ void draw_image_scaled(const unsigned int *image_data, int x, int y,
   }
 }
 
-
 void clear_plant_from_background(int grid_col, int grid_row, int background, int taken)
 {
-    int x, y;
-    grid_to_pixel(grid_col, grid_row, &x, &y);
+  int x, y;
+  grid_to_pixel(grid_col, grid_row, &x, &y);
 
-  if(taken){
+  if (taken)
+  {
     return;
   }
 
-    for (int row = 0; row < 75; row++)
+  for (int row = 0; row < 75; row++)
+  {
+    for (int col = 0; col < 75; col++)
     {
-        for (int col = 0; col < 75; col++)
-        {
-            int screen_x = x + col;
-            int screen_y = y + row;
+      int screen_x = x + col;
+      int screen_y = y + row;
 
-            if (screen_x >= 0 && screen_x < GARDEN_WIDTH &&
-                screen_y >= 0 && screen_y < GARDEN_HEIGHT)
-            {
-                int index = screen_y * GARDEN_WIDTH + screen_x;
+      if (screen_x >= 0 && screen_x < GARDEN_WIDTH &&
+          screen_y >= 0 && screen_y < GARDEN_HEIGHT)
+      {
+        int index = screen_y * GARDEN_WIDTH + screen_x;
 
+        simulated_background[index] = background ? tmp[index] : GARDEN[index];
 
-                simulated_background[index] = background ? tmp[index] : GARDEN[index];
-
-
-                int fb_index = screen_y * (pitch / 4) + screen_x;
-                *((unsigned int *)fb + fb_index) = simulated_background[index];
-            }
-        }
+        int fb_index = screen_y * (pitch / 4) + screen_x;
+        *((unsigned int *)fb + fb_index) = simulated_background[index];
+      }
     }
+  }
 }
 
 /* Draw hight light selection for choosing plant */
 void draw_selection_border(int selection)
 {
-    // Card position
-    const int FIRST_CARD_X = 65; // X position of first card
-    const int CARDS_Y = 100;     // Y position of all cards
-    const int CARD_SPACING = 55; // Horizontal spacing between cards
-    const int SHOVEL_X = 460;    // X position of shovel
+  // Card position
+  const int FIRST_CARD_X = 65; // X position of first card
+  const int CARDS_Y = 100;     // Y position of all cards
+  const int CARD_SPACING = 55; // Horizontal spacing between cards
+  const int SHOVEL_X = 460;    // X position of shovel
 
-    // Keep track previous selection
-    static int prev_selection = -1;
+  // Keep track previous selection
+  static int prev_selection = -1;
 
-    int prev_x = FIRST_CARD_X + (prev_selection - 1) * CARD_SPACING;
+  int prev_x = FIRST_CARD_X + (prev_selection - 1) * CARD_SPACING;
 
-    // remove the selection border & shovel border
-    restore_background_area(prev_x, CARDS_Y, SEL_BORDER_WIDTH, SEL_BORDER_HEIGHT, 0, 1, 0, 0);
-    restore_background_area(SHOVEL_X, CARDS_Y, SEL_BORDER_WIDTH, SEL_BORDER_HEIGHT, 0, 1, 0, 0);
+  // remove the selection border & shovel border
+  restore_background_area(prev_x, CARDS_Y, SEL_BORDER_WIDTH, SEL_BORDER_HEIGHT, 1);
+  restore_background_area(SHOVEL_X, CARDS_Y, SEL_BORDER_WIDTH, SEL_BORDER_HEIGHT, 1);
 
-    // update current selection for next time using
-    prev_selection = selection;
+  // update current selection for next time using
+  prev_selection = selection;
 
-    // invalid choose
-    if (selection < 1 || (selection > 5 && selection != 9))
+  // invalid choose
+  if (selection < 1 || (selection > 5 && selection != 9))
+  {
+    return;
+  }
+
+  // Draw new selection border
+  if (selection >= 1 && selection <= 5)
+  {
+    int card_x = FIRST_CARD_X + (selection - 1) * CARD_SPACING;
+    draw_image(SELECTION_BORDER, card_x, CARDS_Y, SEL_BORDER_WIDTH, SEL_BORDER_HEIGHT, 0);
+
+    // Check if plant is on cooldown and draw text if it is
+    if (is_plant_on_cooldown(selection))
     {
-        return;
+      draw_string(card_x + 5, CARDS_Y + 80, "COOLDOWN", 0x00FF0000, 1);
     }
+  }
+  else
+  {
+    // draw shovel
+    draw_image(SELECTION_BORDER, SHOVEL_X, CARDS_Y, SEL_BORDER_WIDTH, SEL_BORDER_HEIGHT, 0);
+  }
 
-    // Draw new selection border
-    if (selection >= 1 && selection <= 5)
-    {
-        int card_x = FIRST_CARD_X + (selection - 1) * CARD_SPACING;
-        draw_image(SELECTION_BORDER, card_x, CARDS_Y, SEL_BORDER_WIDTH, SEL_BORDER_HEIGHT, 0);
-        
-        // Check if plant is on cooldown and draw text if it is
-        if (is_plant_on_cooldown(selection)) {
-            draw_string(card_x + 5, CARDS_Y + 80, "COOLDOWN", 0x00FF0000, 1);
-        }
-    }
-    else
-    {
-        // draw shovel
-        draw_image(SELECTION_BORDER, SHOVEL_X, CARDS_Y, SEL_BORDER_WIDTH, SEL_BORDER_HEIGHT, 0);
-    }
-
-    // Logging selection
-    uart_puts("[Game State] Selected plant: ");
-    uart_dec(selection);
-    uart_puts(" (");
-    uart_puts(get_plant_name(selection));
-    uart_puts(")\n");
+  // Logging selection
+  uart_puts("[Game State] Selected plant: ");
+  uart_dec(selection);
+  uart_puts(" (");
+  uart_puts(get_plant_name(selection));
+  uart_puts(")\n");
 }
 
 /* Draw cooldown text on plant cards */
-void draw_cooldown_on_cards(int plant_type) {
-    // Card position
-    const int FIRST_CARD_X = 65; // X position of first card
-    const int CARDS_Y = 100;     // Y position of all cards
-    const int CARD_SPACING = 55; // Horizontal spacing between cards
+void draw_cooldown_on_cards(int plant_type)
+{
+  // Card position
+  const int FIRST_CARD_X = 65; // X position of first card
+  const int CARDS_Y = 100;     // Y position of all cards
+  const int CARD_SPACING = 55; // Horizontal spacing between cards
 
-    // Only draw for valid plant types (1-5)
-    if (plant_type < 1 || plant_type > 5) {
-        return;
-    }
+  // Only draw for valid plant types (1-5)
+  if (plant_type < 1 || plant_type > 5)
+  {
+    return;
+  }
 
-    // Calculate card position
-    int card_x = FIRST_CARD_X + (plant_type - 1) * CARD_SPACING;
-    
-    // Draw "COOLDOWN" text in red
-    draw_string(card_x + 5, CARDS_Y + 80, "COOLDOWN", 0x00FF0000, 1);
+  // Calculate card position
+  int card_x = FIRST_CARD_X + (plant_type - 1) * CARD_SPACING;
+
+  // Draw "COOLDOWN" text in red
+  draw_string(card_x + 5, CARDS_Y + 80, "COOLDOWN", 0x00FF0000, 1);
 }
 
 void restore_grid_area_to_garden(int grid_col, int grid_row)
 {
-    int x, y;
-    grid_to_pixel(grid_col, grid_row, &x, &y);
+  int x, y;
+  grid_to_pixel(grid_col, grid_row, &x, &y);
 
-    for (int row = 0; row < PLANT_HEIGHT; row++)
+  for (int row = 0; row < PLANT_HEIGHT; row++)
+  {
+    for (int col = 0; col < PLANT_WIDTH; col++)
     {
-        for (int col = 0; col < PLANT_WIDTH; col++)
-        {
-            int screen_x = x + col;
-            int screen_y = y + row;
+      int screen_x = x + col;
+      int screen_y = y + row;
 
-            if (screen_x >= 0 && screen_x < GARDEN_WIDTH &&
-                screen_y >= 0 && screen_y < GARDEN_HEIGHT)
-            {
-                int index = screen_y * GARDEN_WIDTH + screen_x;
-                simulated_background[index] = GARDEN[index];
-            }
-        }
+      if (screen_x >= 0 && screen_x < GARDEN_WIDTH &&
+          screen_y >= 0 && screen_y < GARDEN_HEIGHT)
+      {
+        int index = screen_y * GARDEN_WIDTH + screen_x;
+        simulated_background[index] = GARDEN[index];
+      }
     }
+  }
 }
