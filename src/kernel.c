@@ -8,18 +8,18 @@
 #include "../include/zombies.h"
 #include "../include/plants.h"
 #include "../include/bullet.h"
-// #include "../include/game_init.h"
+#include "../include/game_init.h"
 #include "../assets/backgrounds/background.h"
 #include "../assets/backgrounds/garden.h"
 
 // #include "background.c"
-    #define TASK1
+//  #define TASK1
 // #define TASK2_VID
-//#define ZOMBIE_INIT
+// #define ZOMBIE_INIT
 // #define PLANT_INIT
 // #define TASK3_BULLET
 
-#ifdef TASK1
+#if defined(CLI_INIT)
 void main()
 {
     // Initialize UART for CLI
@@ -42,17 +42,16 @@ void main()
     {
         // Process CLI commands
         cli();
-
-       
     }
 }
-#elif defined(TASK2_VID)
+#elif defined(VID_INIT)
 void main()
 {
     // Set up the serial console
     uart_init();
 
     framebf_init();
+    uart_puts("TASK2_VID main running\n");
 
     Video vid;
     video_init(&vid);
@@ -71,7 +70,7 @@ void main()
         }
     }
 }
-#elif defined(ZOMBIE_INIT)
+#elif defined(GAME_INIT)
 void main()
 {
     uart_init();
@@ -124,17 +123,17 @@ void main()
         uart_sendc(c);
     }
 }
-#else // task 2 name
+#elif defined(TEAM_INIT)
 void main()
 {
 
     uart_init();
     framebf_init();
 
-    game_init();
+    // game_init();
 
-    // draw_image(QUIT, 0, 0, 300, 85, 0);
-    // display_team_members(1);
+    draw_image(QUIT, 0, 0, 300, 85, 0);
+    display_team_members(1);
 
     // while (1)
     // {
@@ -142,4 +141,5 @@ void main()
     //     uart_sendc(c);
     // }
 }
+
 #endif
