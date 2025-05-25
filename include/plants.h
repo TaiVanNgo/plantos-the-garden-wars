@@ -3,9 +3,8 @@
 
 #include "../assets/sprites/plants/plants_sprites.h"
 #include "../assets/backgrounds/garden.h"
-#include "framebf.h"
 #include "grid.h"
-#include "zombies.h"
+#include "framebf.h"
 
 // Define plant types
 #define PLANT_TYPE_SUNFLOWER 1
@@ -43,7 +42,7 @@ typedef struct
     uint8_t attack_speed;  // Attacks per time unit
 } Plant;
 
-extern Plant plant_grid[4][9];
+extern Plant plant_grid[GRID_ROWS][GRID_COLS];
 
 void draw_plant(int plant_type, int col, int row);
 Plant create_plant(uint8_t type, uint8_t col, uint8_t row);
@@ -53,7 +52,7 @@ void place_plant_on_background(int plant_type, int grid_col, int grid_row, unsig
 void draw_flames_on_row(int row);
 void clear_flames_on_row(int row);
 void update_flame_effects(int current_frame);
-void chillies_detonate(int row, int current_frame); 
+void chillies_detonate(int row, int current_frame);
 int get_plant_cost(int plant_type);
 
 #endif

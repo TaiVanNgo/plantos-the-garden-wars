@@ -1,13 +1,12 @@
 #include "../include/game_init.h"
 
-
 extern int flame_active[GRID_ROWS];
 extern int flame_start_frames[GRID_ROWS];
 
 SelectionState select_state = {
     .mode = 0, .selected_card = -1, .row = 0, .col = 0, .current_plant = -1};
 
-GameState game = {.state = GAME_MENU, .score = 0, .level = LEVEL_HARD_ENUM, .sun_count = INITIAL_SUN_COUNT};
+GameState game = {.state = GAME_MENU, .score = 0, .level = LEVEL_EASY_ENUM, .sun_count = INITIAL_SUN_COUNT};
 
 Plant plant_grid[GRID_ROWS][GRID_COLS];
 

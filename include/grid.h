@@ -1,6 +1,13 @@
 #ifndef GARDEN_H
 #define GARDEN_H
 
+#define GRID_LEFT_MARGIN 45
+#define GRID_TOP_MARGIN 180 // top margin
+#define GRID_COL_WIDTH 78   // column width
+#define GRID_ROW_HEIGHT 85
+#define GRID_ROWS 4
+#define GRID_COLS 9
+
 #include "framebf.h"
 #include "../assets/sprites/plants/plants_sprites.h"
 #include "../assets/sprites/cursor.h"
@@ -8,13 +15,6 @@
 // Grid parameters
 #define GARDEN_WIDTH 800
 #define GARDEN_HEIGHT 600
-
-#define GRID_LEFT_MARGIN 45
-#define GRID_TOP_MARGIN 180 // top margin
-#define GRID_COL_WIDTH 78   // column width
-#define GRID_ROW_HEIGHT 85
-#define GRID_ROWS 4
-#define GRID_COLS 9
 
 #define CURSOR_WIDTH 17
 #define CURSOR_HEIGHT 17

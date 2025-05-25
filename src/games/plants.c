@@ -235,7 +235,7 @@ void place_plant_on_background(int plant_type, int grid_col, int grid_row, unsig
         plant = wallnut_unhappy;
         break;
     case SHOVEL:
-        plant= shovel;
+        plant = shovel;
         break;
     default:
         uart_puts("Invalid plant type!\n");
@@ -313,7 +313,7 @@ void update_flame_effects(int current_frame)
             {
                 clear_flames_on_row(row);
                 flame_active[row] = 0;
-                
+
                 // Restore the background for the entire row
                 for (int col = 0; col < GRID_COLS; col++)
                 {

@@ -1,15 +1,15 @@
 #ifndef GAME_INIT_H
 #define GAME_INIT_H
 
-#include "bullet.h"
+#include "../assets/selection/selection.h"
+#include "../assets/button/button.h"
 #include "../assets/backgrounds/garden.h"
+#include "bullet.h"
 #include "zombies.h"
 #include "utils.h"
 #include "uart0.h"
 #include "uart1.h"
 #include "framebf.h"
-#include "../assets/selection/selection.h"
-#include "../assets/button/button.h"
 #include "plants.h"
 #include "grid.h"
 #include "sun.h"
@@ -67,7 +67,6 @@ typedef struct
 // External global variables
 extern GameState game;
 extern SelectionState select_state;
-extern Plant plant_grid[GRID_ROWS][GRID_COLS];
 
 void game_main();
 void game_menu();
