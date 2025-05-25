@@ -103,7 +103,6 @@ void display_team_members(int show_bg)
 	draw_string(150, 50, "OPERATING SYSTEMS AND INTERFACING", RED, 2);
 
 	// Member 1
-
 	draw_circle(160, 80, 8, WHITE, 1);
 	draw_string(200, 75, "NGUYEN PHAM ANH THU (S3926793)", WHITE, 2);
 
@@ -119,11 +118,12 @@ void display_team_members(int show_bg)
 	draw_circle(160, 140, 8, THISTLE, 1);
 	draw_string(200, 135, "NGO VAN TAI (S3974892)", THISTLE, 2);
 
-	// Pulse circle animation
+	// Pulse circle animation - do it once
 	int pulse = 0;
 	int pulse_dir = 1;
-
-	while (1)
+	
+	// Do one complete pulse cycle
+	while (pulse < 10)
 	{
 		// Pulse animation
 		if (pulse_dir > 0)
@@ -147,16 +147,6 @@ void display_team_members(int show_bg)
 		draw_circle(550, 20, 15, PULSE_CIRCLE_COLOR, 1);
 		// Draw new pulse right circle
 		draw_circle(550, 20, pulse, WHITE, 1);
-
-		// Process UART input
-		char c = getUart();
-
-		if (c == 'q')
-		{
-			uart_puts("Exit displaying team member!\n");
-			clear_screen();
-			return;
-		}
 
 		// Short delay for animation
 		delay_ms(500);

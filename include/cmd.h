@@ -61,6 +61,6 @@ void cmd_baudrate(char *args);  // Change UART baudrate (not implemented)
 void cmd_handshake(char *args); // Toggle UART handshaking (not implemented)
 void cmd_kaboom(char *args);   // Display an ASCII explosion animation (not implemented)
 void os_welcome(void);
-void cmd_game(char *args); // New command to start the game
+void cmd_game(); // New command to start the game
 
 #endif // CLI_H
