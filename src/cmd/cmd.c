@@ -13,7 +13,8 @@
 
 #include "../../include/cmd.h"
 #include "../../include/utils.h"
-#include "cmd_utils.c"
+#include "../../include/cmd_utils.h"
+#include "../../include/video.h"
 
 /**
  * @brief Simple busy-wait delay function.
@@ -70,7 +71,13 @@ Command commands[] = {
     {"game",
      "Start the Plants vs. Zombies game",
      "game - Start Garden Wars from the CLI\nExample: PlantOS> game",
-     cmd_game}
+     cmd_game},
+    {"video",
+     "Play the video animation",
+     "video - Play the video animation at position (80,120)\n"
+     "Press 'c' to replay the video\n"
+     "Example: PlantOS> video",
+     cmd_video}
 };
 
 const int num_commands = sizeof(commands) / sizeof(commands[0]);
@@ -499,6 +506,40 @@ void cmd_game(char *args)
 {
     uart_puts("\nStarting Garden Wars ...\n");
     game_main();
+}
+
+/**
+ * @brief Command: Play the video animation.
+ *
+ * @param args Not used.
+ */
+void cmd_video(char *args)
+{
+    uart_puts("\nStarting video playback...\n");
+    uart_puts("Press 'c' to replay the video\n");
+    uart_puts("Press 'q' to return to CLI\n\n");
+
+    // Initialize video
+    Video vid;
+    video_init(&vid);
+    
+    // Play video at position (80,120)
+    play_video(&vid, 80, 120, vid.total_frames);
+    
+    // Wait for user input
+    while (1)
+    {
+        char c = getUart();
+        if (c == 'c')
+        {
+            play_video(&vid, 80, 120, vid.total_frames);
+        }
+        else if (c == 'q')
+        {
+            uart_puts("\nReturning to CLI...\n");
+            return;
+        }
+    }
 }
 
 // === Welcome Message ===

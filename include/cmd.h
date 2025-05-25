@@ -62,5 +62,6 @@ void cmd_handshake(char *args); // Toggle UART handshaking (not implemented)
 void cmd_kaboom(char *args);   // Display an ASCII explosion animation (not implemented)
 void os_welcome(void);
 void cmd_game(char *args); // New command to start the game
+void cmd_video(char *args); // Command to play video animation
 
 #endif // CLI_H
