@@ -234,6 +234,9 @@ void place_plant_on_background(int plant_type, int grid_col, int grid_row, unsig
     case PLANT_TYPE_WALLNUT_UNHAPPY:
         plant = wallnut_unhappy;
         break;
+    case SHOVEL:
+        plant= shovel;
+        break;
     default:
         uart_puts("Invalid plant type!\n");
         return;

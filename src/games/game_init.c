@@ -480,6 +480,7 @@ int handle_user_input(int *frame_counter)
 
     if (key == 'P' || key == 'p')
     {
+    
         if (check_occupied())
         {
             clear_plant_from_background(select_state.col, select_state.row, 0, 0);
@@ -524,6 +525,8 @@ void handle_remove_plant()
 
 void handle_plant_selection(int plant_type)
 {
+    int x, y;
+    grid_to_pixel(select_state.col, select_state.row, &x, &y);
     // Check if plant is on cooldown
     if (plant_type >= 1 && plant_type <= 5)
     {
@@ -544,18 +547,21 @@ void handle_plant_selection(int plant_type)
     if (select_state.mode == 2)
     {
         // Draw shovel cursor at current position
-        int x, y;
-        grid_to_pixel(select_state.col, select_state.row, &x, &y);
+        // int x, y;
+        int taken = check_clear() ? 1 : 0;
+        clear_plant_from_background(prev_col, prev_row, 0, taken);
+        // clear_plant_from_background(select_state.col, select_state.row, 0, taken);
+        place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
+        // grid_to_pixel(select_state.col, select_state.row, &x, &y);
         restore_background_area(x, y, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0);
-        draw_plant(SHOVEL, select_state.col, select_state.row);
+        // draw_plant(SHOVEL, select_state.col, select_state.row);
         return;
     }
 
     // Handle plant preview
     if (select_state.current_plant != -1)
     {
-        int x, y;
-        grid_to_pixel(select_state.col, select_state.row, &x, &y);
+        
         int taken = check_clear() ? 1 : 0;
         clear_plant_from_background(prev_col, prev_row, 0, taken);
         // clear_plant_from_background(select_state.col, select_state.row, 0, taken);
@@ -1052,6 +1058,12 @@ void draw_cursor()
     else if (select_state.mode == 2)
     {
         draw_plant(SHOVEL, select_state.col, select_state.row);
+        // Draw plant preview
+        int taken = check_clear() ? 1 : 0;
+
+        // clear_plant_from_background(prev_col, prev_row, 0, taken);
+        place_plant_on_background(SHOVEL, select_state.col, select_state.row, simulated_background);
+        restore_background_area(x, y, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0);
     }
     // Otherwise draw normal cursor
     else
