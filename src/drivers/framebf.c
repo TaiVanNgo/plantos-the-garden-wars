@@ -517,6 +517,12 @@ void reset_tmp_region_from_garden(int grid_col, int grid_row)
     }
 }
 
+
+
+
+
+
+
 /* Draw hight light selection for choosing plant */
 void draw_selection_border(int selection)
 {
