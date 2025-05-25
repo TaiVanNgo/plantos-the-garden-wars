@@ -121,9 +121,9 @@ void display_team_members(int show_bg)
 	// Pulse circle animation - do it once
 	int pulse = 0;
 	int pulse_dir = 1;
-	
+
 	// Do one complete pulse cycle
-	while (pulse < 10)
+	while (pulse < 20)
 	{
 		// Pulse animation
 		if (pulse_dir > 0)
@@ -152,71 +152,6 @@ void display_team_members(int show_bg)
 		delay_ms(500);
 	}
 }
-
-// void play_video(Video *video, int pos_x, int pox_y, int max_frames)
-// {
-// 	static unsigned int prev_frame[FRAME_WIDTH * FRAME_HEIGHT] = {0};
-
-// 	for (int i = 0; i < video->total_frames && i < max_frames; i++)
-// 	{
-// 		// Get current frame
-// 		const unsigned int *frame = video_get_current_frame(video);
-
-// 		uart_puts("Playing frame: ");
-// 		char current_frame_str[12];
-// 		int_to_str(i, current_frame_str);
-// 		uart_puts(current_frame_str);
-// 		uart_puts("\n");
-
-// 		for (int y = 0; y < FRAME_HEIGHT; y++)
-// 		{
-// 			for (int x = 0; x < FRAME_WIDTH; x++)
-// 			{
-// 				int idx = y * FRAME_WIDTH + x;
-// 				if (prev_frame[idx] != frame[idx])
-// 				{
-// 					draw_pixel(pos_x + x, pox_y + y, frame[idx]);
-// 					prev_frame[idx] = frame[idx];
-// 				}
-// 			}
-// 		}
-
-// 		// Move to next frame
-// 		video_next_frame(video);
-// 		// delay between frames
-// 		delay_ms(100);
-// 	}
-// }
-
-// void play_video(Video *video, int pos_x, int pos_y, int max_frames)
-// {
-// 	char total_frames_str[12];
-// 	for (int i = 0; i < video->total_frames; i++)
-// 	{
-// 		// Convert the total_frames integer to string
-// 		int_to_str(video->total_frames, total_frames_str);
-
-// 		uart_puts("Playing frame: ");
-// 		char current_frame_str[12];
-// 		int_to_str(i, current_frame_str);
-// 		uart_puts(current_frame_str);
-// 		uart_puts("\n");
-// 		// Get the current frame
-// 		const unsigned int *frame = video_get_current_frame(video);
-
-// 		// Draw the current frame
-// 		draw_image(frame, pos_x, pos_y, FRAME_WIDTH, FRAME_HEIGHT, 0);
-
-// 		// Move to the next frame
-// 		video_next_frame(video);
-
-// 		// Add a delay between frames (e.g., 700ms)
-// 		delay_ms(100);
-// 	}
-
-// 	// After all frames have been displayed, print completion message
-// 	uart_puts("Video playback completed!\n");
-// }
 
 void wipe_transition()
 {

@@ -298,7 +298,6 @@ void draw_char(unsigned char ch, int x, int y, unsigned int attr, int scale)
       }
     }
     // Move to the next line of the glyph data
-    // glyph += (i % scale) ? 0 : FONT_BPL;
     if ((i + 1) % scale == 0)
     {
       glyph += FONT_BPL;
