@@ -15,6 +15,8 @@ GameState game = {.state = GAME_MENU, .score = 0, .level = LEVEL_HARD_ENUM, .sun
 Plant plant_grid[4][9];
 int prev_col, prev_row;
 void game_main() {
+     game.state = GAME_MENU;
+     
     while (1) {
         switch (game.state) {
             case GAME_MENU:
@@ -36,6 +38,7 @@ void game_main() {
                 victory_screen();
                 break;
             case GAME_QUIT:
+                return;
                 break;
             default:
                 break;

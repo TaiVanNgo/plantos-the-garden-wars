@@ -480,6 +480,7 @@ void cmd_game()
 void cmd_video(char *args)
 {
     uart_puts("\nPlaying intro video...\n");
+    clear_screen();
     
     // Initialize video
     Video vid;
