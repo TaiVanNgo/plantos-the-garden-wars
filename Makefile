@@ -45,7 +45,7 @@ endif
 all: clean uart0_build build_core_all $(IMAGE)_video run0
 
 # Build game mode
-game: clean uart0_build build_core_zombie build_game $(IMAGE)_game run0
+game: clean uart0_build build_core_zombie build_game $(IMAGE)_video run0
 
 # Build video mode
 video: clean uart0_build build_core_vid $(IMAGE)_video run0
@@ -155,12 +155,6 @@ $(IMAGE): $(BUILD_DIR)/boot.o $(BUILD_DIR)/uart.o $(BUILD_DIR)/mbox.o $(BUILD_DI
 $(IMAGE)_video: $(BUILD_DIR)/boot.o $(BUILD_DIR)/uart.o $(BUILD_DIR)/mbox.o $(BUILD_DIR)/framebf.o $(COMMON_OFILES) $(VIDEO_OFILES) $(BUILD_DIR)/cmd.o $(ASSETS_OFILES) $(GAMES_OFILES) | $(BUILD_DIR)
 	@echo "[LINK] Linking kernel image (with video): $(BUILD_DIR)/kernel8.elf"
 	aarch64-none-elf-ld -nostdlib $(BUILD_DIR)/boot.o $(BUILD_DIR)/mbox.o $(BUILD_DIR)/framebf.o $(BUILD_DIR)/uart.o $(COMMON_OFILES) $(VIDEO_OFILES) $(BUILD_DIR)/cmd.o $(ASSETS_OFILES) $(GAMES_OFILES) -T $(ARCH_DIR)/link.ld -o $(BUILD_DIR)/kernel8.elf
-	@echo "[OBJCOPY] Creating binary image: $(IMAGE)"
-	aarch64-none-elf-objcopy -O binary $(BUILD_DIR)/kernel8.elf $(IMAGE)
-
-$(IMAGE)_game: $(BUILD_DIR)/boot.o $(BUILD_DIR)/uart.o $(BUILD_DIR)/mbox.o $(BUILD_DIR)/framebf.o $(COMMON_OFILES) $(BUILD_DIR)/cmd.o $(ASSETS_OFILES) $(GAMES_OFILES) | $(BUILD_DIR)
-	@echo "[LINK] Linking kernel image (with video): $(BUILD_DIR)/kernel8.elf"
-	aarch64-none-elf-ld -nostdlib $(BUILD_DIR)/boot.o $(BUILD_DIR)/mbox.o $(BUILD_DIR)/framebf.o $(BUILD_DIR)/uart.o $(COMMON_OFILES) $(BUILD_DIR)/cmd.o $(ASSETS_OFILES) $(GAMES_OFILES) -T $(ARCH_DIR)/link.ld -o $(BUILD_DIR)/kernel8.elf
 	@echo "[OBJCOPY] Creating binary image: $(IMAGE)"
 	aarch64-none-elf-objcopy -O binary $(BUILD_DIR)/kernel8.elf $(IMAGE)
 
