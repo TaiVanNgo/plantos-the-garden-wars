@@ -4,6 +4,8 @@
 #include "../include/cooldown.h"
 
 extern int flame_active[GRID_ROWS];
+extern int flame_start_frames[GRID_ROWS];
+
 
 SelectionState select_state = {
     .mode = 0, .selected_card = -1, .row = 0, .col = 0, .current_plant = -1};
@@ -186,6 +188,12 @@ void game_menu() {
 void start_level() {
     reset_zombie_counts();  // Reset zombie tracking
 
+    // Reset flame effects
+    for (int i = 0; i < GRID_ROWS; i++) {
+        flame_active[i] = 0;
+        flame_start_frames[i] = 0;
+    }
+
     // draw background first
     for (int i = 0; i < GRID_ROWS; i++) {
         for (int j = 0; j < GRID_COLS; j++) {
@@ -360,9 +368,8 @@ void start_level() {
             }
 
             // Check if killed
-            if (zombie_pointers[i]->health <= 0 && zombie_pointers[i]->active) {
+            if (zombie_pointers[i]->health <= 0 && !zombie_pointers[i]->active) {
                 zombie_pointers[i]->active = 0;
-                register_zombie_on_row(zombie_pointers[i]->row, 0);
                 zombies_killed++;
                 game.score += ZOMBIE_KILL_REWARD;
 
@@ -371,6 +378,7 @@ void start_level() {
                 uart_puts(" ,Total Score: ");
                 uart_dec(game.score);
                 uart_puts("\n");
+
             }
 
             // Check for level completion
@@ -394,7 +402,10 @@ int handle_user_input(int *frame_counter) {
     // Number keys for plant selection
     if (key >= '1' && key <= '5') {
         int selection = key - '0';
-        handle_plant_selection(selection, *frame_counter);
+        if(check_occupied()){
+            clear_plant_from_background(select_state.col, select_state.row, 0, 0);
+        }
+        handle_plant_selection(selection);
         return 1;
     }
 
@@ -646,25 +657,16 @@ void handle_enter_key(int frame_counter) {
                 start_plant_cooldown(select_state.current_plant);
             }
 
-
             place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
             place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, tmp);
-            Plant new_plant = create_plant(select_state.current_plant, select_state.col, select_state.row);
             
-           
-            // plant_grid[select_state.row][select_state.col] = new_plant;
-
-            plant_grid[select_state.row][select_state.col].type = new_plant.type;
-            plant_grid[select_state.row][select_state.col].health = new_plant.health;
-            plant_grid[select_state.row][select_state.col].col = new_plant.col;
-            plant_grid[select_state.row][select_state.col].row = new_plant.row;
-
-
+            // Create and place the plant in one step
+            Plant new_plant = create_plant(select_state.current_plant, select_state.col, select_state.row);
+            plant_grid[select_state.row][select_state.col] = new_plant;
 
             // Register plant with bullet system if it's a shooting plant
             if (select_state.current_plant == PLANT_PEASHOOTER ||
                 select_state.current_plant == PLANT_FROZEN_PEASHOOTER) {
-
                 unsigned long current_counter;
                 asm volatile("mrs %0, cntpct_el0" : "=r"(current_counter));
                 unsigned long freq;
@@ -684,13 +686,10 @@ void handle_enter_key(int frame_counter) {
             // Reset selection state
             select_state.selected_card = -1;
             select_state.current_plant = -1;
-            select_state.mode = (select_state.mode == 0) ? 1 : 0;
+            select_state.mode = 1;
 
             // clear selection border
             draw_selection_border(-1);
-
-            select_state.mode = 1;
-
         } else if (select_state.mode == 1) {
             // Deduct the sun cost
             game.sun_count -= plant_cost;
@@ -702,7 +701,9 @@ void handle_enter_key(int frame_counter) {
             }
 
             place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
-            // place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, tmp);
+            place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, tmp);
+            
+            // Create and place the plant in one step
             Plant new_plant = create_plant(select_state.current_plant, select_state.col, select_state.row);
             plant_grid[select_state.row][select_state.col] = new_plant;
 
@@ -717,7 +718,6 @@ void handle_enter_key(int frame_counter) {
                 bullet_spawn_plant(select_state.col, select_state.row, current_time_ms, select_state.current_plant);
             } else if (select_state.current_plant == PLANT_CHILLIES) {
                 chillies_detonate(select_state.row, frame_counter);
-
                 plant_grid[select_state.row][select_state.col].type = 255;
                 clear_plant_from_background(select_state.col, select_state.row, 0, 0);
             }
@@ -847,10 +847,10 @@ void game_over() {
     // clear_screen();
     draw_image(LOSE_SCREEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
 
-    // REPLACE BUTTON ui BY REAL ONE
+
     Button quit, retry;
-    button_init(&quit, 100, 450, 300, 130, HARD);
-    button_init(&retry, 470, 450, 300, 130, NORMAL);
+    button_init(&quit, 100, 450, 300, 85, HOME);
+    button_init(&retry, 470, 450, 300, 75, QUIT);
 
     Button *buttons[] = {&quit, &retry};
     int current_selection = 0;
@@ -933,7 +933,7 @@ void draw_cursor() {
 void draw_all_plant_cooldowns() {
     for (int i = 1; i <= 5; i++) {
         if (is_plant_on_cooldown(i)) {
-            draw_cooldown_on_cards(i);
+            draw_plant_cooldown_text(i);
         }
     }
 }

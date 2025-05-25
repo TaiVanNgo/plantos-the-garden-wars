@@ -47,3 +47,4 @@ unsigned int get_simulated_pixel(const unsigned int *sim_bg, int x, int y, int g
 void draw_image_scaled(const unsigned int *image_data, int x, int y, int src_width, int src_height, int dest_width, int dest_height, int transparent);
 void clear_plant_from_background(int grid_col, int grid_row, int background, int taken);
 void draw_selection_border(int selection);
+void restore_grid_area_to_garden(int grid_col, int grid_row);

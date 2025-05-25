@@ -536,10 +536,7 @@ void draw_selection_border(int selection)
         int card_x = FIRST_CARD_X + (selection - 1) * CARD_SPACING;
         draw_image(SELECTION_BORDER, card_x, CARDS_Y, SEL_BORDER_WIDTH, SEL_BORDER_HEIGHT, 0);
         
-        // Check if plant is on cooldown and draw text if it is
-        if (is_plant_on_cooldown(selection)) {
-            draw_string(card_x + 5, CARDS_Y + 80, "COOLDOWN", 0x00FF0000, 1);
-        }
+      
     }
     else
     {
@@ -572,4 +569,26 @@ void draw_cooldown_on_cards(int plant_type) {
     
     // Draw "COOLDOWN" text in red
     draw_string(card_x + 5, CARDS_Y + 80, "COOLDOWN", 0x00FF0000, 1);
+}
+
+void restore_grid_area_to_garden(int grid_col, int grid_row)
+{
+    int x, y;
+    grid_to_pixel(grid_col, grid_row, &x, &y);
+
+    for (int row = 0; row < PLANT_HEIGHT; row++)
+    {
+        for (int col = 0; col < PLANT_WIDTH; col++)
+        {
+            int screen_x = x + col;
+            int screen_y = y + row;
+
+            if (screen_x >= 0 && screen_x < GARDEN_WIDTH &&
+                screen_y >= 0 && screen_y < GARDEN_HEIGHT)
+            {
+                int index = screen_y * GARDEN_WIDTH + screen_x;
+                simulated_background[index] = GARDEN[index];
+            }
+        }
+    }
 }
