@@ -26,7 +26,6 @@ typedef enum
   GAME_DIFFICULTY,
   GAME_PLAYING,
   GAME_QUIT,
-  GAME_PAUSED,
   GAME_VICTORY,
   GAME_OVER
 } GAME_STATE;
@@ -44,7 +43,7 @@ typedef struct
   GAME_STATE state;
   int score;
   LEVEL_DIFFICULTY level;
-  int sun_count; 
+  int sun_count;
 } GameState;
 
 typedef struct
