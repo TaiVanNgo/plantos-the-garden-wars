@@ -313,6 +313,14 @@ void update_flame_effects(int current_frame)
             {
                 clear_flames_on_row(row);
                 flame_active[row] = 0;
+                
+                // Restore the background for the entire row
+                for (int col = 0; col < GRID_COLS; col++)
+                {
+                    int x, y;
+                    grid_to_pixel(col, row, &x, &y);
+                    restore_background_area(x, y, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0);
+                }
             }
             else
             {
