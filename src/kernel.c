@@ -12,12 +12,6 @@
 #include "../assets/backgrounds/background.h"
 #include "../assets/backgrounds/garden.h"
 
-// #include "background.c"
-//  #define TASK1
-// #define TASK2_VID
-// #define ZOMBIE_INIT
-// #define PLANT_INIT
-// #define TASK3_BULLET
 
 #if defined(ALL_INIT)
 void main()

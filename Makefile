@@ -42,25 +42,23 @@ endif
 #//////////////////////////////////////////////////////////////
 
 # Build all files
-all: clean uart0_build build_core_all build_video $(IMAGE)_video run0
+all: clean uart0_build build_core_all $(IMAGE)_video run0
 
-# Build basic OS without video
-basic: clean uart0_build build_core build_game $(IMAGE) run0
 
 # Build game mode
 game: clean uart0_build build_core_zombie build_game $(IMAGE)_game run0
 
 # Build video mode
-video: clean uart0_build build_core_vid build_video $(IMAGE)_video run0
+video: clean uart0_build build_core_vid $(IMAGE)_video run0
 
 # Build CLI mode
-cli: clean uart0_build build_core_cli build_video $(IMAGE)_video run0
+cli: clean uart0_build build_core_cli $(IMAGE)_video run0
 
 # Build TEAM mode
-team: clean uart0_build build_core_team build_video $(IMAGE)_video run0
+team: clean uart0_build build_core_team$(IMAGE)_video run0
 
 # Build ALL mode (video + team + CLI)
-all_mode: clean uart0_build build_core_all build_video $(IMAGE)_video run0
+
 
 # # UART targets
 # uart1: clean uart1_build $(IMAGE) run1
@@ -84,10 +82,6 @@ uart0_build: | $(BUILD_DIR)
 # Build core components
 build_core: $(BUILD_DIR)/boot.o $(BUILD_DIR)/mbox.o $(BUILD_DIR)/framebf.o $(COMMON_OFILES)
 	@echo "[BUILD] Building core components"
-
-# Build video components
-build_video: $(VIDEO_OFILES)
-	@echo "[BUILD] Building video components"
 
 	
 # Build boot assembly
