@@ -3,7 +3,7 @@
 #include "../include/mbox.h"
 #include "../include/framebf.h"
 #include "../include/cmd.h"
-// #include "../include/video.h"
+#include "../include/video.h"
 #include "../include/utils.h"
 #include "../include/zombies.h"
 #include "../include/plants.h"
@@ -19,7 +19,36 @@
 // #define PLANT_INIT
 // #define TASK3_BULLET
 
-#if defined(CLI_INIT)
+#if defined(ALL_INIT)
+void main()
+{
+    // Initialize UART and framebuffer
+    uart_init();
+    framebf_init();
+    
+    // First play the video
+    uart_puts("Playing intro video...\n");
+    Video vid;
+    video_init(&vid);
+    play_video(&vid, 80, 120, vid.total_frames);
+    
+    // Then show team members
+    wipe_transition();
+    uart_puts("Displaying team members...\n");
+    display_team_members(1);
+    
+    // Finally start CLI
+    uart_puts("Starting CLI...\n");
+    os_welcome();
+    uart_puts(PROMPT);
+    
+    // Main CLI loop
+    while (1)
+    {
+        cli();
+    }
+}
+#elif defined(CLI_INIT)
 void main()
 {
     // Initialize UART for CLI
@@ -133,6 +162,7 @@ void main()
     // game_init();
 
     draw_image(QUIT, 0, 0, 300, 85, 0);
+    wipe_transition();
     display_team_members(1);
 
     // while (1)

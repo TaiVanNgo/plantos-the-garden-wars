@@ -14,16 +14,20 @@
 // --- Includes ---
 #include "../../include/cmd.h"
 #include "../../include/utils.h"
+#include "../../include/video.h"
 #include "cmd_utils.c"
 
 // --- Command Table and Declarations ---
+void cmd_video(char *args);
+
 Command commands[] = {
     {"help", "Show help", "help [cmd] - Show help info", cmd_help},
     {"clear", "Clear screen", "clear - Clear the terminal", cmd_clear},
     {"info", "Board info", "info - Show board revision and MAC", cmd_showinfo},
     {"baud", "Set baudrate", "baud <rate> - Set UART baudrate", cmd_baudrate},
     {"handshake", "RTS/CTS", "handshake <on|off> - Toggle handshaking", cmd_handshake},
-    {"game", "Start game", "game - Start Garden Wars", cmd_game}};
+    {"game", "Start game", "game - Start Garden Wars", cmd_game},
+    {"video", "Play video", "video - Play the intro video animation", cmd_video}};
 const int num_commands = sizeof(commands) / sizeof(commands[0]);
 
 // --- Command History Management ---
@@ -466,6 +470,25 @@ void cmd_game()
 {
     uart_puts("\nStarting Garden Wars ...\n");
     game_main();
+}
+
+/**
+ * @brief Command: Play the intro video animation.
+ *
+ * @param args Not used.
+ */
+void cmd_video(char *args)
+{
+    uart_puts("\nPlaying intro video...\n");
+    
+    // Initialize video
+    Video vid;
+    video_init(&vid);
+    
+    // Play video at position (80, 120) with all frames
+    play_video(&vid, 80, 120, vid.total_frames);
+    
+    uart_puts("Video playback completed!\n");
 }
 
 // --- Welcome Message ---
