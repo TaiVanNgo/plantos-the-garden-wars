@@ -787,9 +787,9 @@ void handle_enter_key(int frame_counter)
             else if (select_state.current_plant == PLANT_CHILLIES)
             {
                 chillies_detonate(select_state.row, frame_counter);
-                // Clear the chilli plant from the grid and background
                 plant_grid[select_state.row][select_state.col].type = 255;
                 clear_plant_from_background(select_state.col, select_state.row, 0, 0);
+                reset_tmp_region_from_garden(select_state.col, select_state.row);
             }
 
             // Reset selection state
@@ -835,6 +835,7 @@ void handle_enter_key(int frame_counter)
                 chillies_detonate(select_state.row, frame_counter);
                 plant_grid[select_state.row][select_state.col].type = 255;
                 clear_plant_from_background(select_state.col, select_state.row, 0, 0);
+                reset_tmp_region_from_garden(select_state.col, select_state.row);
             }
 
             select_state.mode = 0;
