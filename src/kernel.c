@@ -12,30 +12,29 @@
 #include "../assets/backgrounds/background.h"
 #include "../assets/backgrounds/garden.h"
 
-
 #if defined(ALL_INIT)
 void main()
 {
     // Initialize UART and framebuffer
     uart_init();
     framebf_init();
-    
+
     // First play the video
     uart_puts("Playing intro video...\n");
     Video vid;
     video_init(&vid);
     play_video(&vid, 80, 120, vid.total_frames);
-    
+
     // Then show team members
     wipe_transition();
     uart_puts("Displaying team members...\n");
     display_team_members(1);
-    
+
     // Finally start CLI
     uart_puts("Starting CLI...\n");
     os_welcome();
     uart_puts(PROMPT);
-    
+
     // Main CLI loop
     while (1)
     {
@@ -79,8 +78,9 @@ void main()
     Video vid;
     video_init(&vid);
     play_video(&vid, 80, 120, vid.total_frames);
-    // wipe_transition();
-    // display_team_members(0);
+    wipe_transition();
+    display_team_members(0);
+
     // Run CLI
     while (1)
     {
@@ -153,17 +153,9 @@ void main()
     uart_init();
     framebf_init();
 
-    // game_init();
-
     draw_image(QUIT, 0, 0, 300, 85, 0);
     wipe_transition();
     display_team_members(1);
-
-    // while (1)
-    // {
-    //     char c = uart_getc();
-    //     uart_sendc(c);
-    // }
 }
 
 #endif

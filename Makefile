@@ -44,7 +44,6 @@ endif
 # Build all files
 all: clean uart0_build build_core_all $(IMAGE)_video run0
 
-
 # Build game mode
 game: clean uart0_build build_core_zombie build_game $(IMAGE)_game run0
 
@@ -56,14 +55,6 @@ cli: clean uart0_build build_core_cli $(IMAGE)_video run0
 
 # Build TEAM mode
 team: clean uart0_build build_core_team$(IMAGE)_video run0
-
-# Build ALL mode (video + team + CLI)
-
-
-# # UART targets
-# uart1: clean uart1_build $(IMAGE) run1
-# uart0: clean uart0_build $(IMAGE) run0
-
 
 #//////////////////////////////////////////////////////////////
 #                             BUILD STEPS
