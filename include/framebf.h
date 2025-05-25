@@ -47,3 +47,4 @@ void draw_image_scaled(const unsigned int *image_data, int x, int y, int src_wid
 void clear_plant_from_background(int grid_col, int grid_row, int background, int taken);
 void draw_selection_border(int selection);
 void restore_grid_area_to_garden(int grid_col, int grid_row);
+void reset_tmp_region_from_garden(int grid_col, int grid_row);
