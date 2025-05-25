@@ -9,7 +9,7 @@ extern int flame_start_frames[GRID_ROWS];
 SelectionState select_state = {
     .mode = 0, .selected_card = -1, .row = 0, .col = 0, .current_plant = -1};
 
-GameState game = {.state = GAME_MENU, .score = 0, .level = LEVEL_HARD_ENUM, .sun_count = 2000};
+GameState game = {.state = GAME_OVER, .score = 0, .level = LEVEL_HARD_ENUM, .sun_count = 2000};
 
 Plant plant_grid[GRID_ROWS][GRID_COLS];
 
@@ -83,7 +83,7 @@ void game_start_difficulty()
     int previous_selection = current_selection;
 
     button_set_state(buttons[current_selection], BUTTON_SELECTED);
-    button_draw_selection(buttons, current_selection, previous_selection, 2, 150, 20);
+    button_draw_selection(buttons, current_selection, previous_selection, 2, 70, 10);
 
     while (1)
     {
@@ -103,7 +103,7 @@ void game_start_difficulty()
                 }
 
                 button_set_state(buttons[current_selection], BUTTON_SELECTED);
-                button_draw_selection(buttons, current_selection, previous_selection, 2, 150, 20);
+                button_draw_selection(buttons, current_selection, previous_selection, 2, 70, 10);
             }
             else if ((key2 == 'B'))
             {
@@ -118,7 +118,7 @@ void game_start_difficulty()
                 }
 
                 button_set_state(buttons[current_selection], BUTTON_SELECTED);
-                button_draw_selection(buttons, current_selection, previous_selection, 2, 150, 20);
+                button_draw_selection(buttons, current_selection, previous_selection, 2, 70, 10);
             }
         }
 
@@ -162,7 +162,7 @@ void game_menu()
     int previous_selection = current_selection;
     // Initially set the first button selected
     button_set_state(buttons[current_selection], BUTTON_SELECTED);
-    button_draw_selection(buttons, current_selection, previous_selection, 2, 150, 20);
+    button_draw_selection(buttons, current_selection, previous_selection, 2, 70, 10);
 
     while (1)
     {
@@ -182,7 +182,7 @@ void game_menu()
                 }
 
                 button_set_state(buttons[current_selection], BUTTON_SELECTED);
-                button_draw_selection(buttons, current_selection, previous_selection, 2, 150, 20);
+                button_draw_selection(buttons, current_selection, previous_selection, 2, 70, 10);
             }
             else if ((key2 == 'B'))
             {
@@ -197,7 +197,7 @@ void game_menu()
                 }
 
                 button_set_state(buttons[current_selection], BUTTON_SELECTED);
-                button_draw_selection(buttons, current_selection, previous_selection, 2, 150, 20);
+                button_draw_selection(buttons, current_selection, previous_selection, 2, 70, 10);
             }
         }
 
@@ -451,13 +451,13 @@ int handle_user_input(int *frame_counter)
     if (key >= '1' && key <= '5')
     {
         int selection = key - '0';
-        select_state.mode= 0;
+        select_state.mode = 0;
         if (check_occupied())
         {
             clear_plant_from_background(select_state.col, select_state.row, 0, 0);
         }
         handle_plant_selection(selection);
-        
+
         return 1;
     }
 
@@ -480,13 +480,13 @@ int handle_user_input(int *frame_counter)
 
     if (key == 'P' || key == 'p')
     {
-    
+
         if (check_occupied())
         {
             clear_plant_from_background(select_state.col, select_state.row, 0, 0);
         }
         handle_remove_plant();
-       
+
         return 1; // Added return to indicate input was handled
     }
 
@@ -551,7 +551,8 @@ void handle_plant_selection(int plant_type)
         int taken = check_clear() ? 1 : 0;
         clear_plant_from_background(prev_col, prev_row, 0, taken);
         // clear_plant_from_background(select_state.col, select_state.row, 0, taken);
-        if(check_occupied()){
+        if (check_occupied())
+        {
             clear_plant_from_background(select_state.col, select_state.row, 0, taken);
         }
         place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
@@ -564,7 +565,7 @@ void handle_plant_selection(int plant_type)
     // Handle plant preview
     if (select_state.current_plant != -1)
     {
-        
+
         int taken = check_clear() ? 1 : 0;
         clear_plant_from_background(prev_col, prev_row, 0, taken);
         // clear_plant_from_background(select_state.col, select_state.row, 0, taken);
@@ -627,7 +628,8 @@ void handle_arrow_keys()
         return; // Unrecognized key, exit
     }
 
-   if(select_state.current_plant== 9 && select_state.mode == 2){
+    if (select_state.current_plant == 9 && select_state.mode == 2)
+    {
         int taken = check_clear() ? 1 : 0;
 
         clear_plant_from_background(prev_col, prev_row, 0, taken);
@@ -642,7 +644,8 @@ void handle_arrow_keys()
         // Restore old cell background first
         restore_background_area(x_old, y_old, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 3);
         draw_cursor();
-   } else if (old_row != select_state.row || old_col != select_state.col)
+    }
+    else if (old_row != select_state.row || old_col != select_state.col)
     {
         int x_old, y_old, x_new, y_new;
 
@@ -695,8 +698,8 @@ void handle_enter_key(int frame_counter)
         int x, y;
         plant_grid[select_state.row][select_state.col].type = 255;
         // clear_plant_from_background(select_state.col, select_state.row, 0, 0);
-        
-        bullet_remove_plant(select_state.col, select_state.row); 
+
+        bullet_remove_plant(select_state.col, select_state.row);
         draw_plant(SHOVEL, select_state.col, select_state.row);
         clear_plant_from_background(select_state.col, select_state.row, 0, 0);
         reset_tmp_region_from_garden(select_state.col, select_state.row);
@@ -704,9 +707,9 @@ void handle_enter_key(int frame_counter)
         select_state.mode = 1;
         select_state.selected_card = -1;
         select_state.current_plant = -1;
-        select_state.col=0;
-        select_state.row=0;
-        
+        select_state.col = 0;
+        select_state.row = 0;
+
         // clear selection border
         draw_selection_border(-1);
 
@@ -742,14 +745,15 @@ void handle_enter_key(int frame_counter)
 
             place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
             place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, tmp);
-            
+
             // Create and place the plant in one step
             Plant new_plant = create_plant(select_state.current_plant, select_state.col, select_state.row);
             plant_grid[select_state.row][select_state.col] = new_plant;
 
             // Register plant with bullet system if it's a shooting plant
             if (select_state.current_plant == PLANT_PEASHOOTER ||
-                select_state.current_plant == PLANT_FROZEN_PEASHOOTER) {
+                select_state.current_plant == PLANT_FROZEN_PEASHOOTER)
+            {
                 unsigned long current_counter;
                 asm volatile("mrs %0, cntpct_el0" : "=r"(current_counter));
                 unsigned long freq;
@@ -790,7 +794,7 @@ void handle_enter_key(int frame_counter)
 
             place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
             place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, tmp);
-            
+
             // Create and place the plant in one step
             Plant new_plant = create_plant(select_state.current_plant, select_state.col, select_state.row);
             plant_grid[select_state.row][select_state.col] = new_plant;
@@ -906,7 +910,7 @@ void victory_screen()
     int previous_selection = current_selection;
 
     button_set_state(buttons[current_selection], BUTTON_SELECTED);
-    button_draw_selection(buttons, current_selection, previous_selection, 4, 150, 20);
+    button_draw_selection(buttons, current_selection, previous_selection, 4, 70, 10);
 
     while (1)
     {
@@ -926,7 +930,7 @@ void victory_screen()
                 }
 
                 button_set_state(buttons[current_selection], BUTTON_SELECTED);
-                button_draw_selection(buttons, current_selection, previous_selection, 4, 150, 20);
+                button_draw_selection(buttons, current_selection, previous_selection, 4, 70, 10);
             }
             else if ((key2 == 'B'))
             {
@@ -941,7 +945,7 @@ void victory_screen()
                 }
 
                 button_set_state(buttons[current_selection], BUTTON_SELECTED);
-                button_draw_selection(buttons, current_selection, previous_selection, 4, 150, 20);
+                button_draw_selection(buttons, current_selection, previous_selection, 4, 70, 10);
             }
         }
 
@@ -968,7 +972,6 @@ void game_over()
     // clear_screen();
     draw_image(LOSE_SCREEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
 
-
     Button quit, retry;
     button_init(&quit, 100, 450, 300, 85, HOME);
     button_init(&retry, 470, 450, 300, 75, QUIT);
@@ -978,7 +981,7 @@ void game_over()
     int previous_selection = current_selection;
 
     button_set_state(buttons[current_selection], BUTTON_SELECTED);
-    button_draw_selection(buttons, current_selection, previous_selection, 0, 90, 20);
+    button_draw_selection(buttons, current_selection, previous_selection, 0, 70, 10);
 
     while (1)
     {
@@ -997,7 +1000,7 @@ void game_over()
                 }
 
                 button_set_state(buttons[current_selection], BUTTON_SELECTED);
-                button_draw_selection(buttons, current_selection, previous_selection, 0, 90, 20);
+                button_draw_selection(buttons, current_selection, previous_selection, 0, 70, 10);
             }
             else if ((key2 == 'D'))
             {
@@ -1012,7 +1015,7 @@ void game_over()
                 }
 
                 button_set_state(buttons[current_selection], BUTTON_SELECTED);
-                button_draw_selection(buttons, current_selection, previous_selection, 0, 90, 20);
+                button_draw_selection(buttons, current_selection, previous_selection, 0, 70, 10);
             }
         }
 
@@ -1072,9 +1075,12 @@ void draw_cursor()
 }
 
 // Draw cooldown overlays for all plant cards that are on cooldown
-void draw_all_plant_cooldowns() {
-    for (int i = 1; i <= 5; i++) {
-        if (is_plant_on_cooldown(i)) {
+void draw_all_plant_cooldowns()
+{
+    for (int i = 1; i <= 5; i++)
+    {
+        if (is_plant_on_cooldown(i))
+        {
             draw_plant_cooldown_text(i);
         }
     }

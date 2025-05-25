@@ -4,6 +4,10 @@
 #define BUTTON_NORMAL 0
 #define BUTTON_SELECTED 1
 #define BUTTON_PRESSED 2
+
+#define ARROW_WIDTH 58
+#define ARROW_HEIGHT 72
+
 extern const unsigned int START[];
 extern const unsigned int QUIT[];
 extern const unsigned int ARROW[];
@@ -14,6 +18,7 @@ extern const unsigned int NEXTROUND[];
 extern const unsigned int NORMAL[];
 extern const unsigned int RETRY[];
 extern const unsigned int HOME[];
+
 // Button structure
 typedef struct
 {
