@@ -8,6 +8,7 @@
 #include "uart1.h"
 #include "video.h"
 #include "cooldown.h"
+#include "plants.h"
 
 #define RED 0xFF0000
 #define SALMON_RED 0xFF6666
@@ -38,7 +39,7 @@ void draw_circle(int center_x, int center_y, int radius, unsigned int attr, int 
 void draw_image(const unsigned int pixel_data[], int pos_x, int pos_y, int width, int height, int draw_transparent);
 void clear_screen();
 void draw_char(unsigned char ch, int x, int y, unsigned int attr, int scale);
-void draw_string(int x, int y, char *s, unsigned int attr, int scale);
+void draw_string(int x, int y, const char *s, unsigned int attr, int scale);
 void restore_background_area(int x, int y, int width, int height, int bg_type);
 
 void create_simulated_background(unsigned int *sim_bg, const unsigned int garden[], int garden_width, int garden_height);

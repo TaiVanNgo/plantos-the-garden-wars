@@ -10,30 +10,21 @@
 #define BUTTON_WIDTH 300
 #define BUTTON_HEIGHT 85
 
-extern const unsigned int START[];
-extern const unsigned int QUIT[];
-extern const unsigned int ARROW[];
-extern const unsigned int shovel[];
-extern const unsigned int HARD[];
-extern const unsigned int MEDIUM[];
-extern const unsigned int NEXTROUND[];
-extern const unsigned int NORMAL[];
-extern const unsigned int RETRY[];
-extern const unsigned int HOME[];
+#include "../assets/button/button_sprite.h"
 
 // Button structure
 typedef struct
 {
-    int x;
-    int y;
-    int width;
-    int height;
-    int state;
-    unsigned int *pixel_data;
-    void (*callback)();
+  int x;
+  int y;
+  int width;
+  int height;
+  int state;
+  unsigned int *pixel_data;
+  void (*callback)();
 } Button;
 
-button_init(Button *button, int x, int y, int width, int height, const unsigned int pixel_data[]);
+void button_init(Button *button, int x, int y, int width, int height, const unsigned int pixel_data[]);
 void button_handle_keypress(Button *buttons[], int num_buttons, int current_button, char key);
 void button_set_state(Button *button, int state);
 void button_draw_selection(Button **button, int current_selection, int prev_selection, int bg_type, int x_offset, int y_offset);

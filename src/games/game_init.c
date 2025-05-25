@@ -123,6 +123,7 @@ void game_start_difficulty()
         {
             if (current_selection == 0)
             {
+                uart_puts("[Game State] Choosing Easy Level\n");
                 clear_screen();
                 game.state = GAME_PLAYING;
                 game.level = LEVEL_EASY_ENUM;
@@ -130,6 +131,7 @@ void game_start_difficulty()
             }
             else if (current_selection == 1)
             {
+                uart_puts("[Game State] Choosing Medium Level\n");
                 clear_screen();
                 game.state = GAME_PLAYING;
                 game.level = LEVEL_MEDIUM_ENUM;
@@ -137,6 +139,7 @@ void game_start_difficulty()
             }
             else if (current_selection == 2)
             {
+                uart_puts("[Game State] Choosing Hard Level\n");
                 clear_screen();
                 game.state = GAME_PLAYING;
                 game.level = LEVEL_HARD_ENUM;
@@ -1122,7 +1125,7 @@ void draw_cursor()
         // Draw plant preview
         int taken = check_clear() ? 1 : 0;
 
-        // clear_plant_from_background(prev_col, prev_row, 0, taken);
+        clear_plant_from_background(prev_col, prev_row, 0, taken);
         place_plant_on_background(SHOVEL, select_state.col, select_state.row, simulated_background);
         restore_background_area(x, y, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0);
     }
