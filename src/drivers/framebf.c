@@ -106,9 +106,10 @@ void draw_pixel(int x, int y, unsigned int attr)
   int offs = (y * pitch) + (COLOR_DEPTH / 8 * x);
 
   /*	//Access and assign each byte
-   *(fb + offs    ) = (attr >> 0 ) & 0xFF; //BLUE  (get the least significant
-   *byte) (fb + offs + 1) = (attr >> 8 ) & 0xFF; //GREEN (fb + offs + 2) = (attr
-   *>> 16) & 0xFF; //RED (fb + offs + 3) = (attr >> 24) & 0xFF; //ALPHA
+   * (fb + offs    ) = (attr >> 0 ) & 0xFF; //BLUE  (get the least significant byte)
+   * (fb + offs + 1) = (attr >> 8 ) & 0xFF; //GREEN
+   * (fb + offs + 2) = (attr >> 16) & 0xFF; //RED
+   * (fb + offs + 3) = (attr >> 24) & 0xFF; //ALPHA
    */
 
   // Access 32-bit together
@@ -496,31 +497,25 @@ void clear_plant_from_background(int grid_col, int grid_row, int background, int
 }
 void reset_tmp_region_from_garden(int grid_col, int grid_row)
 {
-    int x, y;
-    grid_to_pixel(grid_col, grid_row, &x, &y);
+  int x, y;
+  grid_to_pixel(grid_col, grid_row, &x, &y);
 
-    for (int row = 0; row < PLANT_HEIGHT; row++)
+  for (int row = 0; row < PLANT_HEIGHT; row++)
+  {
+    for (int col = 0; col < PLANT_WIDTH; col++)
     {
-        for (int col = 0; col < PLANT_WIDTH; col++)
-        {
-            int screen_x = x + col;
-            int screen_y = y + row;
+      int screen_x = x + col;
+      int screen_y = y + row;
 
-            if (screen_x >= 0 && screen_x < GARDEN_WIDTH &&
-                screen_y >= 0 && screen_y < GARDEN_HEIGHT)
-            {
-                int index = screen_y * GARDEN_WIDTH + screen_x;
-                tmp[index] = GARDEN[index];
-            }
-        }
+      if (screen_x >= 0 && screen_x < GARDEN_WIDTH &&
+          screen_y >= 0 && screen_y < GARDEN_HEIGHT)
+      {
+        int index = screen_y * GARDEN_WIDTH + screen_x;
+        tmp[index] = GARDEN[index];
+      }
     }
+  }
 }
-
-
-
-
-
-
 
 /* Draw hight light selection for choosing plant */
 void draw_selection_border(int selection)
