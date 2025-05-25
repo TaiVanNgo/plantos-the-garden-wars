@@ -8,8 +8,8 @@ static Sun suns[MAX_SUNS];
 extern GameState game;
 
 #define SUN_VALUE 50      // Each sun gives 50 resource points
-#define SUN_COUNT_X 20    // Position to display sun count
-#define SUN_COUNT_Y 20
+#define SUN_COUNT_X 20    
+#define SUN_COUNT_Y 160
 
 // Array to track sunflower positions
 typedef struct {
@@ -171,39 +171,13 @@ int collect_sun_at_position(int col, int row) {
 }
 
 void draw_sun_count(int count) {
-    // Clear the previous display area
-    draw_rect(SUN_COUNT_X, SUN_COUNT_Y, SUN_COUNT_X + 120, SUN_COUNT_Y + 30, BLACK, 1);
-    
-    // Draw the sun icon
-    draw_image(sun, SUN_COUNT_X, SUN_COUNT_Y, SUN_WIDTH, SUN_HEIGHT, 0);
-    
     // Convert the count to a string
     char count_str[10];
-    int i = 0;
-    int temp = count;
-    
-    // Handle the case of zero
-    if (temp == 0) {
-        count_str[i++] = '0';
-    } else {
-        // Convert number to string in reverse
-        while (temp > 0) {
-            count_str[i++] = '0' + (temp % 10);
-            temp /= 10;
-        }
-    }
-    count_str[i] = '\0';
-    
-    // Reverse the string
-    for (int j = 0; j < i/2; j++) {
-        char tmp = count_str[j];
-        count_str[j] = count_str[i-j-1];
-        count_str[i-j-1] = tmp;
-    }
-    
+    int_to_str(count, count_str);
+
     // Draw the count string
-    draw_string(SUN_COUNT_X + SUN_WIDTH + 10, SUN_COUNT_Y + 5, count_str, WHITE, 1);
-    
+    draw_string(SUN_COUNT_X, SUN_COUNT_Y, count_str, BROWN, 1);
+
     // Log the sun count
     uart_puts("[Sun] Current sun count: ");
     uart_dec(count);
