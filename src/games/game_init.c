@@ -578,6 +578,12 @@ void handle_enter_key(int frame_counter) {
     if (select_state.mode == 2) {
         // Shovel mode
         int x, y;
+
+        // If sunflower -> unregister sun
+        if (plant_grid[select_state.row][select_state.col].type == PLANT_SUNFLOWER) {
+            unregister_sunflower(select_state.col, select_state.row);
+        }
+
         plant_grid[select_state.row][select_state.col].type = 255;
         clear_plant_from_background(select_state.col, select_state.row, 0, 0);
         select_state.mode = 1;
@@ -587,7 +593,6 @@ void handle_enter_key(int frame_counter) {
         // clear selection border
         draw_selection_border(-1);
 
-        // Draw cursor at new position
         draw_cursor();
         return;
     }

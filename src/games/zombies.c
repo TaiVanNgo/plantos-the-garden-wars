@@ -135,6 +135,11 @@ int move_zombie(Zombie *zombie)
             plant_grid[zombie->row][zombie_col].type == PLANT_FROZEN_PEASHOOTER) {
             bullet_remove_plant(zombie_col, zombie->row);
         }
+
+        // Unregister the sunflower from the sun system
+        if (plant_grid[zombie->row][zombie_col].type == PLANT_SUNFLOWER) {
+          unregister_sunflower(zombie_col, zombie->row);
+        }
         
         plant_grid[zombie->row][zombie_col].type = 255; // Mark as empty
         clear_plant_from_background(zombie_col, zombie->row, 0, 0);

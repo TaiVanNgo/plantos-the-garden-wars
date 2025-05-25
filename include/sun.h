@@ -32,6 +32,7 @@ void draw_suns();
 
 // Register a sunflower that will generate suns
 void register_sunflower(int col, int row, int current_frame);
+void unregister_sunflower(int col, int row);
 int collect_sun_at_position(int col, int row);
 void draw_sun_count(int count);
 

@@ -59,6 +59,26 @@ void register_sunflower(int col, int row, int current_frame) {
     }
 }
 
+// Unregister a sunflower at the given position
+void unregister_sunflower(int col, int row) {
+    for (int i = 0; i < GRID_ROWS * GRID_COLS; i++) {
+        if (sunflower_trackers[i].active && 
+            sunflower_trackers[i].col == col && 
+            sunflower_trackers[i].row == row) {
+            
+            sunflower_trackers[i].active = 0;
+            num_sunflowers--;
+            
+            uart_puts("[Sun] Unregistered sunflower at col=");
+            uart_dec(col);
+            uart_puts(", row=");
+            uart_dec(row);
+            uart_puts("\n");
+            return;
+        }
+    }
+}
+
 // Create a new sun from a sunflower
 void create_sun_from_sunflower(int col, int row, int current_frame) {
     // Find an inactive sun slot
