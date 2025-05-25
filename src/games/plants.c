@@ -1,9 +1,9 @@
+#include "../assets/button/button.h"
+
 #include "../../include/plants.h"
 #include "../../include/grid.h"
 #include "../../include/zombies.h"
-#include "../assets/button/button.h"
 #include "../../include/game_init.h"
-#include "gpio.h"
 
 // Add static counter array at the top of the file
 static int flame_counters[GRID_ROWS] = {0};
@@ -253,11 +253,8 @@ void place_plant_on_background(int plant_type, int grid_col, int grid_row, unsig
         PLANT_HEIGHT,
         GARDEN_WIDTH);
 
-    // draw_image(GARDEN, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
-    // clear_plant_from_background(grid_col,grid_row,1);
-
     draw_plant(plant, grid_col, grid_row);
-    restore_background_area(x, y, PLANT_WIDTH, PHYSICAL_HEIGHT, 0);
+    restore_background_area(x, y, PLANT_WIDTH, PLANT_HEIGHT, 0);
 }
 
 void draw_flames_on_row(int row)

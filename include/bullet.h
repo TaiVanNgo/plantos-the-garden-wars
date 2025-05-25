@@ -1,12 +1,13 @@
 #ifndef BULLET_H
 #define BULLET_H
 
-#include "../include/framebf.h"
-#include "../include/uart0.h"
-#include "../include/plants.h"
 #include "../assets/backgrounds/garden.h"
-#include "../include/zombies.h"
-#include "../include/utils.h"
+
+#include "framebf.h"
+#include "uart0.h"
+#include "plants.h"
+#include "zombies.h"
+#include "utils.h"
 
 // Constants
 #define MAX_BULLETS 25 // 5 rows * 5 bullets per row
@@ -18,7 +19,8 @@
 #define BULLET_MOVE_INTERVAL 30   // ms
 
 // Data Structures
-typedef struct {
+typedef struct
+{
     int x, y;
     int prev_x, prev_y;
     int row;
@@ -26,7 +28,8 @@ typedef struct {
     int plant_type;
 } Bullet;
 
-typedef struct {
+typedef struct
+{
     int col, row;
     unsigned long last_fire_time;
     int plant_type;
@@ -50,4 +53,4 @@ void reset_zombie_counts(void);
 // External variables
 extern const unsigned int bullet_green[];
 
-#endif // BULLET_H 
+#endif // BULLET_H
