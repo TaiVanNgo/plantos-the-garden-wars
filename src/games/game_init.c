@@ -9,7 +9,7 @@ extern int flame_start_frames[GRID_ROWS];
 SelectionState select_state = {
     .mode = 0, .selected_card = -1, .row = 0, .col = 0, .current_plant = -1};
 
-GameState game = {.state = GAME_MENU, .score = 0, .level = LEVEL_HARD_ENUM, .sun_count = 400};
+GameState game = {.state = GAME_MENU, .score = 0, .level = LEVEL_HARD_ENUM, .sun_count = INITIAL_SUN_COUNT};
 
 Plant plant_grid[4][9];
 int prev_col, prev_row;
@@ -217,9 +217,9 @@ void game_menu()
     }
 }
 
-void start_level()
-{
-    reset_zombie_counts(); // Reset zombie tracking
+void start_level() {
+    game.sun_count = INITIAL_SUN_COUNT; 
+    reset_zombie_counts();  // Reset zombie tracking
 
     // Reset flame effects
     for (int i = 0; i < GRID_ROWS; i++)
