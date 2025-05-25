@@ -368,7 +368,7 @@ void start_level() {
             }
 
             // Check if killed
-            if (zombie_pointers[i]->health <= 0 && zombie_pointers[i]->active) {
+            if (zombie_pointers[i]->health <= 0 && !zombie_pointers[i]->active) {
                 zombie_pointers[i]->active = 0;
                 zombies_killed++;
                 game.score += ZOMBIE_KILL_REWARD;
