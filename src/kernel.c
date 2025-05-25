@@ -78,8 +78,6 @@ void main()
     Video vid;
     video_init(&vid);
     play_video(&vid, 80, 120, vid.total_frames);
-    wipe_transition();
-    display_team_members(0);
 
     // Run CLI
     while (1)
@@ -126,34 +124,12 @@ void main()
         uart_sendc(c);
     }
 }
-#elif defined(TASK3_BULLET)
-void main()
-{
-    // Set up the serial console
-    uart_init();
-    uart_puts("Starting Bullet Game...\n");
-
-    // Run the bullet game
-    bullet_game();
-
-    // start_game();
-
-    // After game ends, run CLI
-    while (1)
-    {
-        char c = getUart();
-        uart_dec(c);
-        uart_sendc(c);
-    }
-}
 #elif defined(TEAM_INIT)
 void main()
 {
 
     uart_init();
     framebf_init();
-
-    draw_image(QUIT, 0, 0, 300, 85, 0);
     wipe_transition();
     display_team_members(1);
 }
