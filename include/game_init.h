@@ -8,11 +8,11 @@
 #include "uart0.h"
 #include "uart1.h"
 #include "framebf.h"
-#include "../assets/backgrounds/background.h"
 #include "../assets/selection/selection.h"
 #include "../assets/button/button.h"
 #include "plants.h"
 #include "grid.h"
+#include "sun.h"
 
 #define ROWS 4
 #define COLS 9

@@ -14,10 +14,10 @@
 
 // #include "background.c"
 //    #define TASK1
-#define TASK2_VID
-// #define ZOMBIE_INIT
-//  #define PLANT_INIT
-//  #define TASK3_BULLET
+// #define TASK2_VID
+#define ZOMBIE_INIT
+// #define PLANT_INIT
+// #define TASK3_BULLET
 
 #ifdef TASK1
 void main()
