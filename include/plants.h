@@ -5,6 +5,7 @@
 #include "../assets/backgrounds/garden.h"
 #include "grid.h"
 #include "framebf.h"
+#include "buttons.h"
 
 // Define plant types
 #define PLANT_TYPE_SUNFLOWER 1
@@ -54,5 +55,6 @@ void clear_flames_on_row(int row);
 void update_flame_effects(int current_frame);
 void chillies_detonate(int row, int current_frame);
 int get_plant_cost(int plant_type);
+const char *get_plant_name(int type);
 
 #endif

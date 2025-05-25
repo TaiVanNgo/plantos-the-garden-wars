@@ -2,8 +2,8 @@
 #define GAME_INIT_H
 
 #include "../assets/selection/selection.h"
-#include "../assets/button/button.h"
 #include "../assets/backgrounds/garden.h"
+#include "buttons.h"
 #include "bullet.h"
 #include "zombies.h"
 #include "utils.h"
@@ -70,6 +70,7 @@ extern SelectionState select_state;
 
 void game_main();
 void game_menu();
+void game_start_difficulty();
 void start_level();
 void game_over();
 int handle_user_input(int *frame_counter);

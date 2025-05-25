@@ -123,6 +123,7 @@ void game_start_difficulty()
         {
             if (current_selection == 0)
             {
+                uart_puts("[Game State] Choosing Easy Level\n");
                 clear_screen();
                 game.state = GAME_PLAYING;
                 game.level = LEVEL_EASY_ENUM;
@@ -130,6 +131,7 @@ void game_start_difficulty()
             }
             else if (current_selection == 1)
             {
+                uart_puts("[Game State] Choosing Medium Level\n");
                 clear_screen();
                 game.state = GAME_PLAYING;
                 game.level = LEVEL_MEDIUM_ENUM;
@@ -137,6 +139,7 @@ void game_start_difficulty()
             }
             else if (current_selection == 2)
             {
+                uart_puts("[Game State] Choosing Hard Level\n");
                 clear_screen();
                 game.state = GAME_PLAYING;
                 game.level = LEVEL_HARD_ENUM;
@@ -784,9 +787,9 @@ void handle_enter_key(int frame_counter)
             else if (select_state.current_plant == PLANT_CHILLIES)
             {
                 chillies_detonate(select_state.row, frame_counter);
-                // Clear the chilli plant from the grid and background
                 plant_grid[select_state.row][select_state.col].type = 255;
                 clear_plant_from_background(select_state.col, select_state.row, 0, 0);
+                reset_tmp_region_from_garden(select_state.col, select_state.row);
             }
 
             // Reset selection state
@@ -832,6 +835,7 @@ void handle_enter_key(int frame_counter)
                 chillies_detonate(select_state.row, frame_counter);
                 plant_grid[select_state.row][select_state.col].type = 255;
                 clear_plant_from_background(select_state.col, select_state.row, 0, 0);
+                reset_tmp_region_from_garden(select_state.col, select_state.row);
             }
 
             select_state.mode = 0;
@@ -1122,7 +1126,7 @@ void draw_cursor()
         // Draw plant preview
         int taken = check_clear() ? 1 : 0;
 
-        // clear_plant_from_background(prev_col, prev_row, 0, taken);
+        clear_plant_from_background(prev_col, prev_row, 0, taken);
         place_plant_on_background(SHOVEL, select_state.col, select_state.row, simulated_background);
         restore_background_area(x, y, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0);
     }

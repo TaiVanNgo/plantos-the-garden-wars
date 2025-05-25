@@ -294,7 +294,6 @@ int is_reached_plant(Zombie *zombie)
 void dev_test_zombie()
 {
   draw_image(GARDEN, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
-  char c = getUart();
 
   Zombie zombie1 = spawn_zombie(1, 0);
   Zombie zombie2, zombie3, zombie4, zombie5;

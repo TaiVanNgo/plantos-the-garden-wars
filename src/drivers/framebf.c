@@ -1,6 +1,7 @@
-// ----------------------------------- framebf.c
-// -------------------------------------
+// ----------------------------------- framebf.c -------------------------------------
+
 #include "../include/framebf.h"
+
 // Use RGBA32 (32 bits for each pixel)
 #define COLOR_DEPTH 32
 
@@ -315,7 +316,7 @@ void draw_char(unsigned char ch, int x, int y, unsigned int attr, int scale)
  * @param attr the color to use for text
  * @param scale
  */
-void draw_string(int x, int y, char *s, unsigned int attr, int scale)
+void draw_string(int x, int y, const char *s, unsigned int attr, int scale)
 {
   // Go each character of the given string
   while (*s)

@@ -18,8 +18,6 @@ int zombies_on_row[GRID_ROWS] = {0, 0, 0, 0};
 
 // --- Background/Utility Helpers ---
 static void save_background(int x, int y, int index);
-static void restore_background(int x, int y, int index);
-static void clear_bullet_area();
 static void fire_bullet_for_plant(int col, int row);
 static int bullet_should_fire(unsigned long last_fire_time,
                               unsigned long current_time,
@@ -39,7 +37,7 @@ void bullet_remove_plant(int col, int row)
                 plants[j] = plants[j + 1];
             }
             plant_count--;
-            uart_puts("[bullet] Plant removed from bullet system\n");
+            uart_puts("[Bullet] Plant removed from bullet system\n");
             break;
         }
     }
@@ -68,7 +66,7 @@ void bullet_spawn_plant(int col, int row, unsigned long start_ms, int plant_type
         plants[plant_count].last_fire_time = start_ms;
         plants[plant_count].plant_type = plant_type;
         plant_count++;
-        uart_puts("[bullet] Plant registered for bullet firing\n");
+        uart_puts("[Bullet] Plant registered for bullet firing\n");
     }
 }
 
@@ -105,7 +103,7 @@ static void fire_bullet_for_plant(int col, int row)
             wait_msec(1);
 
             save_background(bullets[i].x, bullets[i].y, i);
-            uart_puts("[bullet] Bullet fired\n");
+            uart_puts("[Bullet] Bullet fired\n");
             break;
         }
     }
@@ -163,7 +161,7 @@ void bullet_update(unsigned long current_time_ms)
             bullet_should_fire(plants[i].last_fire_time, current_time_ms,
                                bullet_fire_interval))
         {
-            uart_puts("[bullet] Ready to fire bullet\n");
+            uart_puts("[Bullet] Ready to fire bullet\n");
             fire_bullet_for_plant(plants[i].col, plants[i].row);
             plants[i].last_fire_time = current_time_ms;
         }
@@ -183,7 +181,7 @@ void bullet_update(unsigned long current_time_ms)
                     restore_background_area(bullets[i].x, bullets[i].y, BULLET_WIDTH,
                                             BULLET_HEIGHT, 0);
                     bullets[i].active = 0;
-                    uart_puts("[bullet] Bullet removed (off screen)\n");
+                    uart_puts("[Bullet] Bullet removed (off screen)\n");
                 }
 
                 if (bullets[i].x > PHYSICAL_WIDTH)
@@ -191,7 +189,7 @@ void bullet_update(unsigned long current_time_ms)
                     restore_background_area(bullets[i].x, bullets[i].y, BULLET_WIDTH,
                                             BULLET_HEIGHT, 0);
                     bullets[i].active = 0;
-                    uart_puts("[bullet] Bullet out of bounds\n");
+                    uart_puts("[Bullet] Bullet out of bounds\n");
                 }
             }
         }
@@ -369,12 +367,12 @@ void apply_bullet_damage(Bullet *bullet, Zombie *zombie)
         zombie->active = 0;
         register_zombie_on_row(zombie->row, 0);
         restore_background_area(zombie->x, zombie->y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);
-        uart_puts("[bullet] Zombie killed by bullet\n");
+        uart_puts("[Bullet] Zombie killed by bullet\n");
     }
     else
     {
         zombie->health -= dmg;
-        uart_puts("[bullet] Zombie hit by bullet\n");
+        uart_puts("[Bullet] Zombie hit by bullet\n");
     }
 
     bullet->active = 0;
