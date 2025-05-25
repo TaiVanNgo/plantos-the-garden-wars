@@ -236,7 +236,7 @@ void draw_sun_count_enhanced(int count, int color, int size, int force_update) {
     // Only redraw if count changed or forced update
     if (count != last_count || force_update) {
         // Clear a larger area for the text
-        restore_background_area(SUN_COUNT_X - 5, SUN_COUNT_Y - 10, 180, 70, 0);
+        restore_background_area(SUN_COUNT_X + 10, SUN_COUNT_Y - 10, 180, 70, 0);
         
         char count_str[10];
         int_to_str(count, count_str);
@@ -247,7 +247,7 @@ void draw_sun_count_enhanced(int count, int color, int size, int force_update) {
             adjusted_y = SUN_COUNT_Y - 5;
         }
         
-        draw_string(SUN_COUNT_X, adjusted_y, count_str, color, size);
+        draw_string(SUN_COUNT_X + 10, adjusted_y, count_str, color, size);
         
         // Log the sun count
         uart_puts("[Sun] Current sun count: ");

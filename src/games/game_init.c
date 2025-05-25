@@ -525,17 +525,17 @@ void handle_plant_selection(int plant_type, int frame_counter)
     // Check if plant is on cooldown
     if (plant_type >= 1 && plant_type <= 5)
     {
-        // int cost = get_plant_cost(plant_type);
-        // if (game.sun_count < cost) {
-        //     uart_puts("Not enough sun! Plant cost: ");
-        //     uart_dec(cost);
-        //     uart_puts(", Available sun: ");
-        //     uart_dec(game.sun_count);
-        //     uart_puts("\n");
+        int cost = get_plant_cost(plant_type);
+        if (game.sun_count < cost) {
+            uart_puts("Not enough sun! Plant cost: ");
+            uart_dec(cost);
+            uart_puts(", Available sun: ");
+            uart_dec(game.sun_count);
+            uart_puts("\n");
 
-        //     trigger_insufficient_sun_warning(frame_counter);
-        //     return;
-        // }
+            trigger_insufficient_sun_warning(frame_counter);
+            return;
+        }
 
         if (is_plant_on_cooldown(plant_type))
         {
