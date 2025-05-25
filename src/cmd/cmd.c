@@ -11,75 +11,29 @@
  * @author Thai Duong (S39878955)
  */
 
+// --- Includes ---
 #include "../../include/cmd.h"
 #include "../../include/utils.h"
+#include "../../include/video.h"
 #include "cmd_utils.c"
 
-/**
- * @brief Simple busy-wait delay function.
- *
- * @param milliseconds Approximate delay in milliseconds (needs tuning for accuracy).
- * @note This is a rough approximation and may need adjustment based on system clock speed.
- */
-void delay(int milliseconds)
-{
-    volatile unsigned int count = milliseconds * 100000; // Example: 100,000 cycles per ms
-    while (count--)
-    {
-        asm("nop"); // No operation to keep the loop busy
-    }
-}
+// --- Command Table and Declarations ---
+void cmd_video(char *args);
 
-// === Command Definitions ===
-
-/**
- * @brief Table of supported CLI commands.
- *
- * Each entry defines a command with its name, brief description, detailed help text,
- * and function pointer to its implementation.
- */
 Command commands[] = {
-    {"help",
-     "Show brief information of all commands",
-     "help - Show brief information of all commands\n"
-     "help <command_name> - Show full information of a specific command\n"
-     "Example: PlantOS> help showinfo",
-     cmd_help},
-    {"clear",
-     "Clear screen (scrolls down to current cursor position)",
-     "clear - Clear screen (scrolls down to current cursor position)\n"
-     "Example: PlantOS> clear",
-     cmd_clear},
-    {"showinfo",
-     "Show board revision and MAC address",
-     "showinfo - Show board revision (value and information) and board MAC address in correct format\n"
-     "Example: PlantOS> showinfo",
-     cmd_showinfo},
-    {"baudrate",
-     "Change the baudrate of current UART",
-     "baudrate - Allow the user to change the baudrate of current UART being used\n"
-     "Supports baud rates: 9600, 19200, 38400, 57600, 115200 bits per second\n"
-     "Example: PlantOS> baudrate (not yet implemented)",
-     cmd_baudrate},
-    {"handshake",
-     "Turn on/off CTS/RTS handshaking on current UART",
-     "handshake - Allow the user to turn on/off CTS/RTS handshaking on current UART if possible\n"
-     "Example: PlantOS> handshake on\n"
-     "Example: PlantOS> handshake off",
-     cmd_handshake},
-    {"game",
-     "Start the Plants vs. Zombies game",
-     "game - Start Garden Wars from the CLI\nExample: PlantOS> game",
-     cmd_game}
-};
-
+    {"help", "Show help", "help [cmd] - Show help info", cmd_help},
+    {"clear", "Clear screen", "clear - Clear the terminal", cmd_clear},
+    {"info", "Board info", "info - Show board revision and MAC", cmd_showinfo},
+    {"baud", "Set baudrate", "baud <rate> - Set UART baudrate", cmd_baudrate},
+    {"handshake", "RTS/CTS", "handshake <on|off> - Toggle handshaking", cmd_handshake},
+    {"game", "Start game", "game - Start Garden Wars", cmd_game},
+    {"video", "Play video", "video - Play the intro video animation", cmd_video}};
 const int num_commands = sizeof(commands) / sizeof(commands[0]);
 
-// === Command History Management ===
-
-static char history[MAX_HISTORY][MAX_CMD_SIZE]; // Command history buffer
-static int history_count = 0;                   // Number of commands in history
-static int history_pos = 0;                     // Current position in history for navigation
+// --- Command History Management ---
+static char history[MAX_HISTORY][MAX_CMD_SIZE];
+static int history_count = 0;
+static int history_pos = 0;
 
 /**
  * @brief Add a command to the history buffer.
@@ -116,7 +70,7 @@ void add_to_history(char *command)
     history_pos = history_count; // Reset position to the end
 }
 
-// === CLI Core Functions ===
+// --- CLI Core Functions ---
 
 /**
  * @brief Clear the current line on the terminal.
@@ -125,7 +79,7 @@ void add_to_history(char *command)
  */
 void clear_line()
 {
-    uart_puts("\r");  // Return to start of line
+    uart_puts("\r");   // Return to start of line
     uart_puts(PROMPT); // Print prompt
 }
 
@@ -184,24 +138,30 @@ void cli()
     static int index = 0;                 // Current position in the buffer
     static int escape_state = 0;          // State for parsing escape sequences
     static char escape_seq[3];            // Buffer for escape sequence
-    
+
     // Check if there's a character available and read it
     char c = getUart();
-    if (c == 0) {
+    if (c == 0)
+    {
         return; // Exit if no character was available
     }
-    
+
     // Handle escape sequence state machine
-    if (escape_state > 0) {
+    if (escape_state > 0)
+    {
         escape_seq[escape_state] = c;
         escape_state++;
-        
-        if (escape_state == 3) {
+
+        if (escape_state == 3)
+        {
             escape_state = 0; // Reset state
-            
-            if (escape_seq[1] == '[') {
-                if (escape_seq[2] == 'A') { // Up arrow
-                    if (history_count > 0 && history_pos > 0) {
+
+            if (escape_seq[1] == '[')
+            {
+                if (escape_seq[2] == 'A')
+                { // Up arrow
+                    if (history_count > 0 && history_pos > 0)
+                    {
                         history_pos--;
                         strncpy(cli_buffer, history[history_pos], MAX_CMD_SIZE - 1);
                         cli_buffer[MAX_CMD_SIZE - 1] = '\0';
@@ -211,13 +171,18 @@ void cli()
                     }
                     return;
                 }
-                else if (escape_seq[2] == 'B') { // Down arrow
-                    if (history_pos < history_count) {
+                else if (escape_seq[2] == 'B')
+                { // Down arrow
+                    if (history_pos < history_count)
+                    {
                         history_pos++;
-                        if (history_pos == history_count) {
+                        if (history_pos == history_count)
+                        {
                             cli_buffer[0] = '\0';
                             index = 0;
-                        } else {
+                        }
+                        else
+                        {
                             strncpy(cli_buffer, history[history_pos], MAX_CMD_SIZE - 1);
                             cli_buffer[MAX_CMD_SIZE - 1] = '\0';
                             index = strlen(cli_buffer);
@@ -231,27 +196,32 @@ void cli()
         }
         return;
     }
-    
+
     // Start of escape sequence
-    if (c == 27) {
+    if (c == 27)
+    {
         escape_state = 1;
         escape_seq[0] = c;
         return;
     }
-    
+
     // Handle TAB key for autocompletion (ASCII 9)
-    if (c == 9) {
+    if (c == 9)
+    {
         int needs_update = handle_tab_completion(cli_buffer, &index);
-        if (needs_update) {
+        if (needs_update)
+        {
             clear_line();
             display_prompt(cli_buffer);
         }
         return;
     }
-    
+
     // Handle backspace (ASCII 127) or delete (ASCII 8)
-    if (c == 127 || c == 8) {
-        if (index > 0) {
+    if (c == 127 || c == 8)
+    {
+        if (index > 0)
+        {
             index--;
             cli_buffer[index] = '\0';
             // Send backspace, space, and backspace to clear the character
@@ -261,10 +231,12 @@ void cli()
         }
         return;
     }
-    
+
     // Handle new character input (normal characters)
-    if (c != '\n' && c != '\r') {
-        if (index < MAX_CMD_SIZE - 1) {
+    if (c != '\n' && c != '\r')
+    {
+        if (index < MAX_CMD_SIZE - 1)
+        {
             cli_buffer[index] = c;
             index++;
             cli_buffer[index] = '\0';
@@ -272,37 +244,40 @@ void cli()
         }
         return;
     }
-    
+
     // When newline is received, process the command
-    if (c == '\n' || c == '\r') {
+    if (c == '\n' || c == '\r')
+    {
         uart_puts("\n");
-        
+
         // Only add non-empty commands to history
-        if (cli_buffer[0] != '\0') {
+        if (cli_buffer[0] != '\0')
+        {
             add_to_history(cli_buffer);
-            
+
             // Parse the command and arguments
             char *cmd_name;
             char *args;
             parse_command(cli_buffer, &cmd_name, &args);
-            
+
             // Execute the command
             int found = 0;
-            for (int i = 0; i < num_commands; i++) {
-                if (strcmp(cmd_name, commands[i].name) == 0) {
+            for (int i = 0; i < num_commands; i++)
+            {
+                if (strcmp(cmd_name, commands[i].name) == 0)
+                {
                     commands[i].execute(args);
                     found = 1;
                     break;
                 }
             }
-            
-            if (!found) {
-                uart_puts("Unknown command: ");
-                uart_puts(cmd_name);
-                uart_puts("\n");
+
+            if (!found)
+            {
+                uart_puts("Unknown command. Type 'help' to see available commands.\n");
             }
         }
-        
+
         // Reset the buffer for the next command
         index = 0;
         cli_buffer[0] = '\0';
@@ -312,7 +287,7 @@ void cli()
     }
 }
 
-// === Command Implementations ===
+// --- Command Implementations ---
 
 /**
  * @brief Command: Show help information for all commands or a specific command.
@@ -376,7 +351,6 @@ void cmd_clear(char *args)
  * @brief Command: Show board revision and MAC address.
  *
  * @param args Not used.
- * @todo Implement this command to fetch and display board information.
  */
 void cmd_showinfo(char *args)
 {
@@ -390,7 +364,7 @@ void cmd_showinfo(char *args)
         uart_puts("\nBoard Revision: ");
         uart_hex(revision);
         uart_puts("\n");
-        print_board_info(revision); // Print board information based on revision  
+        print_board_info(revision); // Print board information based on revision
         uart_puts("\n");
     }
 
@@ -406,6 +380,7 @@ void cmd_showinfo(char *args)
         }
         uart_puts("\n");
     }
+
     else
     {
         uart_puts("\nFailed to get MAC address.\n");
@@ -429,37 +404,35 @@ void cmd_baudrate(char *args)
         return;
     }
 
-    int baudrate = str_to_int(args); // Convert argument to integer 
+    int baudrate = str_to_int(args); // Convert argument to integer
 
     // Validate the baudrate
     if (baudrate == 9600 || baudrate == 19200 || baudrate == 38400 || baudrate == 57600 || baudrate == 115200)
-{
-    uart_puts("Setting baudrate to ");
-    uart_dec(baudrate);
-    uart_puts("...\n");
-
-    if (uart_init_with_baudrate(baudrate) == 0)
     {
-        uart_puts("Baudrate successfully updated.\n");
+        uart_puts("Setting baudrate to ");
+        uart_dec(baudrate);
+        uart_puts("...\n");
+
+        if (uart_init_with_baudrate(baudrate) == 0)
+        {
+            uart_puts("Baudrate successfully updated.\n");
+        }
+        else
+        {
+            uart_puts("Failed to update baudrate.\n");
+        }
     }
     else
     {
-        uart_puts("Failed to update baudrate.\n");
+        uart_puts("Error: Unsupported baudrate.\n");
+        uart_puts("Usage: baudrate <9600|19200|38400|57600|115200>\n");
     }
-}
-else
-{
-    uart_puts("Error: Unsupported baudrate.\n");
-    uart_puts("Usage: baudrate <9600|19200|38400|57600|115200>\n");
-}
-
 }
 
 /**
  * @brief Command: Turn on/off CTS/RTS handshaking on the current UART.
  *
  * @param args "on" to enable, "off" to disable handshaking.
- * @todo Implement this command to toggle UART handshaking.
  */
 void cmd_handshake(char *args)
 {
@@ -473,7 +446,7 @@ void cmd_handshake(char *args)
     if (strcmp(args, "on") == 0)
     {
         uart_puts("\nCTS/RTS handshaking enabled.\n");
-        RTS_CTS_init();// Toggle to enable RTS/CTS
+        RTS_CTS_init(); // Toggle to enable RTS/CTS
     }
     else if (strcmp(args, "off") == 0)
     {
@@ -493,20 +466,38 @@ void cmd_handshake(char *args)
 /**
  * @brief Command: Start the Plants vs. Zombies game.
  *
- * @param args Not used.
  */
-void cmd_game(char *args)
+void cmd_game()
 {
     uart_puts("\nStarting Garden Wars ...\n");
     game_main();
 }
 
-// === Welcome Message ===
+/**
+ * @brief Command: Play the intro video animation.
+ *
+ * @param args Not used.
+ */
+void cmd_video(char *args)
+{
+    uart_puts("\nPlaying intro video...\n");
+    clear_screen();
+    
+    // Initialize video
+    Video vid;
+    video_init(&vid);
+    
+    // Play video at position (80, 120) with all frames
+    play_video(&vid, 80, 120, vid.total_frames);
+    
+    uart_puts("Video playback completed!\n");
+}
+
+// --- Welcome Message ---
 
 /**
  * @brief Display the PlantOS welcome banner immediately.
  *
- * Prints the ASCII art banner all at once, followed by additional messages.
  */
 void os_welcome()
 {
@@ -520,8 +511,7 @@ void os_welcome()
         "888        888 .d888888 888  888 888    888     888       \"888 ",
         "888        888 888  888 888  888 Y88b.  Y88b. .d88P Y88b  d88P ",
         "888        888 \"Y888888 888  888  \"Y888  \"Y88888P\"   \"Y8888P\"  ",
-        NULL // End marker
-    };
+        NULL};
 
     uart_puts("\n\n");
     for (int i = 0; banner[i] != NULL; i++)
@@ -532,9 +522,3 @@ void os_welcome()
 
     uart_puts("PlantOS Loaded!\n\n");
 }
-
-/**
- * @brief Main entry point for PlantOS.
- *
- * Initializes the UART, displays the welcome message, and enters the CLI loop.
- */

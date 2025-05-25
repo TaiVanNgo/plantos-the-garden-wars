@@ -3,23 +3,45 @@
 #include "../include/mbox.h"
 #include "../include/framebf.h"
 #include "../include/cmd.h"
-// #include "../include/video.h"
+#include "../include/video.h"
 #include "../include/utils.h"
 #include "../include/zombies.h"
 #include "../include/plants.h"
 #include "../include/bullet.h"
-// #include "../include/game_init.h"
+#include "../include/game_init.h"
 #include "../assets/backgrounds/background.h"
 #include "../assets/backgrounds/garden.h"
 
-// #include "background.c"
-//    #define TASK1
-// #define TASK2_VID
-#define ZOMBIE_INIT
-// #define PLANT_INIT
-// #define TASK3_BULLET
+#if defined(ALL_INIT)
+void main()
+{
+    // Initialize UART and framebuffer
+    uart_init();
+    framebf_init();
 
-#ifdef TASK1
+    // First play the video
+    uart_puts("Playing intro video...\n");
+    Video vid;
+    video_init(&vid);
+    play_video(&vid, 80, 120, vid.total_frames);
+
+    // Then show team members
+    wipe_transition();
+    uart_puts("Displaying team members...\n");
+    display_team_members(1);
+
+    // Finally start CLI
+    uart_puts("Starting CLI...\n");
+    os_welcome();
+    uart_puts(PROMPT);
+
+    // Main CLI loop
+    while (1)
+    {
+        cli();
+    }
+}
+#elif defined(CLI_INIT)
 void main()
 {
     // Initialize UART for CLI
@@ -42,24 +64,21 @@ void main()
     {
         // Process CLI commands
         cli();
-
-        // Small delay to prevent CPU hogging
-        delay(10);
     }
 }
-#elif defined(TASK2_VID)
+#elif defined(VID_INIT)
 void main()
 {
     // Set up the serial console
     uart_init();
 
     framebf_init();
+    uart_puts("TASK2_VID main running\n");
 
     Video vid;
     video_init(&vid);
     play_video(&vid, 80, 120, vid.total_frames);
-    // wipe_transition();
-    // display_team_members(0);
+
     // Run CLI
     while (1)
     {
@@ -72,7 +91,7 @@ void main()
         }
     }
 }
-#elif defined(ZOMBIE_INIT)
+#elif defined(GAME_INIT)
 void main()
 {
     uart_init();
@@ -105,42 +124,14 @@ void main()
         uart_sendc(c);
     }
 }
-#elif defined(TASK3_BULLET)
-void main()
-{
-    // Set up the serial console
-    uart_init();
-    uart_puts("Starting Bullet Game...\n");
-
-    // Run the bullet game
-    bullet_game();
-
-    // start_game();
-
-    // After game ends, run CLI
-    while (1)
-    {
-        char c = getUart();
-        uart_dec(c);
-        uart_sendc(c);
-    }
-}
-#else // task 2 name
+#elif defined(TEAM_INIT)
 void main()
 {
 
     uart_init();
     framebf_init();
-
-    game_init();
-
-    // draw_image(QUIT, 0, 0, 300, 85, 0);
-    // display_team_members(1);
-
-    // while (1)
-    // {
-    //     char c = uart_getc();
-    //     uart_sendc(c);
-    // }
+    wipe_transition();
+    display_team_members(1);
 }
+
 #endif
