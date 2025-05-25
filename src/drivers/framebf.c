@@ -536,10 +536,7 @@ void draw_selection_border(int selection)
         int card_x = FIRST_CARD_X + (selection - 1) * CARD_SPACING;
         draw_image(SELECTION_BORDER, card_x, CARDS_Y, SEL_BORDER_WIDTH, SEL_BORDER_HEIGHT, 0);
         
-        // Check if plant is on cooldown and draw text if it is
-        if (is_plant_on_cooldown(selection)) {
-            draw_string(card_x + 5, CARDS_Y + 80, "COOLDOWN", 0x00FF0000, 1);
-        }
+      
     }
     else
     {

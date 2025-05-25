@@ -895,7 +895,7 @@ void draw_cursor() {
 void draw_all_plant_cooldowns() {
     for (int i = 1; i <= 5; i++) {
         if (is_plant_on_cooldown(i)) {
-            draw_cooldown_on_cards(i);
+            draw_plant_cooldown_text(i);
         }
     }
 }
