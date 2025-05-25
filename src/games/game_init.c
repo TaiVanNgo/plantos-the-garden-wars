@@ -8,7 +8,7 @@ extern int flame_active[GRID_ROWS];
 SelectionState select_state = {
     .mode = 0, .selected_card = -1, .row = 0, .col = 0, .current_plant = -1};
 
-GameState game = {.state = GAME_MENU, .score = 0, .level = LEVEL_HARD_ENUM, .sun_count = 2000};
+GameState game = {.state = GAME_MENU, .score = 0, .level = LEVEL_HARD_ENUM, .sun_count = 400};
 
 Plant plant_grid[4][9];
 int prev_col, prev_row;
@@ -451,6 +451,17 @@ void handle_remove_plant() {
 void handle_plant_selection(int plant_type) {
     // Check if plant is on cooldown
     if (plant_type >= 1 && plant_type <= 5) {
+        // Check if player has enough sun for this plant
+        int cost = get_plant_cost(plant_type);
+        if (game.sun_count < cost) {
+            uart_puts("Not enough sun! Plant cost: ");
+            uart_dec(cost);
+            uart_puts(", Available sun: ");
+            uart_dec(game.sun_count);
+            uart_puts("\n");
+            return;
+        }
+
         if (is_plant_on_cooldown(plant_type)) {
             uart_puts("Plant is on cooldown! ");
             display_plant_cooldown(plant_type);
@@ -609,10 +620,25 @@ void handle_enter_key(int frame_counter) {
         return;
     }
 
+    // Double check if player has enough sun for this plant
+    int plant_cost = get_plant_cost(select_state.current_plant);
+    if (game.sun_count < plant_cost) {
+        uart_puts("Not enough sun! Plant cost: ");
+        uart_dec(plant_cost);
+        uart_puts(", Available sun: ");
+        uart_dec(game.sun_count);
+        uart_puts("\n");
+        return;
+    }
 
     // Plant placement logic
     if (select_state.mode == 0 || select_state.mode == 1) {
         if (select_state.mode == 0) {
+            // Deduct the sun cost
+            game.sun_count -= plant_cost;
+            draw_sun_count(game.sun_count);
+
+
             // Start cooldown when plant is placed
             if (select_state.current_plant >= 1 && select_state.current_plant <= 5) {
                 start_plant_cooldown(select_state.current_plant);
@@ -664,6 +690,10 @@ void handle_enter_key(int frame_counter) {
             select_state.mode = 1;
 
         } else if (select_state.mode == 1) {
+            // Deduct the sun cost
+            game.sun_count -= plant_cost;
+            draw_sun_count(game.sun_count);
+
             // Start cooldown when plant is placed
             if (select_state.current_plant >= 1 && select_state.current_plant <= 5) {
                 start_plant_cooldown(select_state.current_plant);

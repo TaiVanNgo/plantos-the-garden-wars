@@ -191,6 +191,9 @@ int collect_sun_at_position(int col, int row) {
 }
 
 void draw_sun_count(int count) {
+
+    restore_background_area(SUN_COUNT_X, SUN_COUNT_Y, 100, 30, 0, 0, 0, 0);
+
     // Convert the count to a string
     char count_str[10];
     int_to_str(count, count_str);
