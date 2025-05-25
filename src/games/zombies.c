@@ -129,11 +129,12 @@ int move_zombie(Zombie *zombie)
       {
         plant_grid[zombie->row][zombie_col].health = 0;
         uart_puts("[Zombie] Plant is Destroyed!\n");
-        
+
         // Remove plant from bullet system if it's a shooting plant
         if (plant_grid[zombie->row][zombie_col].type == PLANT_PEASHOOTER ||
-            plant_grid[zombie->row][zombie_col].type == PLANT_FROZEN_PEASHOOTER) {
-            bullet_remove_plant(zombie_col, zombie->row);
+            plant_grid[zombie->row][zombie_col].type == PLANT_FROZEN_PEASHOOTER)
+        {
+          bullet_remove_plant(zombie_col, zombie->row);
         }
 
         // Unregister the sunflower from the sun system
@@ -161,23 +162,33 @@ int move_zombie(Zombie *zombie)
   }
 
   int should_move = 1;
-  if (zombie->is_frozen) {
+  if (zombie->is_frozen)
+  {
     zombie->frozen_counter++;
-    if (zombie->frozen_counter < 2) { // Only move every 2 frames
+    if (zombie->frozen_counter < 2)
+    { // Only move every 2 frames
       should_move = 0;
-    } else {
+    }
+    else
+    {
       zombie->frozen_counter = 0;
     }
-  } else {
+  }
+  else
+  {
     zombie->frozen_counter = 0;
   }
 
-  if (should_move) {
+  if (should_move)
+  {
     uint8_t actual_speed = zombie->speed;
     int new_x = zombie->x;
-    if (zombie->x > actual_speed) {
+    if (zombie->x > actual_speed)
+    {
       new_x -= actual_speed;
-    } else {
+    }
+    else
+    {
       zombie->x = 0;
       return 1;
     }
@@ -198,7 +209,7 @@ void update_zombie_position(Zombie *zombie)
   int old_y = zombie->y;
 
   // Restore background from old position
-  restore_background_area(old_x, old_y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0, 0, 0, 0);
+  restore_background_area(old_x, old_y, ZOMBIE_WIDTH, ZOMBIE_HEIGHT, 0);
 
   // Move zombie left (update position)
   int status = move_zombie(zombie);

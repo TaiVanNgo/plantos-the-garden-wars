@@ -99,7 +99,7 @@ void update_plant_cooldowns()
                 int card_x = FIRST_CARD_X + (i - 1) * CARD_SPACING;
 
                 // Restore the background where the cooldown overlay was
-                restore_background_area(card_x, CARDS_Y, 50, 70, 0, 1, 0, 0);
+                restore_background_area(card_x, CARDS_Y, 50, 70, 1);
             }
         }
     }
@@ -119,7 +119,7 @@ void draw_plant_cooldown_text(int plant_type)
         if (cooldown > 0)
         {
             // Restore the background area behind the number (20x20 box)
-            restore_background_area(card_x + 25, CARDS_Y + 25, 20, 20, 0, 1, 0, 0);
+            restore_background_area(card_x + 25, CARDS_Y + 25, 20, 20, 1);
             // Decide what to display
             const char *text = "";
             if (cooldown > 120)
