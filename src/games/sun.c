@@ -13,7 +13,7 @@ extern GameState game;
 
 static int warning_active = 0;           // Flag to track if warning is active
 static int warning_start_frame = 0;      // Frame when warning started
-static int WARNING_DURATION = 100;       // Duration in frames (about 2 seconds)
+static int WARNING_DURATION = 50;       // Duration in frames (about 1 second)
 
 // Array to track sunflower positions
 typedef struct
@@ -236,28 +236,23 @@ void draw_sun_count_enhanced(int count, int color, int size, int force_update) {
     // Only redraw if count changed or forced update
     if (count != last_count || force_update) {
         // Clear a larger area for the text
-        restore_background_area(SUN_COUNT_X, SUN_COUNT_Y - 10, 150, 60, 0);
-        
+        restore_background_area(SUN_COUNT_X - 30, SUN_COUNT_Y - 30, 250, 100, 0);
+
         char count_str[10];
         int_to_str(count, count_str);
         
         // Adjust Y position based on text size to center it vertically
-        int adjusted_y = SUN_COUNT_Y;
         if (size > 1) {
-            adjusted_y = SUN_COUNT_Y - 5;
+            draw_string(SUN_COUNT_X, SUN_COUNT_Y - 5, count_str, color, size);
+        } else {
+            draw_string(SUN_COUNT_X + 10, SUN_COUNT_Y, count_str, color, size);
         }
-        
-        draw_string(SUN_COUNT_X, adjusted_y, count_str, color, size);
-        
-        // Log the sun count
-        uart_puts("[Sun] Current sun count: ");
-        uart_dec(count);
-        uart_puts("\n");
         
         last_count = count;
     }
 }
 
+// Make sure the warning system doesn't trigger during selection
 void trigger_insufficient_sun_warning(int current_frame) {
     // Set warning state
     warning_active = 1;
@@ -265,6 +260,4 @@ void trigger_insufficient_sun_warning(int current_frame) {
     
     // Display sun count in red and larger
     draw_sun_count_enhanced(game.sun_count, RED, 2, 1);
-    
-    uart_puts("[Sun] Warning: Insufficient sun resources!\n");
 }
