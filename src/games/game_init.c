@@ -28,9 +28,6 @@ void game_main()
         case GAME_DIFFICULTY:
             game_start_difficulty();
             break;
-        case GAME_PAUSED:
-            // Handle pause menu
-            break;
         case GAME_OVER:
             game_over();
             break;
