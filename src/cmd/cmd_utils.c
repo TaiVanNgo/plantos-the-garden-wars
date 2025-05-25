@@ -135,7 +135,7 @@ int handle_tab_completion(char *cli_buffer, int *index)
             if (strcmp(cmd_part, commands[i].name) == 0)
             {
                 // Special handling for specific commands that have known arguments
-                if (strcmp(commands[i].name, "baudrate") == 0)
+                if (strcmp(commands[i].name, "baud") == 0)
                 {
                     // Baudrate options: 9600, 19200, 38400, 57600, 115200
                     const char *options[] = {"9600", "19200", "38400", "57600", "115200"};
