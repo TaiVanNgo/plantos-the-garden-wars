@@ -275,18 +275,8 @@ void start_level()
         &zombie6, &zombie7, &zombie8, &zombie9, &zombie10};
 
     int zombie_spawned[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    int spawn_times[10] = {
-        500,  // First zombie at 25 seconds
-        1000, // 50 seconds (25 second gap)
-        1500, // 75 seconds (25 second gap)
-        1900, // 95 seconds (20 second gap)
-        2200, // 110 seconds (15 second gap)
-        2450, // 122.5 seconds (12.5 second gap)
-        2650, // 132.5 seconds (10 second gap)
-        2800, // 140 seconds (7.5 second gap)
-        2900, // 145 seconds (5 second gap)
-        2950, // 147.5 seconds (2.5 second gap)
-    };
+
+    int spawn_times[10];
     int zombie_types[10];
     set_zombie_level_config(game.level, zombie_types, spawn_times);
 
