@@ -6,6 +6,7 @@
 #include "plants.h"
 
 
+#define INITIAL_SUN_COUNT 400  
 #define SUN_WIDTH 35
 #define SUN_HEIGHT 35
 #define MAX_SUNS 50
