@@ -11,15 +11,13 @@
 #define CLI_H
 
 // Include necessary headers for UART and hardware-specific functionality
+#include "framebf.h"
+#include "game_init.h"
+#include "mbox.h"
 #include "uart0.h"
 #include "uart1.h"
-#include "mbox.h"
-#include "framebf.h"
-#include "utils.h"
-#include "game_init.h" 
 #include "utils.h"
 #include "video.h"
-
 
 // Define NULL for our use (since we're not using the standard library)
 #ifndef NULL
@@ -27,9 +25,9 @@
 #endif
 
 // CLI configuration constants
-#define MAX_CMD_SIZE 128 // Maximum length of a command string
-#define MAX_HISTORY 10   // Maximum number of commands to store in history
-#define PROMPT "PlantOS> " // CLI prompt displayed to the user
+#define MAX_CMD_SIZE 128    // Maximum length of a command string
+#define MAX_HISTORY 10      // Maximum number of commands to store in history
+#define PROMPT "PlantOS> "  // CLI prompt displayed to the user
 
 /**
  * @brief Structure to define a CLI command.
@@ -39,10 +37,10 @@
  */
 typedef struct
 {
-    const char *name;            // Command name (e.g., "help")
-    const char *brief;           // Brief description for help command
-    const char *details;         // Detailed description for help <command_name>
-    void (*execute)(char *args); // Function to execute the command
+    const char *name;             // Command name (e.g., "help")
+    const char *brief;            // Brief description for help command
+    const char *details;          // Detailed description for help <command_name>
+    void (*execute)(char *args);  // Function to execute the command
 } Command;
 
 // Declare the command table and its size as extern (defined in cli.c)
@@ -50,20 +48,22 @@ extern Command commands[];
 extern const int num_commands;
 
 // Function prototypes for CLI operations
-void cli(void);                                                 // Main CLI loop
-void clear_line(void);                                          // Clear the current terminal line
-void display_prompt(char *buffer);                              // Display the CLI prompt and buffer
-void parse_command(char *buffer, char **cmd_name, char **args); // Parse command and args
-void add_to_history(char *command);                             // Add a command to history
+void cli(void);                                                  // Main CLI loop
+void clear_line(void);                                           // Clear the current terminal line
+void display_prompt(char *buffer);                               // Display the CLI prompt and buffer
+void parse_command(char *buffer, char **cmd_name, char **args);  // Parse command and args
+void add_to_history(char *command);                              // Add a command to history
 
 // Command function prototypes
-void cmd_help(char *args);      // Show help for commands
-void cmd_clear(char *args);     // Clear the terminal screen
-void cmd_showinfo(char *args);  // Show board information (not implemented)
-void cmd_baudrate(char *args);  // Change UART baudrate (not implemented)
-void cmd_handshake(char *args); // Toggle UART handshaking (not implemented)
-void cmd_kaboom(char *args);   // Display an ASCII explosion animation (not implemented)
+void cmd_help(char *args);       // Show help for commands
+void cmd_clear(char *args);      // Clear the terminal screen
+void cmd_showinfo(char *args);   // Show board information (not implemented)
+void cmd_baudrate(char *args);   // Change UART baudrate (not implemented)
+void cmd_handshake(char *args);  // Toggle UART handshaking (not implemented)
+void cmd_kaboom(char *args);     // Display an ASCII explosion animation (not implemented)
 void os_welcome(void);
-void cmd_game(); // New command to start the game
+void cmd_game();  // New command to start the game
+void cmd_video(char *args);
+void cmd_team(char *args);
 
-#endif // CLI_H
+#endif  // CLI_H
