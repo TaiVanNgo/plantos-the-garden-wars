@@ -290,6 +290,10 @@ void start_level()
     int zombie_types[10];
     set_zombie_level_config(game.level, zombie_types, spawn_times);
 
+    char *level_str = game.level == LEVEL_EASY_ENUM ? "LEVEL: EASY" : (game.level == LEVEL_MEDIUM_ENUM ? "LEVEL: MEDIUM" : "LEVEL: HARD");
+
+    draw_string(580, 50, level_str, SALMON_RED, 2);
+
     int zombie_rows[10] = {0, 1, 2, 3, 0, 1, 2, 3, 2, 1};
 
     int zombies_killed = 0;
@@ -879,6 +883,7 @@ void set_zombie_level_config(int level, int zombie_types[10], int spawn_times[10
 {
     if (level == LEVEL_EASY_ENUM)
     {
+        uart_puts("[Game State] Playing Easy Level");
         // easy level: 5 normal zombie + 3 bucket zombies + 2 helmet zombies
         for (int i = 0; i < 5; i++)
         {
@@ -907,6 +912,7 @@ void set_zombie_level_config(int level, int zombie_types[10], int spawn_times[10
     }
     else if (level == LEVEL_MEDIUM_ENUM)
     {
+        uart_puts("[Game State] Playing Normal Level");
         // Intermediate level - 3 normal + 3 bucket + 4 helmet
         for (int i = 0; i < 3; i++)
         {
@@ -935,6 +941,7 @@ void set_zombie_level_config(int level, int zombie_types[10], int spawn_times[10
     }
     else
     {
+        uart_puts("[Game State] Playing Hard Level");
         // Hard level- 4 buckets + 3 helmet + 3 footballs
         for (int i = 0; i < 4; i++)
         {

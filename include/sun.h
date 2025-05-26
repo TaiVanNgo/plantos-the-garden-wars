@@ -5,21 +5,21 @@
 #include "gpio.h"
 #include "plants.h"
 
-
-#define INITIAL_SUN_COUNT 400  
+#define INITIAL_SUN_COUNT 100
 #define SUN_WIDTH 35
 #define SUN_HEIGHT 35
 #define MAX_SUNS 50
-#define SUN_LIFETIME 300  // Sun exists for 300 frames (about 6 seconds at 50ms per frame)
-#define SUN_GENERATION_TIME 250  // Generate sun every 250 frames (about 5 seconds at 50ms per frame)
+#define SUN_LIFETIME 300        // Sun exists for 300 frames (about 6 seconds at 50ms per frame)
+#define SUN_GENERATION_TIME 250 // Generate sun every 250 frames (about 5 seconds at 50ms per frame)
 
-typedef struct {
+typedef struct
+{
     int x;
     int y;
     int active;
     int frame_created;
-    int plant_col;      // Associated plant column
-    int plant_row;      // Associated plant row
+    int plant_col; // Associated plant column
+    int plant_row; // Associated plant row
 } Sun;
 
 // Array to track sunflower positions
