@@ -1038,7 +1038,7 @@ void game_over()
 
     Button quit, retry;
     button_init(&quit, 100, 450, BUTTON_WIDTH, BUTTON_HEIGHT, HOME);
-    button_init(&retry, 470, 450, BUTTON_WIDTH, BUTTON_HEIGHT, QUIT);
+    button_init(&retry, 470, 450, BUTTON_WIDTH, BUTTON_HEIGHT, RETRY);
 
     Button *buttons[] = {&quit, &retry};
     int current_selection = 0;
