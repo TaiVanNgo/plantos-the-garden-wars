@@ -1,5 +1,4 @@
 
-// Update the include path to the correct location
 #include "./button_sprite.h"
 
 // 'startgame', 300x85px

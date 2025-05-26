@@ -536,7 +536,7 @@ int handle_user_input(int *frame_counter)
         return 1;
     }
 
-    return 0; // Key wasn't handled
+    return 0; 
 }
 
 void handle_remove_plant()
@@ -662,7 +662,6 @@ void handle_arrow_keys()
         restore_background_area(x_old, y_old, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0);
         place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
 
-        // int x_old, y_old, x_new, y_new;
 
         // Get pixel coordinates for old and new positions
 
@@ -730,7 +729,6 @@ void handle_enter_key(int frame_counter)
         }
 
         plant_grid[select_state.row][select_state.col].type = 255;
-        // clear_plant_from_background(select_state.col, select_state.row, 0, 0);
 
         bullet_remove_plant(select_state.col, select_state.row);
         draw_plant(SHOVEL, select_state.col, select_state.row);
@@ -1008,7 +1006,6 @@ void victory_screen()
 
 void game_over()
 {
-    // clear_screen();
     draw_image(LOSE_SCREEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
 
     Button quit, retry;
