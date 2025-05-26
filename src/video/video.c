@@ -59,7 +59,7 @@ void play_video(Video *video, int pos_x, int pos_y, int max_frame)
 
 	for (int i = 0; i < frame_count; i++)
 	{
-		set_wait_timer(1, 50);
+		set_wait_timer(1, 150);
 
 		uart_puts("Playing frame: ");
 		char current_frame_str[12];
