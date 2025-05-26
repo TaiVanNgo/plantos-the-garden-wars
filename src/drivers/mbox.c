@@ -1,8 +1,6 @@
 // -----------------------------------mbox.c -------------------------------------
-#include "../include/mbox.h"
-#include "../include/gpio.h"
-#include "../include/uart1.h"
-#include "../include/uart0.h"
+#include "mbox.h"
+
 
 /* Mailbox Data Buffer (each element is 32-bit)*/
 /*
@@ -92,7 +90,7 @@ int mbox_call(unsigned int buffer_addr, unsigned char channel)
  */
 uint32_t get_board_revision(void)
 {
-    // Step 1: Prepare the mailbox buffer
+    // Prepare the mailbox buffer
     mBuf[0] = 7 * 4;         // Buffer size in bytes (7 words * 4 bytes)
     mBuf[1] = MBOX_REQUEST;  // Request code (0 initially)
     mBuf[2] = 0x00010002;    // Tag: Get board revision
@@ -101,10 +99,10 @@ uint32_t get_board_revision(void)
     mBuf[5] = 0;             // Value buffer (will hold the board revision)
     mBuf[6] = MBOX_TAG_LAST; // End tag (0)
 
-    // Step 2: Make the mailbox call
+    // Make the mailbox call
     if (mbox_call(ADDR(mBuf), MBOX_CH_PROP))
     {
-        // Step 3: Return the board revision from mBuf[5]
+        // Return the board revision from mBuf[5]
         return mBuf[5];
     }
 

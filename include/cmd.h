@@ -16,7 +16,10 @@
 #include "mbox.h"
 #include "framebf.h"
 #include "utils.h"
-#include "game_init.h" // Added for game start command
+#include "game_init.h" 
+#include "utils.h"
+#include "video.h"
+
 
 // Define NULL for our use (since we're not using the standard library)
 #ifndef NULL

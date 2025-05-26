@@ -161,11 +161,12 @@ char uart_getc();
 void uart_puts(const char *s);
 void uart_toggle_rts_cts();
 void uart_hex(unsigned int num);
+void uart_dec(int num);
 unsigned int uart_isReadByteReady();
 unsigned char getUart();
 int set_uart_baudrate(int baudrate);
 void uart_mac_hex(unsigned char num);
 int uart_init_with_baudrate(int baudrate);
-void uart_irq_handler();
 void uart_dec(int num);
+void RTS_CTS_init();
 #endif // UART0_H

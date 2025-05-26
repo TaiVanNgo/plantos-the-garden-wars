@@ -23,6 +23,10 @@
 #define THISTLE 0xBB8FBB
 #define PULSE_CIRCLE_COLOR 0x000080
 #define BROWN 0x890129
+// Use RGBA32 (32 bits for each pixel)
+#define COLOR_DEPTH 32
+// Pixel Order: BGR in memory order (little endian --> RGB in byte order)
+#define PIXEL_ORDER 0
 
 #define PHYSICAL_WIDTH 800
 #define PHYSICAL_HEIGHT 600
@@ -35,6 +39,8 @@ void framebf_init();
 void draw_pixel(int x, int y, unsigned int attr);
 void draw_rect(int x1, int y1, int x2, int y2, unsigned int attr, int fill);
 void draw_line(int x1, int y1, int x2, int y2, unsigned int attr);
+void draw_vline(int x, int y1, int y2, unsigned int attr);
+double sqrt(double number);
 void draw_circle(int center_x, int center_y, int radius, unsigned int attr, int fill);
 void draw_image(const unsigned int pixel_data[], int pos_x, int pos_y, int width, int height, int draw_transparent);
 void clear_screen();
@@ -49,4 +55,5 @@ void draw_image_scaled(const unsigned int *image_data, int x, int y, int src_wid
 void clear_plant_from_background(int grid_col, int grid_row, int background, int taken);
 void draw_selection_border(int selection);
 void restore_grid_area_to_garden(int grid_col, int grid_row);
+void draw_cooldown_on_cards(int plant_type);
 void reset_tmp_region_from_garden(int grid_col, int grid_row);

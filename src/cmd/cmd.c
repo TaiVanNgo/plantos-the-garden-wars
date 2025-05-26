@@ -11,13 +11,8 @@
  * @author Thai Duong (S39878955)
  */
 
-// --- Includes ---
 #include "../../include/cmd.h"
-#include "../../include/utils.h"
-#include "../../include/video.h"
-#include "cmd_utils.c"
 
-// --- Command Table and Declarations ---
 void cmd_video(char *args);
 void cmd_team(char *args);
 

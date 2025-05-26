@@ -1,12 +1,6 @@
 // ----------------------------------- framebf.c -------------------------------------
 
-#include "../include/framebf.h"
-
-// Use RGBA32 (32 bits for each pixel)
-#define COLOR_DEPTH 32
-
-// Pixel Order: BGR in memory order (little endian --> RGB in byte order)
-#define PIXEL_ORDER 0
+#include "framebf.h"
 
 // Screen info
 unsigned int width, height, pitch;

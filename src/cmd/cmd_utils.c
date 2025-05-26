@@ -1,5 +1,3 @@
-#include "../../include/cmd.h"
-#include "../../include/utils.h"
 /**
  * @brief Find matching commands for autocompletion.
  * 
@@ -7,6 +5,8 @@
  * @param matches Array to store pointers to matching commands.
  * @return int Number of matches found.
  */
+#include "cmd_utils.h"
+
 int find_matches(const char *partial, Command **matches)
 {
     int count = 0;
