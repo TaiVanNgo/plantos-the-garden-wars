@@ -27,10 +27,10 @@
 #define UART0_FR_TXFF 0x20
 #define UART0_FR_RXFE 0x10
 #define UART0_FR_BUSY 0x08
-															 /*  2 = DCD  = Unsupported */
-															 /*  1 = DSR  = Unsupported */
-#define UART0_FR_CTS  0x01
-#define UART0_FR_RTS  0x02
+/*  2 = DCD  = Unsupported */
+/*  1 = DSR  = Unsupported */
+#define UART0_FR_CTS 0x01
+#define UART0_FR_RTS 0x02
 
 /* ILPR = Infrared, disabled on BC2835 */
 #define UART0_ILPR (*(volatile unsigned int *)(UART0_BASE + 0x20))
@@ -46,16 +46,16 @@
 /* LCRH = Line Control Register */
 #define UART0_LCRH (*(volatile unsigned int *)(UART0_BASE + 0x2C))
 #define UART0_LCRH_SPS (1 << 7) /* SPS = Stick Parity Select (0=disabled) */
-																/* WLEN = word length 00=5, 01=6, 10=7, 11=8 */
+                                /* WLEN = word length 00=5, 01=6, 10=7, 11=8 */
 #define UART0_LCRH_WLEN_5BIT (0 << 5)
 #define UART0_LCRH_WLEN_6BIT (1 << 5)
 #define UART0_LCRH_WLEN_7BIT (2 << 5)
 #define UART0_LCRH_WLEN_8BIT (3 << 5)
-#define UART0_LCRH_FEN (1 << 4)	 /* FEN = enable FIFOs */
+#define UART0_LCRH_FEN (1 << 4)  /* FEN = enable FIFOs */
 #define UART0_LCRH_STP2 (1 << 3) /* STP2 = enable 2 stop bits */
-#define UART0_LCRH_EPS (1 << 2)	 /* EPS  = even parity select */
-#define UART0_LCRH_PEN (1 << 1)	 /* PEN  = parity enable */
-#define UART0_LCRH_BRK (1 << 0)	 /* BRK  = send break after next character */
+#define UART0_LCRH_EPS (1 << 2)  /* EPS  = even parity select */
+#define UART0_LCRH_PEN (1 << 1)  /* PEN  = parity enable */
+#define UART0_LCRH_BRK (1 << 0)  /* BRK  = send break after next character */
 /* CR = Control Register */
 /*   To enable transmission TXE and UARTEN must be set to 1 */
 /*   To enable reception RXE and UARTEN must be set to 1 */
@@ -71,16 +71,16 @@
 #define UART0_CR (*(volatile unsigned int *)(UART0_BASE + 0x30))
 #define UART0_CR_CTSEN (1 << 15) /*   15 = CTSEN = CTS Flow Enable */
 #define UART0_CR_RTSEN (1 << 14) /*   14 = RTSEN = RTS Flow Enable */
-																 /*   13 = OUT2 = Unsupported */
-																 /*   12 = OUT1 = Unsupported */
-#define UART0_CR_RTS (1 << 11)	 /*   11 = RTS = Request to Send */
-																 /*   10 = DTR = Unsupported */
-#define UART0_CR_RXE (1 << 9)		 /*    9 = RXE = Receive Enable */
-#define UART0_CR_TXE (1 << 8)		 /*    8 = TXE = Transmit Enable */
-#define UART0_CR_LBE (1 << 7)		 /*    7 = LBE = Loopback Enable */
-																 /*    6 - 3 = RESERVED */
-																 /*    2 = SIRLP = Unsupported */
-																 /*    1 = SIREN = Unsupported */
+                                 /*   13 = OUT2 = Unsupported */
+                                 /*   12 = OUT1 = Unsupported */
+#define UART0_CR_RTS (1 << 11)   /*   11 = RTS = Request to Send */
+                                 /*   10 = DTR = Unsupported */
+#define UART0_CR_RXE (1 << 9)    /*    9 = RXE = Receive Enable */
+#define UART0_CR_TXE (1 << 8)    /*    8 = TXE = Transmit Enable */
+#define UART0_CR_LBE (1 << 7)    /*    7 = LBE = Loopback Enable */
+                                 /*    6 - 3 = RESERVED */
+                                 /*    2 = SIRLP = Unsupported */
+                                 /*    1 = SIREN = Unsupported */
 #define UART0_CR_UARTEN (1 << 0) /*    0 = UARTEN = UART Enable */
 /* IFLS = FIFO Level Select */
 /*  11 - 9 = RXIFPSEL = Unsupported */
@@ -103,16 +103,16 @@
 #define UART0_IMSC (*(volatile unsigned int *)(UART0_BASE + 0x38))
 /* RIS = Raw Interrupt Status */
 #define UART0_IMSC_OE (1 << 10) /* OERIS = Overrun Interrupt Raw Status */
-#define UART0_IMSC_BE (1 << 9)	/* BERIS = Break Interrupt Raw Status*/
-#define UART0_IMSC_PE (1 << 8)	/* PERIS = Parity Interrupt Raw Status */
-#define UART0_IMSC_FE (1 << 7)	/* FERIS = Framing Interrupt Raw Status */
-#define UART0_IMSC_RT (1 << 6)	/* RTRIS = Receivce Timeout Raw Status */
-#define UART0_IMSC_TX (1 << 5)	/* TXRIS = Transmit Interrupt Raw Status */
-#define UART0_IMSC_RX (1 << 4)	/* RXRIS = Receive Masked Interrupt Raw Status */
-																/*    3 = DSRRIS (unsupported) */
-																/*    2 = DCDRIS (unsupported) */
+#define UART0_IMSC_BE (1 << 9)  /* BERIS = Break Interrupt Raw Status*/
+#define UART0_IMSC_PE (1 << 8)  /* PERIS = Parity Interrupt Raw Status */
+#define UART0_IMSC_FE (1 << 7)  /* FERIS = Framing Interrupt Raw Status */
+#define UART0_IMSC_RT (1 << 6)  /* RTRIS = Receivce Timeout Raw Status */
+#define UART0_IMSC_TX (1 << 5)  /* TXRIS = Transmit Interrupt Raw Status */
+#define UART0_IMSC_RX (1 << 4)  /* RXRIS = Receive Masked Interrupt Raw Status */
+                                /*    3 = DSRRIS (unsupported) */
+                                /*    2 = DCDRIS (unsupported) */
 #define UART0_IMSC_CTS (1 << 1) /* CTSRIS = nUARTCTS Raw Status */
-																/*    0 = RIRIS (unsupported) */
+                                /*    0 = RIRIS (unsupported) */
 #define UART0_RIS (*(volatile unsigned int *)(UART0_BASE + 0x3C))
 /* MIS = Masked Interrupt Status */
 /*   10 = OEMIS = Overrun Interrupt Masked Status */
@@ -169,4 +169,4 @@ void uart_mac_hex(unsigned char num);
 int uart_init_with_baudrate(int baudrate);
 void uart_dec(int num);
 void RTS_CTS_init();
-#endif // UART0_H
+#endif  // UART0_H

@@ -1,6 +1,6 @@
 #include "gpio.h"
-#include "uart1.h"
 #include "uart0.h"
+#include "uart1.h"
 
 /* A properly aligned buffer */
 extern volatile unsigned int mBuf[36];
@@ -28,19 +28,19 @@ extern volatile unsigned int mBuf[36];
 #define MBOX_EMPTY 0x40000000
 
 /* Channels */
-#define MBOX_CH_POWER 0 // Power management
-#define MBOX_CH_FB 1    // Frame buffer
-#define MBOX_CH_VUART 2 // Virtual UART
-#define MBOX_CH_VCHIQ 3 // VCHIQ
-#define MBOX_CH_LEDS 4  // LEDs
-#define MBOX_CH_BTNS 5  // Buttons
-#define MBOX_CH_TOUCH 6 // Touch screen
-#define MBOX_CH_PROP 8  // Property tags (ARM -> VC)
+#define MBOX_CH_POWER 0  // Power management
+#define MBOX_CH_FB 1     // Frame buffer
+#define MBOX_CH_VUART 2  // Virtual UART
+#define MBOX_CH_VCHIQ 3  // VCHIQ
+#define MBOX_CH_LEDS 4   // LEDs
+#define MBOX_CH_BTNS 5   // Buttons
+#define MBOX_CH_TOUCH 6  // Touch screen
+#define MBOX_CH_PROP 8   // Property tags (ARM -> VC)
 
 /* Tags */
-#define MBOX_TAG_GETSERIAL 0x00010004   // Get board serial
-#define MBOX_TAG_GETMODEL 0x00010001    // Get board model
-#define MBOX_TAG_GETREVISION 0x00010002 // Get board revision
+#define MBOX_TAG_GETSERIAL 0x00010004    // Get board serial
+#define MBOX_TAG_GETMODEL 0x00010001     // Get board model
+#define MBOX_TAG_GETREVISION 0x00010002  // Get board revision
 #define MBOX_TAG_SETCLKRATE 0x00038002
 #define MBOX_TAG_LAST 0
 
