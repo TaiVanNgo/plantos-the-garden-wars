@@ -85,7 +85,7 @@ void game_start_difficulty()
     while (1)
     {
         char key = getUart();
-        if (key == '-' || key == '[') {  // '-' or '[' key for up
+        if (key == '-' || key == 'A') {  // '-' or '[' key for up
             // 'up' button
             int previous_selection = current_selection;
             button_set_state(buttons[current_selection], BUTTON_NORMAL);
@@ -103,7 +103,7 @@ void game_start_difficulty()
             uart_dec(current_selection);
             uart_puts("\n");
         }
-        else if (key == '=' || key == ']') {  // '=' or ']' key for down
+        else if (key == '=' || key == 'B') {  // '=' or ']' key for down
             // 'down' button
             int previous_selection = current_selection;
             button_set_state(buttons[current_selection], BUTTON_NORMAL);
@@ -152,6 +152,7 @@ void game_start_difficulty()
         }
     }
 }
+
 void game_menu()
 {
     draw_image(MAIN_SCREEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
@@ -250,7 +251,6 @@ void start_level()
     create_simulated_background(simulated_background, GARDEN, GARDEN_WIDTH, GARDEN_HEIGHT);
     create_simulated_background(tmp, GARDEN, GARDEN_WIDTH, GARDEN_HEIGHT);
     draw_image(simulated_background, 0, 0, GARDEN_WIDTH, GARDEN_HEIGHT, 0);
-    draw_grid();
     draw_sun_count(game.sun_count);
 
     /* Plant Setting*/
@@ -261,7 +261,6 @@ void start_level()
     select_state.selected_card = -1;
     select_state.current_plant = -1;
 
-    draw_grid();
     draw_cursor();
 
     // Initialize bullet system

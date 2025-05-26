@@ -95,6 +95,7 @@ void display_team_members(int show_bg)
 	// if show background
 	if (show_bg)
 	{
+		// Use wipe transition instead of direct background draw
 		draw_image(BACKGROUND, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
 	}
 
@@ -123,33 +124,46 @@ void display_team_members(int show_bg)
 	int pulse_dir = 1;
 
 	// Do one complete pulse cycle
-	while (pulse < 20)
-	{
-		// Pulse animation
-		if (pulse_dir > 0)
-		{
-			pulse++;
-			if (pulse >= 10)
-				pulse_dir = -1;
-		}
-		else
-		{
-			pulse--;
-			if (pulse <= 4)
-				pulse_dir = 1;
-		}
-		// Clear previous left circle
-		draw_circle(210, 20, 15, PULSE_CIRCLE_COLOR, 1);
-		// Draw new pulse left circle
-		draw_circle(210, 20, pulse, WHITE, 1);
+	// while (pulse < 20)
+	// {
+	// 	// Pulse animation
+	// 	if (pulse_dir > 0)
+	// 	{
+	// 		pulse++;
+	// 		if (pulse >= 10)
+	// 			pulse_dir = -1;
+	// 	}
+	// 	else
+	// 	{
+	// 		pulse--;
+	// 		if (pulse <= 4)
+	// 			pulse_dir = 1;
+	// 	}
+	// 	// Clear previous left circle
+	// 	draw_circle(210, 20, 15, PULSE_CIRCLE_COLOR, 1);
+	// 	// Draw new pulse left circle
+	// 	draw_circle(210, 20, pulse, WHITE, 1);
 
-		// Clear previous right circle
-		draw_circle(550, 20, 15, PULSE_CIRCLE_COLOR, 1);
-		// Draw new pulse right circle
-		draw_circle(550, 20, pulse, WHITE, 1);
+	// 	// Clear previous right circle
+	// 	draw_circle(550, 20, 15, PULSE_CIRCLE_COLOR, 1);
+	// 	// Draw new pulse right circle
+	// 	draw_circle(550, 20, pulse, WHITE, 1);
 
-		// Short delay for animation
-		delay_ms(500);
+	// 	// Short delay for animation
+	// 	delay_ms(500);
+	// }
+	
+
+	// Wait for Enter key to exit
+	uart_puts("\nPress Enter to return to CLI...\n");
+	while (1) {
+		if (uart_isReadByteReady()) {
+			char key = getUart();
+			if (key == '\n' || key == '\r') {
+				break;  
+			}
+		}
+		delay_ms(100);  
 	}
 }
 
@@ -166,7 +180,5 @@ void wipe_transition()
 			// Draw just this pixel at the correct location
 			draw_pixel(x, y, BACKGROUND[index]);
 		}
-		// Short delay to control the animation speed
-		delay_ms(20);
 	}
 }

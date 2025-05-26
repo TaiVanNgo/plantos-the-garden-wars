@@ -19,6 +19,7 @@
 
 // --- Command Table and Declarations ---
 void cmd_video(char *args);
+void cmd_team(char *args);
 
 Command commands[] = {
     {"help", "Show help", "help [cmd] - Show help info", cmd_help},
@@ -27,7 +28,8 @@ Command commands[] = {
     {"baudrate", "Set baudrate", "baudrate <rate> - Set UART baudrate", cmd_baudrate},
     {"handshake", "RTS/CTS", "handshake <on|off> - Toggle handshaking", cmd_handshake},
     {"game", "Start game", "game - Start Garden Wars", cmd_game},
-    {"video", "Play video", "video - Play the intro video animation", cmd_video}};
+    {"video", "Play video", "video - Play the intro video animation", cmd_video},
+    {"team", "Show team", "team - Display team members with animation", cmd_team}};
 const int num_commands = sizeof(commands) / sizeof(commands[0]);
 
 // --- Command History Management ---
@@ -491,6 +493,22 @@ void cmd_video(char *args)
     play_video(&vid, 80, 120, vid.total_frames);
     
     uart_puts("Video playback completed!\n");
+}
+
+/**
+ * @brief Command: Display team members with wipe transition animation.
+ *
+ * @param args Not used.
+ */
+void cmd_team(char *args)
+{
+    uart_puts("\nDisplaying team members...\n");
+    clear_screen();
+    
+    // Display team members with wipe transition
+    display_team_members(1);
+    
+    uart_puts("Team display completed!\n");
 }
 
 // --- Welcome Message ---
