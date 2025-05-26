@@ -85,7 +85,7 @@ void game_start_difficulty()
     while (1)
     {
         char key = getUart();
-        if (key == '-') {  // '-' key for up
+        if (key == '-' || key == '[') {  // '-' or '[' key for up
             // 'up' button
             int previous_selection = current_selection;
             button_set_state(buttons[current_selection], BUTTON_NORMAL);
@@ -103,7 +103,7 @@ void game_start_difficulty()
             uart_dec(current_selection);
             uart_puts("\n");
         }
-        else if (key == '=') {  // '=' key for down
+        else if (key == '=' || key == ']') {  // '=' or ']' key for down
             // 'down' button
             int previous_selection = current_selection;
             button_set_state(buttons[current_selection], BUTTON_NORMAL);
@@ -171,7 +171,7 @@ void game_menu()
     while (1)
     {
         char key = getUart();
-        if (key == '-') {  // '-' key for up
+        if (key == '-' || key == '[') {  // '-' or '[' key for up
             // 'up' button
             int previous_selection = current_selection;
             button_set_state(buttons[current_selection], BUTTON_NORMAL);
@@ -189,7 +189,7 @@ void game_menu()
             uart_dec(current_selection);
             uart_puts("\n");
         }
-        else if (key == '=') {  // '=' key for down
+        else if (key == '=' || key == ']') {  // '=' or ']' key for down
             // 'down' button
             int previous_selection = current_selection;
             button_set_state(buttons[current_selection], BUTTON_NORMAL);
@@ -1004,7 +1004,7 @@ void victory_screen()
     while (1)
     {
         char key = getUart();
-        if (key == '-') {  // '-' key for left
+        if (key == '-' || key == '[') {  // '-' or '[' key for left
             int previous_selection = current_selection;
             button_set_state(buttons[current_selection], BUTTON_NORMAL);
             current_selection--;
@@ -1016,7 +1016,7 @@ void victory_screen()
             button_set_state(buttons[current_selection], BUTTON_SELECTED);
             button_draw_selection(buttons, current_selection, previous_selection, 4, 70, 10);
         }
-        else if (key == '=') {  // '=' key for right
+        else if (key == '=' || key == ']') {  // '=' or ']' key for right
             int previous_selection = current_selection;
             button_set_state(buttons[current_selection], BUTTON_NORMAL);
 
@@ -1067,7 +1067,7 @@ void game_over()
     while (1)
     {
         char key = getUart();
-        if (key == '-') {  // '-' key for left
+        if (key == '-' || key == '[') {  // '-' or '[' key for left
             int previous_selection = current_selection;
             button_set_state(buttons[current_selection], BUTTON_NORMAL);
             current_selection--;
@@ -1079,7 +1079,7 @@ void game_over()
             button_set_state(buttons[current_selection], BUTTON_SELECTED);
             button_draw_selection(buttons, current_selection, previous_selection, 0, 60, 5);
         }
-        else if (key == '=') {  // '=' key for right
+        else if (key == '=' || key == ']') {  // '=' or ']' key for right
             int previous_selection = current_selection;
             button_set_state(buttons[current_selection], BUTTON_NORMAL);
 
