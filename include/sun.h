@@ -22,6 +22,19 @@ typedef struct {
     int plant_row;      // Associated plant row
 } Sun;
 
+// Array to track sunflower positions
+typedef struct
+{
+    int col;
+    int row;
+    int active;
+    int last_generation_frame;
+} SunflowerTracker;
+
+static SunflowerTracker sunflower_trackers[GRID_ROWS * GRID_COLS];
+static int num_sunflowers = 0;
+static unsigned long start_time;
+
 // Initialize the sun system
 void sun_system_init(unsigned long start_time_ms);
 
@@ -34,6 +47,7 @@ void draw_suns();
 // Register a sunflower that will generate suns
 void register_sunflower(int col, int row, int current_frame);
 void unregister_sunflower(int col, int row);
+void create_sun_from_sunflower(int col, int row, int current_frame);
 int collect_sun_at_position(int col, int row);
 void draw_sun_count(int count);
 void draw_sun_count_enhanced(int count, int color, int size, int force_update);

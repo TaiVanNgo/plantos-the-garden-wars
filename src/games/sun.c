@@ -15,18 +15,7 @@ static int warning_active = 0;           // Flag to track if warning is active
 static int warning_start_frame = 0;      // Frame when warning started
 static int WARNING_DURATION = 50;       // Duration in frames (about 1 second)
 
-// Array to track sunflower positions
-typedef struct
-{
-    int col;
-    int row;
-    int active;
-    int last_generation_frame;
-} SunflowerTracker;
 
-static SunflowerTracker sunflower_trackers[GRID_ROWS * GRID_COLS];
-static int num_sunflowers = 0;
-static unsigned long start_time;
 
 // Initialize the sun system
 void sun_system_init(unsigned long start_time_ms)
