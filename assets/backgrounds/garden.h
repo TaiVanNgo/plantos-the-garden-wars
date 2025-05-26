@@ -2,5 +2,3 @@
 #define GARDEN_HEIGHT 600
 // Initial background
 extern const unsigned int GARDEN[];
-// Simulated background
-extern unsigned int sim_background[];
