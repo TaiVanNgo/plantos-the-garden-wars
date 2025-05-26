@@ -65,11 +65,13 @@ int check_clear()
     return 0;
 }
 
+
+
 void game_start_difficulty()
 {
     clear_screen();
     draw_image(MAIN_SCREEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
-
+draw_control_instructions();
     Button normal, medium, hard;
     button_init(&normal, 240, 300, BUTTON_WIDTH, BUTTON_HEIGHT, NORMAL);
     button_init(&medium, 240, 400, BUTTON_WIDTH, BUTTON_HEIGHT, MEDIUM);
@@ -81,6 +83,8 @@ void game_start_difficulty()
 
     button_set_state(buttons[current_selection], BUTTON_SELECTED);
     button_draw_selection(buttons, current_selection, previous_selection, 2, 70, 10);
+    
+
 
     while (1)
     {
@@ -156,6 +160,7 @@ void game_start_difficulty()
 void game_menu()
 {
     draw_image(MAIN_SCREEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
+    draw_control_instructions();
 
     Button startButton;
     Button endButton;
@@ -1161,4 +1166,11 @@ void draw_all_plant_cooldowns()
             draw_plant_cooldown_text(i);
         }
     }
+}
+    // Draw both instructions side by side
+void draw_control_instructions() {
+    draw_string(550, 350, "Controls:", BROWN, 2);
+    draw_string(550, 380, "QEMU: Up/Down", BROWN, 2);
+    draw_string(550, 410, "Board: -/=", BROWN, 2);
+    
 }
