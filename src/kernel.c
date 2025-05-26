@@ -25,8 +25,6 @@ void main()
     video_init(&vid);
     play_video(&vid, 80, 120, vid.total_frames);
 
-    // Then show team members
-    wipe_transition();
     uart_puts("Displaying team members...\n");
     display_team_members(1);
 
