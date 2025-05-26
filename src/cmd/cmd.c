@@ -11,7 +11,12 @@
  * @author Thai Duong (S39878955)
  */
 
+
 #include "cmd.h"
+#include "cmd_utils.c"
+
+void cmd_video(char *args);
+void cmd_team(char *args);
 
 Command commands[] = {
     {"help", "Show help", "help [cmd] - Show help info", cmd_help},
