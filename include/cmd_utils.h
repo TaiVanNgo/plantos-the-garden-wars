@@ -1,4 +1,5 @@
-#include "./cmd.h"
+#include "cmd.h"
+#include "utils.h"
 
 // Autocompletion Functions 
 int handle_tab_completion(char *cli_buffer, int *index);
