@@ -316,18 +316,6 @@ void RTS_CTS_init()
 	/* Turn off UART0 */
 	UART0_CR = 0x0;
 
-	/* NEW: set up UART clock for consistent divisor values
-	--> may not work with QEMU, but will work with real board */
-	// mBuf[0] = 9*4;
-	// mBuf[1] = MBOX_REQUEST;
-	// mBuf[2] = MBOX_TAG_SETCLKRATE; // set clock rate
-	// mBuf[3] = 12; // Value buffer size in bytes
-	// mBuf[4] = 0; // REQUEST CODE = 0
-	// mBuf[5] = 2; // clock id: UART clock
-	// mBuf[6] = 4000000;     // rate: 4Mhz
-	// mBuf[7] = 0;           // clear turbo
-	// mBuf[8] = MBOX_TAG_LAST;
-	// mbox_call(ADDR(mBuf), MBOX_CH_PROP);
 
 	/* Setup GPIO pins 14 and 15 */
 

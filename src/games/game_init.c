@@ -85,38 +85,42 @@ void game_start_difficulty()
     while (1)
     {
         char key = getUart();
-        if (key == '[')
-        {
-            char key2 = getUart();
-            if ((key2 == 'A'))
+        if (key == '-') {  // '-' key for up
+            // 'up' button
+            int previous_selection = current_selection;
+            button_set_state(buttons[current_selection], BUTTON_NORMAL);
+            current_selection--;
+            if (current_selection < 0)
             {
-                // 'up arrow' button
-                int previous_selection = current_selection;
-                button_set_state(buttons[current_selection], BUTTON_NORMAL);
-                current_selection--;
-                if (current_selection < 0)
-                {
-                    current_selection = 2;
-                }
-
-                button_set_state(buttons[current_selection], BUTTON_SELECTED);
-                button_draw_selection(buttons, current_selection, previous_selection, 2, 70, 10);
+                current_selection = 2;
             }
-            else if ((key2 == 'B'))
+
+            button_set_state(buttons[current_selection], BUTTON_SELECTED);
+            button_draw_selection(buttons, current_selection, previous_selection, 2, 70, 10);
+            
+            // Debug output
+            uart_puts("Moving up to selection: ");
+            uart_dec(current_selection);
+            uart_puts("\n");
+        }
+        else if (key == '=') {  // '=' key for down
+            // 'down' button
+            int previous_selection = current_selection;
+            button_set_state(buttons[current_selection], BUTTON_NORMAL);
+
+            current_selection++;
+            if (current_selection > 2)
             {
-                // 'down arrow' button
-                int previous_selection = current_selection;
-                button_set_state(buttons[current_selection], BUTTON_NORMAL);
-
-                current_selection++;
-                if (current_selection > 2)
-                {
-                    current_selection = 0;
-                }
-
-                button_set_state(buttons[current_selection], BUTTON_SELECTED);
-                button_draw_selection(buttons, current_selection, previous_selection, 2, 70, 10);
+                current_selection = 0;
             }
+
+            button_set_state(buttons[current_selection], BUTTON_SELECTED);
+            button_draw_selection(buttons, current_selection, previous_selection, 2, 70, 10);
+            
+            // Debug output
+            uart_puts("Moving down to selection: ");
+            uart_dec(current_selection);
+            uart_puts("\n");
         }
 
         if (key == '\n')
@@ -167,38 +171,42 @@ void game_menu()
     while (1)
     {
         char key = getUart();
-        if (key == '[')
-        {
-            char key2 = getUart();
-            if ((key2 == 'A'))
+        if (key == '-') {  // '-' key for up
+            // 'up' button
+            int previous_selection = current_selection;
+            button_set_state(buttons[current_selection], BUTTON_NORMAL);
+            current_selection--;
+            if (current_selection < 0)
             {
-                // 'up arrow' button
-                int previous_selection = current_selection;
-                button_set_state(buttons[current_selection], BUTTON_NORMAL);
-                current_selection--;
-                if (current_selection < 0)
-                {
-                    current_selection = 1;
-                }
-
-                button_set_state(buttons[current_selection], BUTTON_SELECTED);
-                button_draw_selection(buttons, current_selection, previous_selection, 2, 70, 10);
+                current_selection = 1;
             }
-            else if ((key2 == 'B'))
+
+            button_set_state(buttons[current_selection], BUTTON_SELECTED);
+            button_draw_selection(buttons, current_selection, previous_selection, 2, 70, 10);
+            
+            // Debug output
+            uart_puts("Moving up to selection: ");
+            uart_dec(current_selection);
+            uart_puts("\n");
+        }
+        else if (key == '=') {  // '=' key for down
+            // 'down' button
+            int previous_selection = current_selection;
+            button_set_state(buttons[current_selection], BUTTON_NORMAL);
+
+            current_selection++;
+            if (current_selection > 1)
             {
-                // 'down arrow' button
-                int previous_selection = current_selection;
-                button_set_state(buttons[current_selection], BUTTON_NORMAL);
-
-                current_selection++;
-                if (current_selection > 1)
-                {
-                    current_selection = 0;
-                }
-
-                button_set_state(buttons[current_selection], BUTTON_SELECTED);
-                button_draw_selection(buttons, current_selection, previous_selection, 2, 70, 10);
+                current_selection = 0;
             }
+
+            button_set_state(buttons[current_selection], BUTTON_SELECTED);
+            button_draw_selection(buttons, current_selection, previous_selection, 2, 70, 10);
+            
+            // Debug output
+            uart_puts("Moving down to selection: ");
+            uart_dec(current_selection);
+            uart_puts("\n");
         }
 
         if (key == '\n')
@@ -494,10 +502,16 @@ int handle_user_input(int *frame_counter)
     if (key == 'Q' || key == 'q')
     {
         // Reset selection state
+        int x,y;
+        grid_to_pixel(select_state.col, select_state.row, &x, &y);
         select_state.selected_card = -1;
         select_state.current_plant = -1;
         select_state.mode = 0;
-
+        if(check_occupied()){
+            clear_plant_from_background(select_state.col, select_state.row, 0, 0);
+        }
+        
+        restore_background_area(x, y, select_state.col, select_state.row, 0);
         // Clear selection border
         draw_selection_border(-1);
 
@@ -518,6 +532,7 @@ int handle_user_input(int *frame_counter)
 
 void handle_remove_plant()
 {
+    draw_cursor();
     select_state.selected_card = 9;
     select_state.mode = 2;
     handle_plant_selection(9, 0);
@@ -549,15 +564,15 @@ void handle_plant_selection(int plant_type, int frame_counter)
         int x, y;
         int taken = check_clear() ? 1 : 0;
         clear_plant_from_background(prev_col, prev_row, 0, taken);
-        // clear_plant_from_background(select_state.col, select_state.row, 0, taken);
         if (check_occupied())
         {
             clear_plant_from_background(select_state.col, select_state.row, 0, taken);
         }
+        
         place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
         grid_to_pixel(select_state.col, select_state.row, &x, &y);
         restore_background_area(x, y, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0);
-        // draw_plant(SHOVEL, select_state.col, select_state.row);
+        draw_cursor();
         return;
     }
 
@@ -568,7 +583,6 @@ void handle_plant_selection(int plant_type, int frame_counter)
         grid_to_pixel(select_state.col, select_state.row, &x, &y);
         int taken = check_clear() ? 1 : 0;
         clear_plant_from_background(prev_col, prev_row, 0, taken);
-        // clear_plant_from_background(select_state.col, select_state.row, 0, taken);
         place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
         restore_background_area(x, y, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0);
 
@@ -632,14 +646,17 @@ void handle_arrow_keys()
     {
         int taken = check_clear() ? 1 : 0;
 
-        clear_plant_from_background(prev_col, prev_row, 0, taken);
-        place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
-
         int x_old, y_old, x_new, y_new;
-
-        // Get pixel coordinates for old and new positions
         grid_to_pixel(old_col, old_row, &x_old, &y_old);
         grid_to_pixel(select_state.col, select_state.row, &x_new, &y_new);
+        clear_plant_from_background(prev_col, prev_row, 0, taken);
+        restore_background_area(x_old, y_old, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0);
+        place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
+
+        // int x_old, y_old, x_new, y_new;
+
+        // Get pixel coordinates for old and new positions
+       
 
         // Restore old cell background first
         restore_background_area(x_old, y_old, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 3);
@@ -654,7 +671,7 @@ void handle_arrow_keys()
         grid_to_pixel(select_state.col, select_state.row, &x_new, &y_new);
 
         // Restore old cell background first
-        restore_background_area(x_old, y_old, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 3);
+        restore_background_area(x_old, y_old, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0);
 
         // Automatically collect sun at the new position
         if (collect_sun_at_position(select_state.col, select_state.row))
@@ -674,6 +691,7 @@ void handle_arrow_keys()
 
             clear_plant_from_background(prev_col, prev_row, 0, taken);
             place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
+            draw_cursor();
         }
         else
         {
@@ -979,38 +997,30 @@ void victory_screen()
     while (1)
     {
         char key = getUart();
-        if (key == '[')
-        {
-            char key2 = getUart();
-            if ((key2 == 'D'))
+        if (key == '-') {  // '-' key for left
+            int previous_selection = current_selection;
+            button_set_state(buttons[current_selection], BUTTON_NORMAL);
+            current_selection--;
+            if (current_selection < 0)
             {
-                // 'left arrow' button
-                int previous_selection = current_selection;
-                button_set_state(buttons[current_selection], BUTTON_NORMAL);
-                current_selection--;
-                if (current_selection < 0)
-                {
-                    current_selection = 1;
-                }
-
-                button_set_state(buttons[current_selection], BUTTON_SELECTED);
-                button_draw_selection(buttons, current_selection, previous_selection, 4, 70, 10);
+                current_selection = 1;
             }
-            else if ((key2 == 'C'))
+
+            button_set_state(buttons[current_selection], BUTTON_SELECTED);
+            button_draw_selection(buttons, current_selection, previous_selection, 4, 70, 10);
+        }
+        else if (key == '=') {  // '=' key for right
+            int previous_selection = current_selection;
+            button_set_state(buttons[current_selection], BUTTON_NORMAL);
+
+            current_selection++;
+            if (current_selection > 1)
             {
-                // 'right arrow' button
-                int previous_selection = current_selection;
-                button_set_state(buttons[current_selection], BUTTON_NORMAL);
-
-                current_selection++;
-                if (current_selection > 1)
-                {
-                    current_selection = 0;
-                }
-
-                button_set_state(buttons[current_selection], BUTTON_SELECTED);
-                button_draw_selection(buttons, current_selection, previous_selection, 4, 70, 10);
+                current_selection = 0;
             }
+
+            button_set_state(buttons[current_selection], BUTTON_SELECTED);
+            button_draw_selection(buttons, current_selection, previous_selection, 4, 70, 10);
         }
 
         if (key == '\n')
@@ -1038,7 +1048,7 @@ void game_over()
 
     Button quit, retry;
     button_init(&quit, 100, 450, BUTTON_WIDTH, BUTTON_HEIGHT, HOME);
-    button_init(&retry, 470, 450, BUTTON_WIDTH, BUTTON_HEIGHT, QUIT);
+    button_init(&retry, 470, 450, BUTTON_WIDTH, BUTTON_HEIGHT, RETRY);
 
     Button *buttons[] = {&quit, &retry};
     int current_selection = 0;
@@ -1050,37 +1060,30 @@ void game_over()
     while (1)
     {
         char key = getUart();
-        if (key == '[')
-        {
-            char key2 = getUart();
-            if ((key2 == 'C'))
+        if (key == '-') {  // '-' key for left
+            int previous_selection = current_selection;
+            button_set_state(buttons[current_selection], BUTTON_NORMAL);
+            current_selection--;
+            if (current_selection < 0)
             {
-                int previous_selection = current_selection;
-                button_set_state(buttons[current_selection], BUTTON_NORMAL);
-                current_selection--;
-                if (current_selection < 0)
-                {
-                    current_selection = 1;
-                }
-
-                button_set_state(buttons[current_selection], BUTTON_SELECTED);
-                button_draw_selection(buttons, current_selection, previous_selection, 0, 60, 5);
+                current_selection = 1;
             }
-            else if ((key2 == 'D'))
+
+            button_set_state(buttons[current_selection], BUTTON_SELECTED);
+            button_draw_selection(buttons, current_selection, previous_selection, 0, 60, 5);
+        }
+        else if (key == '=') {  // '=' key for right
+            int previous_selection = current_selection;
+            button_set_state(buttons[current_selection], BUTTON_NORMAL);
+
+            current_selection++;
+            if (current_selection > 1)
             {
-                // 'down arrow' button
-                int previous_selection = current_selection;
-                button_set_state(buttons[current_selection], BUTTON_NORMAL);
-
-                current_selection++;
-                if (current_selection > 1)
-                {
-                    current_selection = 0;
-                }
-
-                button_set_state(buttons[current_selection], BUTTON_SELECTED);
-                button_draw_selection(buttons, current_selection, previous_selection, 0, 60, 5);
+                current_selection = 0;
             }
+
+            button_set_state(buttons[current_selection], BUTTON_SELECTED);
+            button_draw_selection(buttons, current_selection, previous_selection, 0, 60, 5);
         }
 
         if (key == '\n')
@@ -1118,6 +1121,7 @@ void draw_cursor()
         int taken = check_clear() ? 1 : 0;
         clear_plant_from_background(prev_col, prev_row, 0, taken);
         place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
+        draw_image(cursor, x + 5, y + 7, CURSOR_WIDTH, CURSOR_HEIGHT, 0);
     }
     // If shovel is selected
     else if (select_state.mode == 2)
@@ -1129,6 +1133,9 @@ void draw_cursor()
         clear_plant_from_background(prev_col, prev_row, 0, taken);
         place_plant_on_background(SHOVEL, select_state.col, select_state.row, simulated_background);
         restore_background_area(x, y, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0);
+        if(!check_occupied()){
+            draw_image(SHOVEL_CURSOR, x + 5, y + 7, CURSOR_WIDTH +3, CURSOR_HEIGHT +3, 0);
+        }
     }
     // Otherwise draw normal cursor
     else
