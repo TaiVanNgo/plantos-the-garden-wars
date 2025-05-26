@@ -1130,7 +1130,7 @@ void draw_cursor()
         clear_plant_from_background(prev_col, prev_row, 0, taken);
         place_plant_on_background(SHOVEL, select_state.col, select_state.row, simulated_background);
         restore_background_area(x, y, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0);
-        draw_image(cursor, x + 5, y + 7, CURSOR_WIDTH, CURSOR_HEIGHT, 0);
+        draw_image(SHOVEL_CURSOR, x + 5, y + 7, CURSOR_WIDTH +3, CURSOR_HEIGHT +3, 0);
     }
     // Otherwise draw normal cursor
     else
