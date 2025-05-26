@@ -11,6 +11,7 @@
 #define BUTTON_HEIGHT 85
 
 #include "../assets/button/button_sprite.h"
+#include "framebf.h"
 
 // Button structure
 typedef struct

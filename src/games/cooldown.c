@@ -3,7 +3,6 @@
 
 // Track cooldowns for each plant type
 int plant_cooldowns[10] = {0};
-static int display_timer = 0;  // Timer for periodic display
 
 // Get cooldown time for a plant type (in frames)
 int get_plant_cooldown(int plant_type) {

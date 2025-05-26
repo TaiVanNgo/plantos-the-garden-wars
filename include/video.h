@@ -1,10 +1,10 @@
 #ifndef VIDEO_H
 #define VIDEO_H
 
-#include "framebf.h"
-#include "utils.h"
-
 #include "../assets/backgrounds/background.h"
+#include "framebf.h"
+#include "frames.h"
+#include "utils.h"
 
 #define FRAME_WIDTH 640
 #define FRAME_HEIGHT 360
@@ -26,4 +26,4 @@ void video_init(Video *video);
 void play_video(Video *video, int pos_x, int pos_y, int max_frames);
 void wipe_transition();
 void video_init(Video *video);
-#endif // VIDEO_H
+#endif  // VIDEO_H
