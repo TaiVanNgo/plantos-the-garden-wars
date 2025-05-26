@@ -775,8 +775,6 @@ void handle_enter_key(int frame_counter)
     // Plant placement logic
     if (select_state.mode == 0 || select_state.mode == 1)
     {
-        if (select_state.mode == 0)
-        {
             // Deduct the sun cost
             game.sun_count -= plant_cost;
             draw_sun_count(game.sun_count);
@@ -825,54 +823,8 @@ void handle_enter_key(int frame_counter)
 
             // clear selection border
             draw_selection_border(-1);
-        }
-        else if (select_state.mode == 1)
-        {
-            // Deduct the sun cost
-            game.sun_count -= plant_cost;
-            draw_sun_count(game.sun_count);
 
-            // Start cooldown when plant is placed
-            if (select_state.current_plant >= 1 && select_state.current_plant <= 5)
-            {
-                start_plant_cooldown(select_state.current_plant);
-            }
-
-            place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
-            place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, tmp);
-
-            // Create and place the plant in one step
-            Plant new_plant = create_plant(select_state.current_plant, select_state.col, select_state.row);
-            plant_grid[select_state.row][select_state.col] = new_plant;
-
-            // Register plant with bullet system if it's a shooting plant
-            if (select_state.current_plant == PLANT_PEASHOOTER ||
-                select_state.current_plant == PLANT_FROZEN_PEASHOOTER)
-            {
-                unsigned long current_counter;
-                asm volatile("mrs %0, cntpct_el0" : "=r"(current_counter));
-                unsigned long freq;
-                asm volatile("mrs %0, cntfrq_el0" : "=r"(freq));
-                unsigned long current_time_ms = current_counter * 1000 / freq;
-                bullet_spawn_plant(select_state.col, select_state.row, current_time_ms, select_state.current_plant);
-            }
-            else if (select_state.current_plant == PLANT_CHILLIES)
-            {
-                chillies_detonate(select_state.row, frame_counter);
-                plant_grid[select_state.row][select_state.col].type = 255;
-                clear_plant_from_background(select_state.col, select_state.row, 0, 0);
-                reset_tmp_region_from_garden(select_state.col, select_state.row);
-            }
-
-            select_state.mode = 0;
-            select_state.selected_card = -1;
-            select_state.current_plant = -1;
-
-            draw_selection_border(-1);
-
-            // Draw cursor at the new position
             draw_cursor();
-        }
     }
 }
 
