@@ -1,9 +1,6 @@
-#include "../../include/plants.h"
-#include "../../include/grid.h"
-#include "../../include/zombies.h"
-#include "../../include/game_init.h"
+#include "plants.h"
+#include "game_init.h"
 
-// Add static counter array at the top of the file
 static int flame_counters[GRID_ROWS] = {0};
 int flame_start_frames[GRID_ROWS] = {0};
 int flame_active[GRID_ROWS] = {0};
@@ -17,7 +14,6 @@ const Plant default_sunflower = {
     .row = 0,
     .attack_damage = 0, // Sunflowers don't attack
     .cost = 50,
-    .attack_speed = 0, // Sunflowers don't attack
 };
 
 // Default Peashooter
@@ -29,7 +25,6 @@ const Plant default_peashooter = {
     .row = 0,
     .attack_damage = 30,
     .cost = 100,
-    .attack_speed = 5, // Fires 5 peas per time unit
 };
 
 // Default Frozen Peashooter
@@ -41,7 +36,6 @@ const Plant default_frozen_peashooter = {
     .row = 0,
     .attack_damage = 20, // Slightly less damage than regular peashooter
     .cost = 175,         // More expensive due to freezing ability
-    .attack_speed = 4,   // Fires 4 peas per time unit
 };
 
 // Default Walnut
@@ -53,7 +47,6 @@ const Plant default_walnut = {
     .row = 0,
     .attack_damage = 0, // Walnuts don't attack
     .cost = 50,
-    .attack_speed = 0, // Walnuts don't attack
 };
 
 // Default Chillies
@@ -65,7 +58,6 @@ const Plant default_chillies = {
     .row = 0,
     .attack_damage = 255, // High damage as it's an explosive plant
     .cost = 125,
-    .attack_speed = 1,
 };
 
 // Function to create a new plant of the specified type

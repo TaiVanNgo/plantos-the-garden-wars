@@ -1,11 +1,12 @@
 #ifndef PLANTS_H
 #define PLANTS_H
 
-#include "../assets/sprites/plants/plants_sprites.h"
 #include "../assets/backgrounds/garden.h"
-#include "grid.h"
-#include "framebf.h"
+#include "../assets/sprites/plants/plants_sprites.h"
 #include "buttons.h"
+#include "framebf.h"
+#include "grid.h"
+#include "zombies.h"
 
 // Define plant types
 #define PLANT_TYPE_SUNFLOWER 1
@@ -19,11 +20,10 @@
 #define SHOVEL 9
 
 // Plant dimensions
-#define PLANT_WIDTH 70  // Default plant sprite width
-#define PLANT_HEIGHT 70 // Default plant sprite height
+#define PLANT_WIDTH 70   // Default plant sprite width
+#define PLANT_HEIGHT 70  // Default plant sprite height
 
-enum PlantType
-{
+enum PlantType {
     PLANT_SUNFLOWER = 1,
     PLANT_PEASHOOTER = 2,
     PLANT_FROZEN_PEASHOOTER = 3,
@@ -33,14 +33,13 @@ enum PlantType
 
 typedef struct
 {
-    uint8_t type;          // Plant type (using enum PlantType)
-    uint8_t health;        // Current health points
-    uint8_t max_health;    // Maximum health points
-    uint8_t col;           // Column position on the game grid (0-based)
-    uint8_t row;           // Row position on the game grid (0-based)
-    uint8_t attack_damage; // Damage dealt to zombies
-    uint8_t cost;          // Resource cost to plant
-    uint8_t attack_speed;  // Attacks per time unit
+    uint8_t type;           // Plant type (using enum PlantType)
+    uint8_t health;         // Current health points
+    uint8_t max_health;     // Maximum health points
+    uint8_t col;            // Column position on the game grid (0-based)
+    uint8_t row;            // Row position on the game grid (0-based)
+    uint8_t attack_damage;  // Damage dealt to zombies
+    uint8_t cost;           // Resource cost to plant
 } Plant;
 
 extern Plant plant_grid[GRID_ROWS][GRID_COLS];
