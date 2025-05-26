@@ -12,6 +12,7 @@
  */
 
 #include "../../include/cmd.h"
+#include "cmd_utils.c"
 
 void cmd_video(char *args);
 void cmd_team(char *args);
