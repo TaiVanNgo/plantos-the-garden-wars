@@ -518,6 +518,7 @@ int handle_user_input(int *frame_counter)
 
 void handle_remove_plant()
 {
+    draw_cursor();
     select_state.selected_card = 9;
     select_state.mode = 2;
     handle_plant_selection(9, 0);
@@ -554,9 +555,11 @@ void handle_plant_selection(int plant_type, int frame_counter)
         {
             clear_plant_from_background(select_state.col, select_state.row, 0, taken);
         }
+        
         place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
         grid_to_pixel(select_state.col, select_state.row, &x, &y);
         restore_background_area(x, y, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0);
+        draw_cursor();
         // draw_plant(SHOVEL, select_state.col, select_state.row);
         return;
     }
@@ -1118,6 +1121,7 @@ void draw_cursor()
         int taken = check_clear() ? 1 : 0;
         clear_plant_from_background(prev_col, prev_row, 0, taken);
         place_plant_on_background(select_state.current_plant, select_state.col, select_state.row, simulated_background);
+        draw_image(cursor, x + 5, y + 7, CURSOR_WIDTH, CURSOR_HEIGHT, 0);
     }
     // If shovel is selected
     else if (select_state.mode == 2)
@@ -1129,6 +1133,8 @@ void draw_cursor()
         clear_plant_from_background(prev_col, prev_row, 0, taken);
         place_plant_on_background(SHOVEL, select_state.col, select_state.row, simulated_background);
         restore_background_area(x, y, GRID_COL_WIDTH, GRID_ROW_HEIGHT, 0);
+        // draw_cursor();
+        draw_image(cursor, x + 5, y + 7, CURSOR_WIDTH, CURSOR_HEIGHT, 0);
     }
     // Otherwise draw normal cursor
     else
