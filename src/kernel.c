@@ -78,7 +78,9 @@ void main()
     // Run CLI
     while (1)
     {
+        uart_puts("Press 'c' to play video again!\n");
         char c = uart_getc();
+        
         uart_sendc(c);
 
         if (c == 'c')
