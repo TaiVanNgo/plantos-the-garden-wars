@@ -15,7 +15,9 @@ static int warning_active = 0;           // Flag to track if warning is active
 static int warning_start_frame = 0;      // Frame when warning started
 static int WARNING_DURATION = 50;       // Duration in frames (about 1 second)
 
-
+static SunflowerTracker sunflower_trackers[GRID_ROWS * GRID_COLS];
+static int num_sunflowers = 0;
+static unsigned long start_time;
 
 // Initialize the sun system
 void sun_system_init(unsigned long start_time_ms)
@@ -241,7 +243,6 @@ void draw_sun_count_enhanced(int count, int color, int size, int force_update) {
     }
 }
 
-// Make sure the warning system doesn't trigger during selection
 void trigger_insufficient_sun_warning(int current_frame) {
     // Set warning state
     warning_active = 1;

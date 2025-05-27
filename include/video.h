@@ -26,4 +26,5 @@ void video_init(Video *video);
 void play_video(Video *video, int pos_x, int pos_y, int max_frames);
 void wipe_transition();
 void video_init(Video *video);
+void display_team_members(int show_bg);
 #endif // VIDEO_H

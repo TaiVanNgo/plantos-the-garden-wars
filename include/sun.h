@@ -31,10 +31,6 @@ typedef struct
     int last_generation_frame;
 } SunflowerTracker;
 
-static SunflowerTracker sunflower_trackers[GRID_ROWS * GRID_COLS];
-static int num_sunflowers = 0;
-static unsigned long start_time;
-
 // Initialize the sun system
 void sun_system_init(unsigned long start_time_ms);
 
