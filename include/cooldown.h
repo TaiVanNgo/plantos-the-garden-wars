@@ -1,12 +1,12 @@
 #ifndef COOLDOWN_H
 #define COOLDOWN_H
 
-#include "../include/framebf.h"
-#include "../include/uart0.h"
-#include "../include/plants.h"
 #include "../assets/backgrounds/garden.h"
-#include "../include/zombies.h"
-#include "../include/utils.h"
+#include "framebf.h"
+#include "plants.h"
+#include "uart0.h"
+#include "utils.h"
+#include "zombies.h"
 
 // Cooldown functions
 void start_plant_cooldown(int plant_type);

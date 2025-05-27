@@ -8,27 +8,23 @@
  * @return Negative if s1 < s2, zero if s1 == s2, positive if s1 > s2.
  */
 
-void int_to_str(int num, char *str)
-{
+void int_to_str(int num, char *str) {
     int i = 0;
 
     // Handle the special case for 0
-    if (num == 0)
-    {
+    if (num == 0) {
         str[i++] = '0';
     }
 
-    // Handle the negative numbers 
-    if (num < 0)
-    {
+    // Handle the negative numbers
+    if (num < 0) {
         str[i++] = '-';
         num = -num;
     }
 
     // Convert each digit to string
     int start = i;
-    while (num > 0)
-    {
+    while (num > 0) {
         str[i++] = (num % 10) + '0';
         num /= 10;
     }
@@ -36,8 +32,7 @@ void int_to_str(int num, char *str)
     str[i] = '\0';
 
     int end = i - 1;
-    while (start < end)
-    {
+    while (start < end) {
         char temp = str[start];
         str[start] = str[end];
         str[end] = temp;
@@ -46,25 +41,21 @@ void int_to_str(int num, char *str)
     }
 }
 
-int strcmp(const char *s1, const char *s2)
-{
-    while (*s1 && (*s1 == *s2))
-    {
+int strcmp(const char *s1, const char *s2) {
+    while (*s1 && (*s1 == *s2)) {
         s1++;
         s2++;
     }
     return *(const unsigned char *)s1 - *(const unsigned char *)s2;
 }
 
-void delay_ms(unsigned int ms)
-{
+void delay_ms(unsigned int ms) {
     // Each iteration takes about 4 cycles
     // ARM CPU frequency is typically 1GHz = 1,000,000,000 cycles per second
     // So for 1ms we need 250,000 iterations (1,000,000,000 / (4 * 1000))
     unsigned int count = ms * 250000;
-    for (unsigned int i = 0; i < count; i++)
-    {
-        asm volatile("nop"); // No operation, prevents optimization
+    for (unsigned int i = 0; i < count; i++) {
+        asm volatile("nop");  // No operation, prevents optimization
     }
 }
 
@@ -74,8 +65,7 @@ void delay_ms(unsigned int ms)
  * @param str The string to convert
  * @return int The converted integer value, or -1 if invalid
  */
-int str_to_int(const char *str)
-{
+int str_to_int(const char *str) {
     int result = 0;
 
     // Handle null pointer
@@ -91,8 +81,7 @@ int str_to_int(const char *str)
         return -1;
 
     // Process each digit
-    while (*str >= '0' && *str <= '9')
-    {
+    while (*str >= '0' && *str <= '9') {
         // Check for overflow
         if (result > (__INT_MAX__ - (*str - '0')) / 10)
             return -1;
@@ -116,16 +105,13 @@ int str_to_int(const char *str)
  * @param n The maximum number of characters to compare.
  * @return int 0 if equal, non-zero otherwise.
  */
-int strncmp(const char *s1, const char *s2, unsigned int n)
-{
-    while (n && *s1 && (*s1 == *s2))
-    {
+int strncmp(const char *s1, const char *s2, unsigned int n) {
+    while (n && *s1 && (*s1 == *s2)) {
         ++s1;
         ++s2;
         --n;
     }
-    if (n == 0)
-    {
+    if (n == 0) {
         return 0;
     }
     return *(const unsigned char *)s1 - *(const unsigned char *)s2;
@@ -137,8 +123,7 @@ int strncmp(const char *s1, const char *s2, unsigned int n)
  * @param s The string.
  * @return unsigned int The number of characters in the string.
  */
-unsigned int strlen(const char *s)
-{
+unsigned int strlen(const char *s) {
     const char *p = s;
     while (*p)
         p++;
@@ -152,11 +137,9 @@ unsigned int strlen(const char *s)
  * @param src The source string.
  * @return char* The destination buffer.
  */
-char *strcpy(char *dest, const char *src)
-{
+char *strcpy(char *dest, const char *src) {
     char *d = dest;
-    while ((*d++ = *src++))
-        ;
+    while ((*d++ = *src++));
     return dest;
 }
 
@@ -168,8 +151,7 @@ char *strcpy(char *dest, const char *src)
  * @param n The maximum number of characters to copy.
  * @return char* The destination buffer.
  */
-char *strncpy(char *dest, const char *src, unsigned int n)
-{
+char *strncpy(char *dest, const char *src, unsigned int n) {
     unsigned int i;
 
     for (i = 0; i < n && src[i] != '\0'; i++)
@@ -187,10 +169,8 @@ char *strncpy(char *dest, const char *src, unsigned int n)
  * @param c The character to find.
  * @return char* Pointer to the first occurrence, or NULL if not found.
  */
-char *strchr(const char *s, int c)
-{
-    while (*s != (char)c)
-    {
+char *strchr(const char *s, int c) {
+    while (*s != (char)c) {
         if (!*s++)
             return NULL;
     }
@@ -206,8 +186,7 @@ char *strchr(const char *s, int c)
  * @param ... The arguments to format.
  * @return int The number of characters written.
  */
-int sprintf(char *str, const char *format, ...)
-{
+int sprintf(char *str, const char *format, ...) {
     va_list args;
     va_start(args, format);
 
@@ -215,84 +194,72 @@ int sprintf(char *str, const char *format, ...)
     int d_val;
     char *ptr = str;
 
-    for (const char *fp = format; *fp; fp++)
-    {
-        if (*fp != '%')
-        {
+    for (const char *fp = format; *fp; fp++) {
+        if (*fp != '%') {
             *ptr++ = *fp;
             continue;
         }
 
-        fp++; // Skip the %
+        fp++;  // Skip the %
 
-        switch (*fp)
-        {
-        case 's':
-            s_val = va_arg(args, char *);
-            while (*s_val)
-            {
-                *ptr++ = *s_val++;
-            }
-            break;
+        switch (*fp) {
+            case 's':
+                s_val = va_arg(args, char *);
+                while (*s_val) {
+                    *ptr++ = *s_val++;
+                }
+                break;
 
-        case 'd':
-            d_val = va_arg(args, int);
+            case 'd':
+                d_val = va_arg(args, int);
 
-            // Handle negative numbers
-            if (d_val < 0)
-            {
-                *ptr++ = '-';
-                d_val = -d_val;
-            }
-
-            // Convert integer to string
-            if (d_val == 0)
-            {
-                *ptr++ = '0';
-            }
-            else
-            {
-                // Find number of digits
-                int temp = d_val;
-                int num_digits = 0;
-                while (temp > 0)
-                {
-                    temp /= 10;
-                    num_digits++;
+                // Handle negative numbers
+                if (d_val < 0) {
+                    *ptr++ = '-';
+                    d_val = -d_val;
                 }
 
-                // Convert each digit
-                char digits[20]; // Max 20 digits for int
-                for (int i = num_digits - 1; i >= 0; i--)
-                {
-                    digits[i] = '0' + (d_val % 10);
-                    d_val /= 10;
-                }
+                // Convert integer to string
+                if (d_val == 0) {
+                    *ptr++ = '0';
+                } else {
+                    // Find number of digits
+                    int temp = d_val;
+                    int num_digits = 0;
+                    while (temp > 0) {
+                        temp /= 10;
+                        num_digits++;
+                    }
 
-                // Copy digits to output
-                for (int i = 0; i < num_digits; i++)
-                {
-                    *ptr++ = digits[i];
-                }
-            }
-            break;
+                    // Convert each digit
+                    char digits[20];  // Max 20 digits for int
+                    for (int i = num_digits - 1; i >= 0; i--) {
+                        digits[i] = '0' + (d_val % 10);
+                        d_val /= 10;
+                    }
 
-        default:
-            *ptr++ = *fp;
-            break;
+                    // Copy digits to output
+                    for (int i = 0; i < num_digits; i++) {
+                        *ptr++ = digits[i];
+                    }
+                }
+                break;
+
+            default:
+                *ptr++ = *fp;
+                break;
         }
     }
 
-    *ptr = '\0'; // Null-terminate the string
+    *ptr = '\0';  // Null-terminate the string
     va_end(args);
 
     return ptr - str;
 }
 
 /* Functions to delay, set/wait timer */
-void wait_msec(unsigned int msVal)
-{
-    register unsigned long f, t, r, expiredTime; // 64 bits
+void wait_msec(unsigned int msVal) {
+    register unsigned long f, t, r, expiredTime;  // 64 bits
     // Get the current counter frequency (Hz), 1Hz = 1 pulses/second
     asm volatile("mrs %0, cntfrq_el0" : "=r"(f));
     // Read the current counter value
@@ -301,39 +268,31 @@ void wait_msec(unsigned int msVal)
     /* Note: both expiredTime and counter value t are 64 bits,
     thus, it will still be correct when the counter is overflow */
     expiredTime = t + f * msVal / 1000;
-    do
-    {
+    do {
         asm volatile("mrs %0, cntpct_el0" : "=r"(r));
     } while (r < expiredTime);
 }
 
-void set_wait_timer(int set, unsigned int msVal)
-{
-    static unsigned long expiredTime = 0; // declare static to keep value
+void set_wait_timer(int set, unsigned int msVal) {
+    static unsigned long expiredTime = 0;  // declare static to keep value
     register unsigned long r, f, t;
-    if (set)
-    { /* SET TIMER */
+    if (set) { /* SET TIMER */
         // Get the current counter frequency (Hz)
         asm volatile("mrs %0, cntfrq_el0" : "=r"(f));
         // Read the current counter
         asm volatile("mrs %0, cntpct_el0" : "=r"(t));
         // Calculate expired time:
         expiredTime = t + f * msVal / 1000;
-    }
-    else
-    { /* WAIT FOR TIMER TO EXPIRE */
-        do
-        {
+    } else { /* WAIT FOR TIMER TO EXPIRE */
+        do {
             asm volatile("mrs %0, cntpct_el0" : "=r"(r));
         } while (r < expiredTime);
     }
 }
 
-void *memset(void *s, int c, unsigned long n)
-{
+void *memset(void *s, int c, unsigned long n) {
     unsigned char *p = s;
-    while (n--)
-    {
+    while (n--) {
         *p++ = (unsigned char)c;
     }
     return s;

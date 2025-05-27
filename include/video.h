@@ -1,10 +1,10 @@
 #ifndef VIDEO_H
 #define VIDEO_H
 
-#include "framebf.h"
-#include "utils.h"
-
 #include "../assets/backgrounds/background.h"
+#include "framebf.h"
+#include "frames.h"
+#include "utils.h"
 
 #define FRAME_WIDTH 640
 #define FRAME_HEIGHT 360

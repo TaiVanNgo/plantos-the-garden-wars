@@ -15,8 +15,7 @@
 #include "cmd.h"
 #include "cmd_utils.c"
 
-void cmd_video(char *args);
-void cmd_team(char *args);
+
 
 Command commands[] = {
     {"help", "Show help", "help [cmd] - Show help info", cmd_help},
@@ -463,4 +462,10 @@ void os_welcome() {
     }
 
     uart_puts("PlantOS Loaded!\n\n");
+    uart_puts("Team members:\n");
+    uart_puts("Huynh Thai Duong - s39878955\n");
+    uart_puts("Ngo Van Tai - s3974892\n");
+    uart_puts("Huynh Tan Phat - s3929218\n");
+    uart_puts("Nguyen Pham Anh Thu - s3926793\n");
 }
+

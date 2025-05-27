@@ -114,7 +114,7 @@ void register_zombie_on_row(int row, int active) {
         return;
     if (active) {
         zombies_on_row[row]++;
-        uart_puts("Zombie added to row ");
+        uart_puts("[Zombie] Zombie added to row ");
         uart_dec(row);
         uart_puts(", count: ");
         uart_dec(zombies_on_row[row]);
@@ -122,7 +122,7 @@ void register_zombie_on_row(int row, int active) {
     } else {
         if (zombies_on_row[row] > 0) {
             zombies_on_row[row]--;
-            uart_puts("Zombie removed from row ");
+            uart_puts("[Zombie] Zombie removed from row ");
             uart_dec(row);
             uart_puts(", count: ");
             uart_dec(zombies_on_row[row]);

@@ -1,16 +1,16 @@
-#include "../include/uart0.h"
-#include "../include/uart1.h"
-#include "../include/mbox.h"
-#include "../include/framebf.h"
-#include "../include/cmd.h"
-#include "../include/video.h"
-#include "../include/utils.h"
-#include "../include/zombies.h"
-#include "../include/plants.h"
-#include "../include/bullet.h"
-#include "../include/game_init.h"
 #include "../assets/backgrounds/background.h"
 #include "../assets/backgrounds/garden.h"
+#include "../include/bullet.h"
+#include "../include/cmd.h"
+#include "../include/framebf.h"
+#include "../include/game_init.h"
+#include "../include/mbox.h"
+#include "../include/plants.h"
+#include "../include/uart0.h"
+#include "../include/uart1.h"
+#include "../include/utils.h"
+#include "../include/video.h"
+#include "../include/zombies.h"
 
 #if defined(ALL_INIT)
 void main()
@@ -44,12 +44,10 @@ void main()
 {
     // Initialize UART for CLI
     uart_init();
-
-    // Display welcome message
-    os_welcome();
-
     // Initialize framebuffer
     framebf_init();
+    // Display welcome message
+    os_welcome();
 
     // Initialize game components
     // game_init();
@@ -80,7 +78,9 @@ void main()
     // Run CLI
     while (1)
     {
+        uart_puts("Press 'c' to play video again!\n");
         char c = uart_getc();
+        
         uart_sendc(c);
 
         if (c == 'c')
@@ -102,30 +102,9 @@ void main()
         uart_dec(c);
     }
 }
-#elif defined(PLANT_INIT)
-void main()
-{
-    uart_init();
-    framebf_init();
-
-    // Draw the garden background
-    draw_image(GARDEN, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 0);
-
-    draw_grid();
-
-    fill_plant_grid();
-
-    // Main loop
-    while (1)
-    {
-        char c = getUart();
-        uart_sendc(c);
-    }
-}
 #elif defined(TEAM_INIT)
 void main()
 {
-
     uart_init();
     framebf_init();
     wipe_transition();
