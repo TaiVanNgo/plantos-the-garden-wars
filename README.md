@@ -11,7 +11,7 @@
 This project was completed as part of the EEET2490 Embedded Systems course and demonstrates end-to-end system design — from kernel development to user interaction through real-time gameplay.
 
 > 🧩 100% bare-metal C code  
-> 🎮 Designed for real hardware and QEMU
+> 🎮 Designed for real hardware and QEMU  
 > 🌿 From bootloader to bullets — all in our control
 
 📄 Licensed under the [MIT License](LICENSE)
