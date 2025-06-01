@@ -129,6 +129,26 @@ After building, flash the `kernel.img` in the `build/directory` to your SD card 
 
 - Collaboration in version control and source management
 
+### 📡 UART Communication Setup
+
+To interact with the OS via CLI, connect your Raspberry Pi's UART pins to your host PC using a USB-to-TTL serial adapter. Refer to the pin mapping below:
+
+- **TXD (GPIO 14, Pin 8)** → Connect to RXD on USB-Serial adapter  
+- **RXD (GPIO 15, Pin 10)** → Connect to TXD on USB-Serial adapter  
+- **GND (Pin 6)** → Connect to GND on USB-Serial adapter  
+
+![UART Pins](images/schematic.jpg)
+
+**Serial Configuration:**
+
+- Baudrate: `115200`
+- Data Bits: `8`
+- Parity: `None`
+- Stop Bits: `1`
+- Flow Control: `None`
+
+Use any serial monitor (e.g., `minicom`, `PuTTY`, or `screen`) to communicate with the CLI once the OS boots.
+
 ## 🛠️ Tools Used
 
 We utilized a variety of tools to support development, media processing, and system building:
@@ -143,30 +163,19 @@ We utilized a variety of tools to support development, media processing, and sys
 
 ![Game State Chart](images/game-state-chart.png)
 
-
-
 ## 📷 Screenshots
 
-<div align="center">
+| ![PlantOS Welcome](images/plantos.png) | ![Main Menu](images/main-screen.png) |
+|:--------------------------------------:|:------------------------------------:|
+| ![Gameplay](images/game-play.png)      | ![Game Over](images/lose-screen.png) |
+| ![Victory](images/victory-screen.png)  |                                     |
+| ![Plant Assets](images/plant-assets.png) | ![Zombie Assets](images/zombies-assets.png) |
 
-<table>
-  <tr>
-    <td><img src="images/plantos.png" width="600px" alt="PlantOS Welcome"/></td>
-    <td><img src="images/main-screen.png" width="600px" alt="Main Menu"/></td>
-  </tr>
-  <tr>
-    <td><img src="images/game-play.png" width="600px" alt="Gameplay"/></td>
-    <td><img src="images/lose-screen.png" width="600px" alt="Game Over"/></td>
-  </tr>
-  <tr>
-    <td><img src="images/victory-screen.png" width="600px" alt="Victory"/></td>
-  </tr>
-  <tr>
-    <td><img src="images/plant-assets.png" width="600px" alt="Plant Assets"/></td>
-    <td><img src="images/zombies-assets.png" width="600px" alt="Zombie Assets"/></td>
-  </tr>
-</table>
-</div>
+## 🎥 Demo Video
+
+Watch the full demo of **PlantOS + The Garden Wars** in action:
+
+[![Watch the demo](https://img.youtube.com/vi/r9GJwLXUIRY/hqdefault.jpg)](https://youtu.be/r9GJwLXUIRY)
 
 ## 👥 Contributors
 
